@@ -16,7 +16,15 @@ function mockClient() {
     },
     getIssue: (...args) => {
       calls.push({ method: 'getIssue', args })
-      return Promise.resolve({ ok: true, data: { number: 3, title: 'Test' } })
+      return Promise.resolve({
+        ok: true,
+        data: {
+          number: 3,
+          title: 'Test',
+          body: 'issue body',
+          html_url: 'https://gitea.example.com/acme/app/issues/3',
+        },
+      })
     },
     commentIssue: (...args) => {
       calls.push({ method: 'commentIssue', args })
@@ -44,7 +52,12 @@ function mockClient() {
     },
     searchRepos: (...args) => {
       calls.push({ method: 'searchRepos', args })
-      return Promise.resolve({ ok: true, data: [{ name: 'app', extra: 'ignored' }] })
+      return Promise.resolve({
+        ok: true,
+        data: {
+          data: [{ name: 'app', full_name: 'acme/app', html_url: 'https://gitea.example.com/acme/app' }],
+        },
+      })
     },
   }
   return client
@@ -101,21 +114,34 @@ test('formatToolResult returns text block containing #3', () => {
   assert.match(rendered[0].text, /#3/)
 })
 
-test('gitea_repo_search does not require owner/repo', async () => {
+test('gitea_repo_search unwraps Gitea wrapped data array', async () => {
   const client = mockClient()
   const deps = baseDeps(client)
   const result = await runHandler('gitea_repo_search', { q: 'app' }, deps)
   assert.equal(result.ok, true)
   assert.equal(client.calls[0].method, 'searchRepos')
   assert.ok(Array.isArray(result.data))
+  assert.equal(result.data.length, 1)
+  assert.equal(result.data[0].name, 'app')
+  assert.equal(result.data[0].full_name, 'acme/app')
+  assert.equal(result.data[0].html_url, 'https://gitea.example.com/acme/app')
 })
 
-test('gitea_issue_list returns slim array data for schema validation', async () => {
+test('gitea_issue_get keeps body and html_url in slim record', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_issue_get', { number: 3, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.body, 'issue body')
+  assert.equal(result.data.html_url, 'https://gitea.example.com/acme/app/issues/3')
+})
+
+test('gitea_issue_list keeps body in slim array items', async () => {
   const client = mockClient()
   const deps = baseDeps(client)
   const result = await runHandler('gitea_issue_list', { owner: 'acme', repo: 'app' }, deps)
   assert.equal(result.ok, true)
   assert.ok(Array.isArray(result.data))
   assert.equal(result.data[0].number, 2)
-  assert.equal('body' in result.data[0], false)
+  assert.equal(result.data[0].body, 'x')
 })
