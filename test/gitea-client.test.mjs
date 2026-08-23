@@ -106,3 +106,42 @@ test('network error returns {ok:false, status:0}', async () => {
   assert.equal(result.status, 0)
   assert.match(result.error, /network down/)
 })
+
+test('malformed baseUrl without scheme returns {ok:false} without throwing', async () => {
+  const fetchImpl = async () => {
+    throw new Error('fetch should not be called')
+  }
+
+  const client = new GiteaClient({
+    baseUrl: 'gitea.example.com',
+    token: 't-test',
+    fetchImpl,
+  })
+
+  const result = await client.listIssues('acme', 'app')
+  assert.equal(result.ok, false)
+  assert.equal(result.status, 0)
+  assert.match(result.error, /Invalid URL/i)
+})
+
+test('owner with path traversal is encoded in API path', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ([]),
+    }
+  }
+
+  const client = new GiteaClient({
+    baseUrl: 'https://gitea.example.com',
+    token: 't-test',
+    fetchImpl,
+  })
+
+  await client.listIssues('../admin', 'app')
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/..%2Fadmin/app/issues')
+  assert.doesNotMatch(capturedUrl, /\/repos\/admin\//)
+})
