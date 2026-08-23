@@ -124,24 +124,36 @@ test('malformed baseUrl without scheme returns {ok:false} without throwing', asy
   assert.match(result.error, /Invalid URL/i)
 })
 
-test('owner with path traversal is encoded in API path', async () => {
-  let capturedUrl
-  const fetchImpl = async (url) => {
-    capturedUrl = url
-    return {
-      ok: true,
-      status: 200,
-      json: async () => ([]),
-    }
+test('owner with slash is rejected before fetch', async () => {
+  let called = false
+  const fetchImpl = async () => {
+    called = true
+    return { ok: true, status: 200, json: async () => ([]) }
   }
-
   const client = new GiteaClient({
     baseUrl: 'https://gitea.example.com',
     token: 't-test',
     fetchImpl,
   })
+  const result = await client.listIssues('../admin', 'app')
+  assert.equal(called, false)
+  assert.equal(result.ok, false)
+  assert.match(result.error, /invalid/)
+})
 
-  await client.listIssues('../admin', 'app')
-  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/..%2Fadmin/app/issues')
-  assert.doesNotMatch(capturedUrl, /\/repos\/admin\//)
+test('owner .. is rejected and does not escape repos prefix', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => ([]) }
+  }
+  const client = new GiteaClient({
+    baseUrl: 'https://gitea.example.com',
+    token: 't-test',
+    fetchImpl,
+  })
+  const result = await client.listIssues('..', 'admin')
+  assert.equal(result.ok, false)
+  assert.equal(capturedUrl, undefined)
+  assert.match(result.error, /invalid/)
 })
