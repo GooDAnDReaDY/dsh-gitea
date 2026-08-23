@@ -8,11 +8,11 @@ function mockClient() {
     calls,
     createIssue: (...args) => {
       calls.push({ method: 'createIssue', args })
-      return Promise.resolve({ ok: true, data: { number: 1, title: 'Bug' } })
+      return Promise.resolve({ ok: true, data: { number: 1, title: 'Bug', body: 'secret-body' } })
     },
     listIssues: (...args) => {
       calls.push({ method: 'listIssues', args })
-      return Promise.resolve({ ok: true, data: [] })
+      return Promise.resolve({ ok: true, data: [{ number: 2, title: 'Listed', body: 'x' }] })
     },
     getIssue: (...args) => {
       calls.push({ method: 'getIssue', args })
@@ -32,7 +32,7 @@ function mockClient() {
     },
     listPulls: (...args) => {
       calls.push({ method: 'listPulls', args })
-      return Promise.resolve({ ok: true, data: [] })
+      return Promise.resolve({ ok: true, data: [{ number: 6, title: 'Open PR' }] })
     },
     getPull: (...args) => {
       calls.push({ method: 'getPull', args })
@@ -44,7 +44,7 @@ function mockClient() {
     },
     searchRepos: (...args) => {
       calls.push({ method: 'searchRepos', args })
-      return Promise.resolve({ ok: true, data: [{ name: 'app' }] })
+      return Promise.resolve({ ok: true, data: [{ name: 'app', extra: 'ignored' }] })
     },
   }
   return client
@@ -107,4 +107,15 @@ test('gitea_repo_search does not require owner/repo', async () => {
   const result = await runHandler('gitea_repo_search', { q: 'app' }, deps)
   assert.equal(result.ok, true)
   assert.equal(client.calls[0].method, 'searchRepos')
+  assert.ok(Array.isArray(result.data))
+})
+
+test('gitea_issue_list returns slim array data for schema validation', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_issue_list', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.ok(Array.isArray(result.data))
+  assert.equal(result.data[0].number, 2)
+  assert.equal('body' in result.data[0], false)
 })
