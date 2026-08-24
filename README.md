@@ -22,8 +22,7 @@ Open **Settings -> Gitea**.
 
 - **Instance URL** -- e.g. `https://gitea.example.com` (no trailing slash required).
 - **Credential name** -- name of a DSH credential that already holds the API token (default `GITEA_TOKEN`). Type the name, never the token. The token stays in the credentials store and is never returned by Settings GET.
-- **Default owner** / **Default repo** -- optional fallback when a tool omits `owner`/`repo` (e.g. `owner` / `repo`). Optional fallback when a tool omits owner/repo.
-- **Working copy path** -- absolute path to a git checkout. Worktree tools and the chat-header git chip use this path.
+Tools take `owner`/`repo` on each call. If omitted, they infer from `git remote origin` of the current session workspace. Settings does not pick a repository.
 
 ### API token
 
@@ -54,7 +53,7 @@ Create a personal access token on your instance with **repository** and **issues
 
 **Worktree safety:** `gitea_worktree_remove` also requires `confirm: true`.
 
-The chat header shows branch, dirty state, the current worktree, a branch graph, and a capped diff when a working copy path is set.
+The chat header follows the session workspace: branch, dirty state, worktree, graph, and a capped diff. There is no repository picker in Settings.
 
 ## Identity
 
