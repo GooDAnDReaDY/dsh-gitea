@@ -50,6 +50,10 @@ function mockClient() {
       calls.push({ method: 'mergePull', args })
       return Promise.resolve({ ok: true, data: { merged: true } })
     },
+    getUser: (...args) => {
+      calls.push({ method: 'getUser', args })
+      return Promise.resolve({ ok: true, data: { login: 'alice', id: 1, html_url: 'https://gitea.example.com/alice' } })
+    },
     searchRepos: (...args) => {
       calls.push({ method: 'searchRepos', args })
       return Promise.resolve({
@@ -144,4 +148,43 @@ test('gitea_issue_list keeps body in slim array items', async () => {
   assert.ok(Array.isArray(result.data))
   assert.equal(result.data[0].number, 2)
   assert.equal(result.data[0].body, 'x')
+})
+
+
+test('gitea_whoami returns login without resolving a repo', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_whoami', {}, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.login, 'alice')
+  assert.equal(client.calls[0].method, 'getUser')
+})
+
+test('token-looking tokenEnv is rejected before HTTP', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client, { settings: { tokenEnv: '0000000000000000000000000000000000000000' } })
+  const result = await runHandler('gitea_issue_list', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, false)
+  assert.match(result.error, /token/i)
+  assert.equal(client.calls.length, 0)
+})
+
+test('formatToolResult whoami prints login', () => {
+  const rendered = formatToolResult('gitea_whoami', { ok: true, data: { login: 'alice' } })
+  assert.match(rendered[0].text, /alice/)
+})
+
+test('gitea_worktree_list uses injected execFile', async () => {
+  const client = mockClient()
+  const calls = []
+  const deps = baseDeps(client)
+  deps.execFile = async (bin, args, opts) => {
+    calls.push({ bin, args, cwd: opts.cwd })
+    return { stdout: 'worktree /tmp/example/app\nHEAD abc\nbranch refs/heads/main\n', stderr: '' }
+  }
+  const result = await runHandler('gitea_worktree_list', { path: '/tmp/example/app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data[0].path, '/tmp/example/app')
+  assert.equal(calls[0].cwd, '/tmp/example/app')
+  assert.equal(client.calls.length, 0)
 })

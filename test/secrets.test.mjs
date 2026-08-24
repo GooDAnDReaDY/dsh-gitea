@@ -1,6 +1,12 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { stripSecretsFromConfig, assertCredentialRef } from '../lib/secrets.js'
+import {
+  stripSecretsFromConfig,
+  assertCredentialRef,
+  isCredentialRefName,
+  looksLikeToken,
+  credentialRefStatus,
+} from '../lib/secrets.js'
 
 test('stripSecretsFromConfig keeps tokenEnv', () => {
   const out = stripSecretsFromConfig({
@@ -28,4 +34,27 @@ test('assertCredentialRef accepts valid env names', () => {
 
 test('assertCredentialRef rejects invalid names', () => {
   assert.throws(() => assertCredentialRef('bad-name'), /environment variable name/)
+})
+
+test('isCredentialRefName rejects hex tokens and names starting with a digit', () => {
+  assert.equal(isCredentialRefName('GITEA_TOKEN'), true)
+  assert.equal(isCredentialRefName('0000000000000000000000000000000000000000'), false)
+})
+
+test('looksLikeToken detects hex API tokens', () => {
+  assert.equal(looksLikeToken('0000000000000000000000000000000000000000'), true)
+  assert.equal(looksLikeToken('GITEA_TOKEN'), false)
+})
+
+test('credentialRefStatus explains token pasted as the name', () => {
+  const status = credentialRefStatus('0000000000000000000000000000000000000000')
+  assert.equal(status.ok, false)
+  assert.match(status.error, /token/i)
+  assert.match(status.error, /credential name/i)
+})
+
+test('credentialRefStatus accepts GITEA_TOKEN', () => {
+  const status = credentialRefStatus('GITEA_TOKEN')
+  assert.equal(status.ok, true)
+  assert.equal(status.name, 'GITEA_TOKEN')
 })
