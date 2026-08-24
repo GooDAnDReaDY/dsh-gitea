@@ -1,6 +1,6 @@
 # dsh-gitea
 
-Gitea and Forgejo issues, pull requests, and repository search for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness).
+Gitea and Forgejo issues, pull requests, repository search, git worktrees, and a git chip in the chat header for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness).
 
 Forgejo exposes the same REST API as Gitea (`/api/v1`); this plugin works with both.
 
@@ -21,8 +21,9 @@ Restart the Web UI, then hard-refresh the browser.
 Open **Settings -> Gitea**.
 
 - **Instance URL** -- e.g. `https://gitea.example.com` (no trailing slash required).
-- **Credential ref name** -- DSH credential that holds the API token (default `GITEA_TOKEN`). The token is stored in the credentials store, not in plugin settings, and is never returned by Settings GET.
-- **Default owner** / **Default repo** -- optional fallback when a tool omits `owner`/`repo` (e.g. `owner` / `repo`). Tools can also infer `owner`/`repo` from `git remote origin` in the session working directory.
+- **Credential name** -- name of a DSH credential that already holds the API token (default `GITEA_TOKEN`). Type the name, never the token. The token stays in the credentials store and is never returned by Settings GET.
+- **Default owner** / **Default repo** -- optional fallback when a tool omits `owner`/`repo` (e.g. `owner` / `repo`). Optional fallback when a tool omits owner/repo.
+- **Working copy path** -- absolute path to a git checkout. Worktree tools and the chat-header git chip use this path.
 
 ### API token
 
@@ -43,8 +44,17 @@ Create a personal access token on your instance with **repository** and **issues
 | `gitea_pr_comment` | Comment on a pull request |
 | `gitea_pr_merge` | Merge a pull request |
 | `gitea_repo_search` | Search repositories on the configured instance |
+| `gitea_whoami` | Show the user for the configured token |
+| `gitea_worktree_list` | List git worktrees |
+| `gitea_worktree_add` | Create a git worktree |
+| `gitea_worktree_use` | Make a worktree the current working copy |
+| `gitea_worktree_remove` | Remove a worktree (`confirm: true`) |
 
 **Merge safety:** `gitea_pr_merge` requires `confirm: true` (boolean). Calls without it are rejected.
+
+**Worktree safety:** `gitea_worktree_remove` also requires `confirm: true`.
+
+The chat header shows branch, dirty state, the current worktree, a branch graph, and a capped diff when a working copy path is set.
 
 ## Identity
 
