@@ -30,7 +30,8 @@ test('resolveRepoDir prefers args.path then settings.repoDir', () => {
   assert.equal(resolveRepoDir({ repoDir: '/tmp/a' }, { path: '/tmp/b' }).repoDir, '/tmp/b')
   assert.equal(resolveRepoDir({ repoDir: '/tmp/a' }, {}).repoDir, '/tmp/a')
   assert.equal(resolveRepoDir({}, {}).ok, false)
-  assert.match(resolveRepoDir({}, {}).error, /path|working copy|repoDir/i)
+  assert.match(resolveRepoDir({}, {}).error, /path|workspace/i)
+  assert.equal(resolveRepoDir({}, {}, '/tmp/session').repoDir, '/tmp/session')
 })
 
 test('runWorktreeAction list uses git worktree list --porcelain', async () => {
