@@ -18,10 +18,11 @@ Restart the Web UI, then hard-refresh the browser.
 
 ## Configure
 
-Open **Settings -> Gitea**.
+Open **Settings -> Plugins** and expand the **Gitea** card.
 
 - **Instance URL** -- e.g. `https://gitea.example.com` (no trailing slash required).
 - **Credential name** -- name of a DSH credential that already holds the API token (default `GITEA_TOKEN`). Type the name, never the token. The token stays in the credentials store and is never returned by Settings GET.
+
 Tools take `owner`/`repo` on each call. If omitted, they infer from `git remote origin` of the current session workspace. Settings does not pick a repository.
 
 ### API token
