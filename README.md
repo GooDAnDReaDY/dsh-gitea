@@ -53,7 +53,7 @@ Create a personal access token on your instance with **repository** and **issues
 
 **Worktree safety:** `gitea_worktree_remove` also requires `confirm: true`.
 
-The chat header follows this chat: the session workspace if present, otherwise the git folder from  /  in the same session. There is no repository picker in Settings.
+The chat header follows this chat: the session workspace if present, otherwise the git folder from worktree add/use in the same session. There is no repository picker in Settings.
 
 ## Identity
 
