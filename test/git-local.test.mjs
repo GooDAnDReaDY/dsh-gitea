@@ -4,6 +4,7 @@ import {
   parseWorktreePorcelain,
   resolveRepoDir,
   buildGitSnapshot,
+  displayRepoName,
   runWorktreeAction,
 } from '../lib/git-local.js'
 
@@ -110,7 +111,8 @@ test('buildGitSnapshot reports branch, dirty, graph, and diff', async () => {
     if (joined === 'rev-parse --abbrev-ref HEAD') return { stdout: 'main\n', stderr: '' }
     if (joined === 'rev-parse --show-toplevel') return { stdout: '/tmp/example/app\n', stderr: '' }
     if (joined === 'status --porcelain') return { stdout: ' M lib/index.js\n', stderr: '' }
-    if (args[0] === 'log') return { stdout: '* abc (HEAD -> main) hello\n', stderr: '' }
+    if (args[0] === 'log') return { stdout: 'abc hello\n', stderr: '' }
+    if (args[0] === 'remote') return { stdout: 'git@example.com:acme/app.git\n', stderr: '' }
     if (args[0] === 'diff') return { stdout: 'diff --git a/lib/index.js b/lib/index.js\n', stderr: '' }
     throw new Error('unexpected ' + joined)
   }
@@ -119,6 +121,15 @@ test('buildGitSnapshot reports branch, dirty, graph, and diff', async () => {
   assert.equal(snap.branch, 'main')
   assert.equal(snap.dirty, true)
   assert.equal(snap.worktree, '/tmp/example/app')
-  assert.match(snap.graph, /HEAD -> main/)
+  assert.equal(snap.repoName, 'app')
+  assert.match(snap.graph, /abc hello/)
   assert.match(snap.diff, /lib\/index.js/)
+})
+
+
+test('displayRepoName prefers origin repo, then parent of a worktree folder', () => {
+  assert.equal(displayRepoName({ remoteUrl: 'git@example.com:acme/photographer-onepage.git' }), 'photographer-onepage')
+  assert.equal(displayRepoName({ remoteUrl: 'https://git.example.com/acme/photographer-onepage.git' }), 'photographer-onepage')
+  assert.equal(displayRepoName({ worktree: '/tmp/photographer-onepage/.worktrees/1-single-page' }), 'photographer-onepage')
+  assert.equal(displayRepoName({ worktree: '/tmp/photographer-onepage' }), 'photographer-onepage')
 })
