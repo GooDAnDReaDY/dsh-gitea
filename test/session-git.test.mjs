@@ -14,6 +14,7 @@ import {
   gitDirHintFromBashCommand,
   candidateGitDirsFromExec,
   candidateGitDirsFromSessionJsonl,
+  selectChipRepoDir,
 } from '../lib/session-git.js'
 
 test('resolveSessionGitDir prefers explicit cwd over session memory', () => {
@@ -179,4 +180,37 @@ test('session log ignores a later ls of another tree and keeps the worktree add'
 test('session log with only the live worktree add pins that worktree first', () => {
   const jsonl = JSON.stringify({ type: 'tool/call', data: { name: 'bash', arguments: JSON.stringify({ command: LIVE_WORKTREE_ADD }) } })
   assert.equal(candidateGitDirsFromSessionJsonl(jsonl)[0], LIVE_WORKTREE)
+})
+
+
+test('selectChipRepoDir ignores a non-git workspace cwd and keeps the session pin', async () => {
+  clearSessionGitDirs()
+  rememberSessionGitDir('sess-1', '/tmp/from-session')
+  const dir = await selectChipRepoDir(
+    { cwd: '/tmp/not-a-repo', sessionId: 'sess-1' },
+    async (candidate) => candidate === '/tmp/from-session',
+  )
+  assert.equal(dir, '/tmp/from-session')
+})
+
+test('selectChipRepoDir prefers a real git workspace cwd over the session pin', async () => {
+  clearSessionGitDirs()
+  rememberSessionGitDir('sess-1', '/tmp/from-session')
+  const dir = await selectChipRepoDir(
+    { cwd: '/tmp/attached-repo', sessionId: 'sess-1' },
+    async (candidate) => candidate === '/tmp/attached-repo',
+  )
+  assert.equal(dir, '/tmp/attached-repo')
+})
+
+test('selectChipRepoDir recovers from the session log when cwd is not git', async () => {
+  clearSessionGitDirs()
+  let recovered = ''
+  const dir = await selectChipRepoDir(
+    { cwd: '/tmp/not-a-repo', sessionId: 'sess-1' },
+    async () => false,
+    async (id) => { recovered = id; rememberSessionGitDir(id, '/tmp/recovered') },
+  )
+  assert.equal(recovered, 'sess-1')
+  assert.equal(dir, '/tmp/recovered')
 })
