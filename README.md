@@ -54,7 +54,7 @@ Create a personal access token on your instance with **repository** and **issues
 
 **Worktree safety:** `gitea_worktree_remove` also requires `confirm: true`.
 
-The chat header follows this chat: the DSH workspace folder (`path`) if this session is attached to one, otherwise the git folder from `gitea_worktree_add` / `gitea_worktree_use` or a git worktree add in the same chat. The chip uses the conversation session id from the host kit, not a repository picker in Settings.
+The chat header follows this chat: the DSH workspace folder (`path`) if this session is attached to one, otherwise any git folder this chat actually used (Gitea worktree tools, shell git, cd into a repo, or a path in a later tool). Restart does not drop that folder, and a chip poll can recover it from this chat tool log. The chip uses the conversation session id from the host kit, not a repository picker in Settings.
 
 ## Identity
 

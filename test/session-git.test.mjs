@@ -12,6 +12,8 @@ import {
   chipSessionId,
   workspaceCwdFrom,
   gitDirHintFromBashCommand,
+  candidateGitDirsFromExec,
+  candidateGitDirsFromSessionJsonl,
 } from '../lib/session-git.js'
 
 test('resolveSessionGitDir prefers explicit cwd over session memory', () => {
@@ -104,4 +106,77 @@ test('gitDirHintFromBashCommand uses last cd when there is no worktree add', () 
     gitDirHintFromBashCommand('cd /tmp/repo && git status'),
     '/tmp/repo',
   )
+})
+
+
+const LIVE_WORKTREE_ADD = 'cd /mnt/external/Project/DEV/photographer-onepage && export PATH="/home/vadim/.local/bin:$PATH" && git-deepseek-harness worktree add -b feat/1-one-page-photographer-site .worktrees/1-single-page origin/main'
+const LIVE_WORKTREE = '/mnt/external/Project/DEV/photographer-onepage/.worktrees/1-single-page'
+
+test('candidate matrix covers how an agent actually reaches a git folder', () => {
+  const cases = [
+    { name: 'live wrapper worktree add', exec: { arguments: { command: LIVE_WORKTREE_ADD } }, expect: LIVE_WORKTREE },
+    { name: 'git-cursor worktree add', exec: { arguments: { command: 'cd /tmp/app && git-cursor worktree add -b feat/x .worktrees/x origin/main' } }, expect: '/tmp/app/.worktrees/x' },
+    { name: 'plain git worktree add abs', exec: { arguments: { command: 'git worktree add /tmp/app/.worktrees/x main' } }, expect: '/tmp/app/.worktrees/x' },
+    { name: 'git -C status', exec: { arguments: { command: 'git -C /tmp/app status' } }, expect: '/tmp/app' },
+    { name: 'git-cursor -C log', exec: { arguments: { command: 'git-cursor -C /tmp/app log -1' } }, expect: '/tmp/app' },
+    { name: 'cd then git status', exec: { arguments: { command: 'cd /tmp/app && git status' } }, expect: '/tmp/app' },
+    { name: 'ls absolute worktree', exec: { arguments: { command: 'ls /tmp/app/.worktrees/x' } }, expect: '/tmp/app/.worktrees/x' },
+    { name: 'gitea_worktree_use args', exec: { arguments: { worktreePath: '/tmp/app/.worktrees/x' } }, expect: '/tmp/app/.worktrees/x' },
+    { name: 'gitea_worktree_add result', exec: { arguments: {} }, result: { ok: true, data: { path: '/tmp/app/.worktrees/x' } }, expect: '/tmp/app/.worktrees/x' },
+    { name: 'tool working_directory', exec: { arguments: { working_directory: '/tmp/app' } }, expect: '/tmp/app' },
+    { name: 'cmd alias', exec: { arguments: { cmd: 'cd /tmp/app && ls' } }, expect: '/tmp/app' },
+  ]
+  for (const item of cases) {
+    const dirs = candidateGitDirsFromExec(item.exec, item.result || {})
+    assert.equal(dirs[0], item.expect, item.name)
+  }
+})
+
+test('session harness cwd is last resort, not preferred over a worktree', () => {
+  const dirs = candidateGitDirsFromExec({
+    arguments: { command: LIVE_WORKTREE_ADD },
+    cwd: '/home/vadim/deepseekharness',
+    agent: { session: { header: { cwd: '/home/vadim/deepseekharness' } } },
+  })
+  assert.equal(dirs[0], LIVE_WORKTREE)
+})
+
+
+test('quoted cd still resolves a git folder', () => {
+  assert.equal(
+    candidateGitDirsFromExec({ arguments: { command: "cd '/tmp/app' && git status" } })[0],
+    '/tmp/app',
+  )
+})
+
+test('ls of an unrelated tree is not treated as a git folder', () => {
+  const dirs = candidateGitDirsFromExec({ arguments: { command: 'ls /tmp/unrelated/lib' } })
+  assert.equal(dirs.length, 0)
+})
+
+test('file inside a worktree still keeps the worktree as a candidate', () => {
+  const dirs = candidateGitDirsFromExec({ arguments: { command: 'cat /tmp/app/.worktrees/x/index.html' } })
+  assert.ok(dirs.includes('/tmp/app/.worktrees/x'))
+})
+
+test('harness install cwd is not a candidate', () => {
+  const dirs = candidateGitDirsFromExec({
+    arguments: { command: 'pwd' },
+    cwd: '/home/agent/deepseekharness',
+  })
+  assert.equal(dirs.includes('/home/agent/deepseekharness'), false)
+})
+
+test('session log ignores a later ls of another tree and keeps the worktree add', () => {
+  const jsonl = [
+    JSON.stringify({ type: 'tool/call', data: { name: 'bash', arguments: JSON.stringify({ command: LIVE_WORKTREE_ADD }) } }),
+    JSON.stringify({ type: 'tool/call', data: { name: 'bash', arguments: { command: 'ls /tmp/unrelated/lib' } } }),
+  ].join('\n')
+  const dirs = candidateGitDirsFromSessionJsonl(jsonl)
+  assert.equal(dirs[0], LIVE_WORKTREE)
+})
+
+test('session log with only the live worktree add pins that worktree first', () => {
+  const jsonl = JSON.stringify({ type: 'tool/call', data: { name: 'bash', arguments: JSON.stringify({ command: LIVE_WORKTREE_ADD }) } })
+  assert.equal(candidateGitDirsFromSessionJsonl(jsonl)[0], LIVE_WORKTREE)
 })
