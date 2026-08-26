@@ -11,6 +11,7 @@ import {
   pinDirFromTool,
   chipSessionId,
   workspaceCwdFrom,
+  gitDirHintFromBashCommand,
 } from '../lib/session-git.js'
 
 test('resolveSessionGitDir prefers explicit cwd over session memory', () => {
@@ -87,4 +88,20 @@ test('workspaceCwdFrom reads DSH workspace path, not cwd', () => {
     }],
   }
   assert.equal(workspaceCwdFrom(session, workspaces), '/tmp/real-repo')
+})
+
+
+test('gitDirHintFromBashCommand resolves git-wrapper worktree add after cd', () => {
+  const command = 'cd /path/to/Project/DEV/photographer-onepage && export PATH="/home/user/.local/bin:$PATH" && git-deepseek-harness worktree add -b feat/1-one-page-photographer-site .worktrees/1-single-page origin/main'
+  assert.equal(
+    gitDirHintFromBashCommand(command),
+    '/path/to/Project/DEV/photographer-onepage/.worktrees/1-single-page',
+  )
+})
+
+test('gitDirHintFromBashCommand uses last cd when there is no worktree add', () => {
+  assert.equal(
+    gitDirHintFromBashCommand('cd /tmp/repo && git status'),
+    '/tmp/repo',
+  )
 })
