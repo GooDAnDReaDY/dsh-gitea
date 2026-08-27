@@ -2,7 +2,7 @@
 
 Date: 2026-08-23
 Status: approved
-Package: `@goodandready/dsh-gitea`
+Package: `@goodandready-private/dsh-gitea`
 Catalog category: `git`
 
 ## Goal
@@ -14,9 +14,9 @@ Definition-of-Done hook, no git UI in the chat chrome.
 
 ## Publication stance
 
-Shaped for later GitHub + npm (`@goodandready/dsh-gitea`). This iteration
+Shaped for later GitHub + npm (`@goodandready-private/dsh-gitea`). This iteration
 does not create a GitHub repo, does not npm publish, and does not copy to
-RELEASE. Install for tests via `file:` on staging.
+RELEASE. Install the temporary package artifact on the isolated test server.
 
 No MiniAI hosts, paths, org names, or tokens in code, README, or examples.
 
