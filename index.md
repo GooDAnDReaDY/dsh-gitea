@@ -2,6 +2,6 @@
 
 Publishable DSH plugin package for Gitea and Forgejo agent tools.
 
-Test with `npm test` once implementation tests are present.
+Test with `npm test` before every commit and release.
 
-Installation and verification are staging-only via `file:`. Do not publish or install on production in this phase.
+Install the published private package by exact version; production must never reference a source checkout.
