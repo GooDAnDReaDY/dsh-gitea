@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Ship a publishable-but-unpublished DSH plugin `@goodandready/dsh-gitea` that gives the agent Gitea/Forgejo issue, PR, and repo-search tools, with Settings for instance URL plus credential ref.
+**Goal:** Ship a publishable-but-unpublished DSH plugin `@@goodandready/dsh-gitea` that gives the agent Gitea/Forgejo issue, PR, and repo-search tools, with Settings for instance URL plus credential ref.
 
 **Architecture:** One Cordis package plugin. Thin `/api/v1` HTTP client, repo resolution (args then settings then git origin), exported handlers testable without Cordis, `apply()` that registers tools and settings, Settings-only browser bundle. No DoD hook, no the dev host hosts, no GitHub/npm release.
 
@@ -10,30 +10,30 @@
 
 ## Global Constraints
 
-- Package name, cordis `name:`, and client loader id are `@goodandready/dsh-gitea`. Short patch `id:` is `dsh-gitea`.
+- Package name, cordis `name:`, and client loader id are `@@goodandready/dsh-gitea`. Short patch `id:` is `dsh-gitea`.
 - Catalog category: `git`. Gitea and Forgejo share one `/api/v1` client.
 - Token via `ctx.credentials.resolve(credentialRef(tokenEnv))`. Settings store the credential name (`GITEA_TOKEN` default), never the secret.
 - Empty config must not crash boot. Missing URL/token is a tool-result error.
 - Every tool has `output.schema` and `output.render` returning `[{ type: 'text', text }]`. Object schemas set `additionalProperties: false`.
 - `gitea_pr_merge` does not call the API unless `confirm === true` (strict boolean).
 - No the dev host IPs, `/opt`, `/mnt`, or tokens in `lib/`, `test/`, README, or examples. Placeholders only.
-- No GitHub repo, no npm publish, no RELEASE. Install with `file:` on staging DSH only.
-- Develop on the dev host at `/path/to/Project/DEV/dhsplugins/dsh-gitea`. Git only through `git-agent`.
+- No GitHub repo, no npm publish, no RELEASE. Install with `package-artifact:` on staging DSH only.
+- Develop on the dev host at `DEV/dsh-gitea`. Git only through `git-agent`.
 - Do not implement B (DoD hook), C (chat git UI), Device Flow, clone/push, multi-instance, or review-line comments.
 - `inject` only `tools`, `credentials`, `settings`, `webServer`.
-- After each `file:` change: bump version, `plugin remove` then `add`, grep the installed copy.
+- After each package change: bump version, `plugin remove` then `add`, grep the installed copy.
 - Commits: conventional, footer `Refs: #<issue>`. Docs in the same commit when they change.
 
 ---
 
 ## File map
 
-Worktree after Task 1: `/path/to/Project/DEV/dhsplugins/dsh-gitea/.worktrees/feat-1-gitea-a/`
+Worktree after Task 1: `DEV/dsh-gitea/.worktrees/feat-1-gitea-a/`
 
 | File | Responsibility |
 |---|---|
 | `package.json` | Scoped name, exports, dsh.bundle/client, peers, files, test script |
-| `cordis.patch.yml` | id `dsh-gitea`, name `@goodandready/dsh-gitea` |
+| `cordis.patch.yml` | id `dsh-gitea`, name `@@goodandready/dsh-gitea` |
 | `lib/repo.js` | `parseGitRemote`, `resolveRepo` |
 | `lib/gitea-client.js` | `normalizeBaseUrl`, `GiteaClient` |
 | `lib/secrets.js` | `stripSecretsFromConfig`, `assertCredentialRef` |
@@ -50,7 +50,7 @@ Worktree after Task 1: `/path/to/Project/DEV/dhsplugins/dsh-gitea/.worktrees/fea
 
 **Files:**
 - Create: `package.json`, `cordis.patch.yml`, `.gitignore`, `LICENSE`, `AGENTS.md`, `index.md`, spec and plan copies under `docs/superpowers/`
-- Test: repo exists; `package.json` name is `@goodandready/dsh-gitea`
+- Test: repo exists; `package.json` name is `@@goodandready/dsh-gitea`
 
 **Interfaces:**
 - Consumes: user approval to create `goodandready/dsh-gitea` (spec ok).
@@ -60,13 +60,13 @@ Worktree after Task 1: `/path/to/Project/DEV/dhsplugins/dsh-gitea/.worktrees/fea
 
 `POST /api/v1/orgs/goodandready/repos` with `name=dsh-gitea`, `private=true`, `auto_init=true`, description: DSH plugin for Gitea/Forgejo issues, PRs, repo search.
 
-Use cursor token from `/path/to/Project/DEV/.gitea-agent-credentials.json`. Never print the token. If the repo exists, reuse it. Do not create a personal-namespace repo.
+Use cursor token from `the configured credential store`. Never print the token. If the repo exists, reuse it. Do not create a personal-namespace repo.
 
 - [ ] **Step 2: One canonical clone**
 
 ```bash
-export PATH=/home/user/.ssh/bin:/usr/bin:/bin
-cd /path/to/Project/DEV/dhsplugins
+export PATH=<user-bin>:/usr/bin:/bin
+cd DEV/plugins
 test ! -e dsh-gitea
 # SSH host: the one that already works for git-agent in sibling plugins; path must be goodandready/dsh-gitea.git
 git-agent clone ssh://git@HOST:2222/goodandready/dsh-gitea.git dsh-gitea
@@ -77,7 +77,7 @@ git-agent clone ssh://git@HOST:2222/goodandready/dsh-gitea.git dsh-gitea
 - [ ] **Step 4: Worktree**
 
 ```bash
-cd /path/to/Project/DEV/dhsplugins/dsh-gitea
+cd DEV/dsh-gitea
 git-agent fetch --no-tags origin main
 git-agent worktree add -b feat/1-gitea-a .worktrees/feat-1-gitea-a origin/main
 ```
@@ -88,18 +88,18 @@ All later writes only in that worktree.
 
 `.gitignore`: `node_modules/`, `.env`, `.env.*`, `*.pem`, `*.key`, `*.crt`, `credentials.yaml`, `.planning/`, `*.log`
 
-`package.json` version `0.1.0`, name `@goodandready/dsh-gitea`, type module, exports `.` `./client` `./cordis.patch.yml` `./package.json`, files `lib/` `cordis.patch.yml` `README.md` `LICENSE`, keywords dsh/dsh-plugin/gitea/forgejo/git, repository/homepage/bugs pointing at intended `https://github.com/GooDAnDReaDY/dsh-gitea` (do not create GitHub), script `"test": "node --test test/*.test.mjs"`, dsh.bundle.patch `./cordis.patch.yml`, dsh.client platform web inject `@deepseek-ai/dsh-client-runtime` and `@deepseek-ai/dsh-client-ui-slots`, peerDependencies cordis ^4.0.1, dsh-tools / dsh-credentials / dsh-host-webserver / dsh-settings ^0.1.0-rc.6, schemastery ^3.18.1, publishConfig access public.
+`package.json` version `0.1.0`, name `@@goodandready/dsh-gitea`, type module, exports `.` `./client` `./cordis.patch.yml` `./package.json`, files `lib/` `cordis.patch.yml` `README.md` `LICENSE`, keywords dsh/dsh-plugin/gitea/forgejo/git, repository/homepage/bugs pointing at intended `https://github.com/@goodandready/dsh-gitea` (do not create GitHub), script `"test": "node --test test/*.test.mjs"`, dsh.bundle.patch `./cordis.patch.yml`, dsh.client platform web inject `@deepseek-ai/dsh-client-runtime` and `@deepseek-ai/dsh-client-ui-slots`, peerDependencies cordis ^4.0.1, dsh-tools / dsh-credentials / dsh-host-webserver / dsh-settings ^0.1.0-rc.6, schemastery ^3.18.1, publishConfig access public.
 
 `cordis.patch.yml`:
 
 ```yaml
 - insert:
     - id: dsh-gitea
-      name: '@goodandready/dsh-gitea'
+      name: '@@goodandready/dsh-gitea'
       config: {}
 ```
 
-MIT LICENSE copyright 2026 dsh-gitea contributors. AGENTS.md: three identity sites, git-agent, no secrets, npm test, file: reinstall is remove+add. Copy spec+plan into docs/superpowers. Short index.md with test command and staging-only note.
+MIT LICENSE copyright 2026 dsh-gitea contributors. AGENTS.md: three identity sites, git-agent, no secrets, npm test, package reinstall is remove+add. Copy spec+plan into docs/superpowers. Short index.md with test command and staging-only note.
 
 - [ ] **Step 6: Commit and push** `chore(dsh-gitea): scaffold publishable plugin package` footer `Refs: #1`
 
@@ -232,7 +232,7 @@ Paths:
 **Interfaces:**
 - Produces: settings namespace `dsh-gitea`; GET/POST `/dsh-gitea/config` never returns token values; client `apply(ctx)` with `inject: ['slots']`.
 
-- [ ] **Step 1: Failing vm test** (pattern from `dhsplugins/dsh-tts/test/client-factory.test.mjs`): source has `id: '@goodandready/dsh-gitea'`, `var module = { exports: {} }`, `return module.exports`, `inject: ['slots']`, `apply` is a function, no `127.0.0.1` `/opt/` `/mnt/`.
+- [ ] **Step 1: Failing vm test** (pattern from `plugins/dsh-tts/test/client-factory.test.mjs`): source has `id: '@@goodandready/dsh-gitea'`, `var module = { exports: {} }`, `return module.exports`, `inject: ['slots']`, `apply` is a function, no `127.0.0.1` `INSTALLED_PATH/` `DEV_SOURCE/`.
 
 - [ ] **Step 2: Run — FAIL no client.js**
 
@@ -254,14 +254,14 @@ Client: Settings label `Gitea`. Fields: instance URL, credential ref name, defau
 - Create: `README.md`
 
 **Interfaces:**
-- Produces: install docs for future npm and current `file:` path; URL + `GITEA_TOKEN`; token scopes repo+issues; Forgejo note; merge requires confirm; placeholders only.
+- Produces: install docs for future npm and temporary package artifact; URL + `GITEA_TOKEN`; token scopes repo+issues; Forgejo note; merge requires confirm; placeholders only.
 
 - [ ] **Step 1: Write README** with `https://gitea.example.com`, `GITEA_TOKEN`, `owner/repo` only.
 
-- [ ] **Step 2: Leak grep** on `lib/`, `test/`, `README.md`, `AGENTS.md` for `127.0.0.1`, `/opt/`, `/path/to`, tokens. `goodandready` allowed only in package name and intended GitHub URLs.
+- [ ] **Step 2: Leak grep** on `lib/`, `test/`, `README.md`, `AGENTS.md` for `127.0.0.1`, `INSTALLED_PATH/`, `DEV_SOURCE`, tokens. `goodandready` allowed only in package name and intended GitHub URLs.
 
 ```bash
-rg -n -i '192\.168|/opt/|/path/to' lib test README.md AGENTS.md
+rg -n -i '192\.168|INSTALLED_PATH/|DEV_SOURCE' lib test README.md AGENTS.md
 ```
 
 - [ ] **Step 3: `npm test` PASS**
@@ -270,7 +270,7 @@ rg -n -i '192\.168|/opt/|/path/to' lib test README.md AGENTS.md
 
 ---
 
-### Task 7: Staging file: install (no publish)
+### Task 7: Isolated package-artifact install
 
 **Files:** bump `package.json` version only if pnpm reuses a stale copy.
 
@@ -279,17 +279,17 @@ rg -n -i '192\.168|/opt/|/path/to' lib test README.md AGENTS.md
 
 - [ ] **Step 1: Identify staging vs production.** Install only on staging. If profile `package.json` is missing, stop (dsh-web-profile-repair). Do not recreate the profile.
 
-- [ ] **Step 2: `node --check` host files. Backup profile dependency counts. `dsh plugin --profile web add file:<worktree>` (guard-add if present).
+- [ ] **Step 2: `node --check` host files. Backup profile dependency counts. `dsh plugin --profile web add temporary package artifact` (guard-add if present).
 
 - [ ] **Step 3: Installed copy must contain `gitea_pr_merge`. If grep count is 0: remove + add, bump version.
 
-- [ ] **Step 4: Restart staging dsh-web only. Require active, NRestarts not climbing, HTTP 200, no `failed to apply loader entry @goodandready/dsh-gitea`.
+- [ ] **Step 4: Restart staging dsh-web only. Require active, NRestarts not climbing, HTTP 200, no `failed to apply loader entry @@goodandready/dsh-gitea`.
 
 - [ ] **Step 5: Client**
 
 ```bash
-curl -sS ORIGIN/ | grep -F '"id":"@goodandready/dsh-gitea"'
-curl -sS -o /dev/null -w '%{http_code}\n' ORIGIN/plugins/@goodandready/dsh-gitea/client.js
+curl -sS ORIGIN/ | grep -F '"id":"@@goodandready/dsh-gitea"'
+curl -sS -o /dev/null -w '%{http_code}\n' ORIGIN/plugins/@@goodandready/dsh-gitea/client.js
 ```
 
 Expect 200. Hard-refresh Settings → Gitea.
@@ -314,7 +314,7 @@ Expect 200. Hard-refresh Settings → Gitea.
 | Token not in chat/settings JSON | 4, 5 |
 | Boot with empty config | 4, 7 |
 | Three identity sites | 1, 5 |
-| file: only, no npm | 7 |
+| package artifact only | 7 |
 | output.render / additionalProperties | 4 |
 
 ## Out of this plan

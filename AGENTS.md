@@ -2,7 +2,7 @@
 
 ## Package identity
 
-Keep all three package identity sites aligned as `@goodandready/dsh-gitea`:
+Keep all three package identity sites aligned as `@@goodandready/dsh-gitea`:
 
 1. `package.json` package name
 2. `cordis.patch.yml` loader name
@@ -15,4 +15,4 @@ The short Cordis patch id remains `dsh-gitea`.
 - Use `git-agent` for every Git operation; never use bare `git`.
 - Never commit, print, log, or embed tokens, credentials, private keys, or real instance secrets.
 - Run `npm test` before committing behavior changes.
-- Staging installs use `file:` only. After a file-based change, reinstall with plugin remove followed by plugin add, then verify the installed copy.
+- Install the published private package by exact version; after a package change, verify the installed copy.

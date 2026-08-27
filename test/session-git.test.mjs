@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
@@ -95,10 +96,10 @@ test('workspaceCwdFrom reads DSH workspace path, not cwd', () => {
 
 
 test('gitDirHintFromBashCommand resolves git-wrapper worktree add after cd', () => {
-  const command = 'cd /path/to/Project/DEV/photographer-onepage && export PATH="/home/user/.local/bin:$PATH" && git-deepseek-harness worktree add -b feat/1-one-page-photographer-site .worktrees/1-single-page origin/main'
+  const command = 'cd DEV/photographer-onepage && export PATH="DEV_LOCAL_BIN:$PATH" && git-deepseek-harness worktree add -b feat/1-one-page-photographer-site .worktrees/1-single-page origin/main'
   assert.equal(
     gitDirHintFromBashCommand(command),
-    '/path/to/Project/DEV/photographer-onepage/.worktrees/1-single-page',
+    'DEV/photographer-onepage/.worktrees/1-single-page',
   )
 })
 
@@ -110,8 +111,8 @@ test('gitDirHintFromBashCommand uses last cd when there is no worktree add', () 
 })
 
 
-const LIVE_WORKTREE_ADD = 'cd /path/to/Project/DEV/photographer-onepage && export PATH="/home/user/.local/bin:$PATH" && git-deepseek-harness worktree add -b feat/1-one-page-photographer-site .worktrees/1-single-page origin/main'
-const LIVE_WORKTREE = '/path/to/Project/DEV/photographer-onepage/.worktrees/1-single-page'
+const LIVE_WORKTREE_ADD = 'cd DEV/photographer-onepage && export PATH="DEV_LOCAL_BIN:$PATH" && git-deepseek-harness worktree add -b feat/1-one-page-photographer-site .worktrees/1-single-page origin/main'
+const LIVE_WORKTREE = 'DEV/photographer-onepage/.worktrees/1-single-page'
 
 test('candidate matrix covers how an agent actually reaches a git folder', () => {
   const cases = [
@@ -136,8 +137,8 @@ test('candidate matrix covers how an agent actually reaches a git folder', () =>
 test('session harness cwd is last resort, not preferred over a worktree', () => {
   const dirs = candidateGitDirsFromExec({
     arguments: { command: LIVE_WORKTREE_ADD },
-    cwd: '/home/user/deepseekharness',
-    agent: { session: { header: { cwd: '/home/user/deepseekharness' } } },
+    cwd: '/tmp/deepseekharness',
+    agent: { session: { header: { cwd: '/tmp/deepseekharness' } } },
   })
   assert.equal(dirs[0], LIVE_WORKTREE)
 })
@@ -163,9 +164,9 @@ test('file inside a worktree still keeps the worktree as a candidate', () => {
 test('harness install cwd is not a candidate', () => {
   const dirs = candidateGitDirsFromExec({
     arguments: { command: 'pwd' },
-    cwd: '/home/agent/deepseekharness',
+    cwd: '/tmp/agent/deepseekharness',
   })
-  assert.equal(dirs.includes('/home/agent/deepseekharness'), false)
+  assert.equal(dirs.includes('/tmp/agent/deepseekharness'), false)
 })
 
 test('session log ignores a later ls of another tree and keeps the worktree add', () => {
