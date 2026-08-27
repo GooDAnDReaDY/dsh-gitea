@@ -83,14 +83,14 @@ test('apply prefers plugin card and skips sidebar section', () => {
   assert.deepEqual(names, ['settings.plugin.item', 'conversation.session.header.utilities'])
   assert.equal(metas[0].name, 'settings.plugin.item')
   assert.equal(metas[0].key, 'dsh-gitea')
-  assert.notEqual(metas[0].key, '@goodandready/dsh-gitea')
+  assert.notEqual(metas[0].key, '@@goodandready/dsh-gitea')
 })
 
 test('apply falls back to settings.section when plugin item slot is missing', () => {
   const { names, metas } = applyWith({ throwPluginItem: true })
   assert.deepEqual(names, ['settings.section', 'conversation.session.header.utilities'])
   assert.equal(metas[0].name, 'settings.section')
-  assert.equal(metas[0].id, '@goodandready/dsh-gitea')
+  assert.equal(metas[0].id, '@@goodandready/dsh-gitea')
 })
 
 test('client card is a PluginCard-shaped list item with discard/save footer', () => {
