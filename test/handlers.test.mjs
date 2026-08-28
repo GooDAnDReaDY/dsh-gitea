@@ -589,3 +589,16 @@ test('gitea_review_inbox classifies PRs', async () => {
   assert.ok(Array.isArray(result.data.awaitingMine))
   assert.ok(Array.isArray(result.data.mergeReady))
 })
+
+// ---- #46 CI explainer ----
+
+test('gitea_ci_explain extracts error from failed job log', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const job = { id: 9, name: 'test', status: 'failed', log: 'ok\nerror: cannot find module X' }
+  const result = await runHandler('gitea_ci_explain', { job }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.jobId, 9)
+  assert.match(result.data.error, /cannot find module X/)
+  assert.equal(client.calls.length, 0)
+})
