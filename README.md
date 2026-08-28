@@ -71,6 +71,7 @@ Create a personal access token on your instance with **repository** and **issues
 | `gitea_wiki_pages` | List wiki pages |
 | `gitea_org_repos` | List org repositories |
 | `gitea_notifications` | List notifications |
+| `gitea_project_health` | Read-only project health report (PRs, stale issues, branches) |
 | `gitea_whoami` | Show the user for the configured token |
 | `gitea_worktree_list` | List git worktrees |
 | `gitea_worktree_add` | Create a git worktree |

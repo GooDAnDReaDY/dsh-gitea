@@ -562,3 +562,17 @@ test('gitea_notifications calls client.listNotifications', async () => {
   assert.equal(result.ok, true)
   assert.equal(client.calls[0].method, 'listNotifications')
 })
+
+// ---- #42 project health ----
+
+test('gitea_project_health builds report from client data', async () => {
+  const client = mockClient()
+  client.listIssues = async () => ({ ok: true, data: [{ number: 1, title: 'stale', updated_at: '2026-07-01T00:00:00Z', state: 'open' }] })
+  client.listPulls = async () => ({ ok: true, data: [{ number: 2, title: 'PR', updated_at: '2026-08-01T00:00:00Z', state: 'open' }] })
+  client.listBranches = async () => ({ ok: true, data: [{ name: 'main', commit: { created: '2026-01-01T00:00:00Z' } }] })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_project_health', { owner: 'acme', repo: 'app', staleDays: 14 }, deps)
+  assert.equal(result.ok, true)
+  assert.ok(result.data.openPRs >= 0)
+  assert.ok(Array.isArray(result.data.staleIssues))
+})
