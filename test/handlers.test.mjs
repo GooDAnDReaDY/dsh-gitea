@@ -795,3 +795,18 @@ test('gitea_repo_bootstrap dry-run returns plan', async () => {
   assert.equal(result.data.dryRun, true)
   assert.ok(result.data.files.length >= 3)
 })
+
+// ---- #59 duty officer ----
+
+test('gitea_duty_report returns read-only report', async () => {
+  const client = mockClient()
+  client.listIssues = async () => ({ ok: true, data: [] })
+  client.listPulls = async () => ({ ok: true, data: [{ number: 2, title: 'PR', user: { login: 'bob' }, created_at: '2026-08-10T00:00:00Z' }] })
+  client.listPullReviews = async () => ({ ok: true, data: [] })
+  client.listBranches = async () => ({ ok: true, data: [] })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_duty_report', { owner: 'acme', repo: 'app', lastCheckAt: '2026-08-01T00:00:00Z' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.readOnly, true)
+  assert.ok(Array.isArray(result.data.events))
+})
