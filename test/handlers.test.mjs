@@ -733,3 +733,13 @@ test('gitea_scheduled_checks add then run', async () => {
   assert.equal(run.ok, true)
   assert.equal(run.data.dryRun, true)
 })
+
+// ---- #58 digest delivery ----
+
+test('gitea_digest_delivery dry-run previews without sending', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_digest_delivery', { target: 'https://hooks.example.com/x', text: 'hi', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.dryRun, true)
+})
