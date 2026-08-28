@@ -54,6 +54,11 @@ Create a personal access token on your instance with **repository** and **issues
 | `gitea_pr_get` | Get a pull request by number |
 | `gitea_pr_comment` | Comment on a pull request |
 | `gitea_pr_merge` | Merge a pull request |
+| `gitea_pr_files` | List files changed in a PR |
+| `gitea_pr_reviews` | List PR reviews |
+| `gitea_pr_submit_review` | Submit a review (APPROVED / REQUEST_CHANGES / COMMENT) |
+| `gitea_pr_line_comment` | Add a line comment to a PR diff |
+| `gitea_pr_merge_status` | Check whether a PR is mergeable |
 | `gitea_repo_search` | Search repositories on the configured instance |
 | `gitea_whoami` | Show the user for the configured token |
 | `gitea_worktree_list` | List git worktrees |
