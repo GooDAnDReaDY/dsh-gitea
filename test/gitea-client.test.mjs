@@ -347,3 +347,65 @@ test('getPullMergeStatus GETs pulls/{n}/merge', async () => {
   assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/pulls/5/merge')
   assert.equal(result.ok, true)
 })
+
+// ---- #18 contents, branches, commits, compare, tags ----
+
+test('getContents GETs repos/{o}/{r}/contents/{path}', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => ({ name: 'README.md', content: 'base64' }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.getContents('acme', 'app', 'README.md')
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/contents/README.md')
+  assert.equal(result.ok, true)
+})
+
+test('listBranches GETs repos/{o}/{r}/branches', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => [{ name: 'main' }] }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.listBranches('acme', 'app')
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/branches')
+  assert.equal(result.ok, true)
+})
+
+test('listCommits GETs repos/{o}/{r}/commits', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => [{ sha: 'abc', commit: { message: 'x' } }] }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.listCommits('acme', 'app')
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/commits')
+  assert.equal(result.ok, true)
+})
+
+test('compareCommits GETs compare endpoint', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => ({ commits: [], total: 0 }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.compareCommits('acme', 'app', 'main...feat/x')
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/compare/main...feat/x')
+  assert.equal(result.ok, true)
+})
+
+test('listTags GETs repos/{o}/{r}/tags', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => [{ name: 'v0.2.12' }] }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.listTags('acme', 'app')
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/tags')
+  assert.equal(result.ok, true)
+})

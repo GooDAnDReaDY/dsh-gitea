@@ -60,6 +60,11 @@ Create a personal access token on your instance with **repository** and **issues
 | `gitea_pr_line_comment` | Add a line comment to a PR diff |
 | `gitea_pr_merge_status` | Check whether a PR is mergeable |
 | `gitea_repo_search` | Search repositories on the configured instance |
+| `gitea_repo_contents` | Get file/directory contents |
+| `gitea_repo_branches` | List branches |
+| `gitea_repo_commits` | List commits |
+| `gitea_repo_compare` | Compare two commits/branches |
+| `gitea_repo_tags` | List tags |
 | `gitea_whoami` | Show the user for the configured token |
 | `gitea_worktree_list` | List git worktrees |
 | `gitea_worktree_add` | Create a git worktree |
