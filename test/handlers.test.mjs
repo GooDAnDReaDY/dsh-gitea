@@ -63,6 +63,42 @@ function mockClient() {
         },
       })
     },
+    updateIssue: (...args) => {
+      calls.push({ method: 'updateIssue', args })
+      return Promise.resolve({ ok: true, data: { number: 3, title: 'Updated' } })
+    },
+    searchIssues: (...args) => {
+      calls.push({ method: 'searchIssues', args })
+      return Promise.resolve({ ok: true, data: { data: [{ number: 7, title: 'Found' }] } })
+    },
+    listLabels: (...args) => {
+      calls.push({ method: 'listLabels', args })
+      return Promise.resolve({ ok: true, data: [{ id: 1, name: 'type/bug' }] })
+    },
+    createLabel: (...args) => {
+      calls.push({ method: 'createLabel', args })
+      return Promise.resolve({ ok: true, data: { id: 9, name: 'priority/H' } })
+    },
+    deleteLabel: (...args) => {
+      calls.push({ method: 'deleteLabel', args })
+      return Promise.resolve({ ok: true, data: {} })
+    },
+    setIssueLabels: (...args) => {
+      calls.push({ method: 'setIssueLabels', args })
+      return Promise.resolve({ ok: true, data: [{ id: 1, name: 'type/bug' }] })
+    },
+    listMilestones: (...args) => {
+      calls.push({ method: 'listMilestones', args })
+      return Promise.resolve({ ok: true, data: [{ id: 5, title: 'v0.3' }] })
+    },
+    createMilestone: (...args) => {
+      calls.push({ method: 'createMilestone', args })
+      return Promise.resolve({ ok: true, data: { id: 5, title: 'v0.3' } })
+    },
+    setIssueAssignee: (...args) => {
+      calls.push({ method: 'setIssueAssignee', args })
+      return Promise.resolve({ ok: true, data: { number: 3, assignee: { login: 'claude' } } })
+    },
   }
   return client
 }
@@ -187,4 +223,88 @@ test('gitea_worktree_list uses injected execFile', async () => {
   assert.equal(result.data[0].path, '/tmp/example/app')
   assert.equal(calls[0].cwd, '/tmp/example/app')
   assert.equal(client.calls.length, 0)
+})
+
+// ---- #16 issue governance: update, search, labels, milestones, assignees ----
+
+test('gitea_issue_update calls client.updateIssue with title/body/state', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_issue_update', { number: 3, title: 'New', body: 'B', state: 'closed', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'updateIssue')
+  assert.equal(client.calls[0].args[2], 3)
+  assert.deepEqual(client.calls[0].args[3], { title: 'New', body: 'B', state: 'closed' })
+})
+
+test('gitea_issue_search does not require repo resolution', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  deps.settings = { tokenEnv: 'GITEA_TOKEN', defaultOwner: '', defaultRepo: '' }
+  const result = await runHandler('gitea_issue_search', { q: 'bug', repo: 'acme/app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'searchIssues')
+  assert.deepEqual(client.calls[0].args[0], { q: 'bug', repo: 'acme/app' })
+})
+
+test('gitea_label_list calls client.listLabels', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_label_list', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'listLabels')
+  assert.deepEqual(client.calls[0].args, ['acme', 'app', {}])
+})
+
+test('gitea_label_create calls client.createLabel with name/color/description', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_label_create', { name: 'priority/H', color: 'd93f0b', description: 'High', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'createLabel')
+  assert.deepEqual(client.calls[0].args[2], { name: 'priority/H', color: 'd93f0b', description: 'High' })
+})
+
+test('gitea_label_delete calls client.deleteLabel', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_label_delete', { label_id: 9, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'deleteLabel')
+  assert.equal(client.calls[0].args[2], 9)
+})
+
+test('gitea_issue_set_labels calls client.setIssueLabels with numeric ids', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_issue_set_labels', { number: 3, labels: ['1', '2'], owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'setIssueLabels')
+  assert.deepEqual(client.calls[0].args[3], [1, 2])
+})
+
+test('gitea_milestone_list calls client.listMilestones', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_milestone_list', { state: 'open', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'listMilestones')
+})
+
+test('gitea_milestone_create calls client.createMilestone', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_milestone_create', { title: 'v0.3', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'createMilestone')
+  assert.deepEqual(client.calls[0].args[2], { title: 'v0.3', description: undefined, due_on: undefined })
+})
+
+test('gitea_issue_set_assignee calls client.setIssueAssignee', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_issue_set_assignee', { number: 3, assignee: 'claude', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'setIssueAssignee')
+  assert.equal(client.calls[0].args[3], 'claude')
 })

@@ -157,3 +157,126 @@ test('owner .. is rejected and does not escape repos prefix', async () => {
   assert.equal(capturedUrl, undefined)
   assert.match(result.error, /invalid/)
 })
+
+// ---- #16 issue governance: update, search, labels, milestones, assignees ----
+
+test('updateIssue PATCHes issue endpoint with partial body', async () => {
+  let capturedUrl, capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedUrl = url
+    capturedInit = init
+    return { ok: true, status: 200, json: async () => ({ id: 3, title: 'Updated' }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.updateIssue('acme', 'app', 3, { title: 'Updated', state: 'closed' })
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/issues/3')
+  assert.equal(capturedInit.method, 'PATCH')
+  assert.deepEqual(JSON.parse(capturedInit.body), { title: 'Updated', state: 'closed' })
+  assert.equal(result.ok, true)
+})
+
+test('searchIssues GETs /search/issues with repo and query', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => ({ data: [] }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.searchIssues({ q: 'bug', repo: 'acme/app', limit: 5 })
+  assert.ok(capturedUrl.startsWith('https://gitea.example.com/api/v1/search/issues'))
+  assert.ok(capturedUrl.includes('q=bug'))
+  assert.ok(capturedUrl.includes('repo=acme%2Fapp'))
+  assert.equal(result.ok, true)
+})
+
+test('listLabels GETs labels endpoint', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => [{ id: 1, name: 'type/bug' }] }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.listLabels('acme', 'app')
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/labels')
+  assert.equal(result.ok, true)
+})
+
+test('createLabel POSTs labels endpoint', async () => {
+  let capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedInit = init
+    return { ok: true, status: 201, json: async () => ({ id: 9, name: 'priority/H' }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.createLabel('acme', 'app', { name: 'priority/H', color: 'd93f0b' })
+  assert.equal(capturedInit.method, 'POST')
+  assert.deepEqual(JSON.parse(capturedInit.body), { name: 'priority/H', color: 'd93f0b' })
+  assert.equal(result.ok, true)
+})
+
+test('deleteLabel DELETEs labels endpoint', async () => {
+  let capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedInit = init
+    return { ok: true, status: 204, json: async () => ({}) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.deleteLabel('acme', 'app', 9)
+  assert.equal(capturedInit.method, 'DELETE')
+  assert.equal(result.ok, true)
+})
+
+test('setIssueLabels PUTs labels on issue', async () => {
+  let capturedUrl, capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedUrl = url
+    capturedInit = init
+    return { ok: true, status: 200, json: async () => [{ id: 1, name: 'type/bug' }] }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.setIssueLabels('acme', 'app', 3, [1, 2])
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/issues/3/labels')
+  assert.equal(capturedInit.method, 'PUT')
+  assert.deepEqual(JSON.parse(capturedInit.body), { labels: [1, 2] })
+  assert.equal(result.ok, true)
+})
+
+test('listMilestones GETs milestones endpoint', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => [{ id: 5, title: 'v0.3' }] }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.listMilestones('acme', 'app')
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/milestones')
+  assert.equal(result.ok, true)
+})
+
+test('createMilestone POSTs milestones endpoint', async () => {
+  let capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedInit = init
+    return { ok: true, status: 201, json: async () => ({ id: 5, title: 'v0.3' }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.createMilestone('acme', 'app', { title: 'v0.3' })
+  assert.equal(capturedInit.method, 'POST')
+  assert.deepEqual(JSON.parse(capturedInit.body), { title: 'v0.3' })
+  assert.equal(result.ok, true)
+})
+
+test('setIssueAssignee PATCHes assignee on issue', async () => {
+  let capturedUrl, capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedUrl = url
+    capturedInit = init
+    return { ok: true, status: 200, json: async () => ({ id: 3, assignee: { login: 'claude' } }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.setIssueAssignee('acme', 'app', 3, 'claude')
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/issues/3')
+  assert.equal(capturedInit.method, 'PATCH')
+  assert.deepEqual(JSON.parse(capturedInit.body), { assignee: 'claude' })
+  assert.equal(result.ok, true)
+})
