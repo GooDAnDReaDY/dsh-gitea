@@ -43,6 +43,7 @@ Create a personal access token on your instance with **repository** and **issues
 | `gitea_issue_search` | Search issues across the instance |
 | `gitea_issue_set_labels` | Replace labels on an issue |
 | `gitea_issue_set_assignee` | Set the assignee of an issue |
+| `gitea_issue_lint` | Check issue quality (non-blocking) before creation |
 | `gitea_label_list` | List repository labels |
 | `gitea_label_create` | Create a label |
 | `gitea_label_delete` | Delete a label |
