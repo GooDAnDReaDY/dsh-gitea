@@ -766,3 +766,21 @@ test('gitea_pr_template_check checks body and risk labels', async () => {
   assert.ok(result.data.template.missing.length > 0)
   assert.equal(result.data.riskChecklistNeeded, true)
 })
+
+// ---- #47 issue flow ----
+
+test('gitea_issue_flow plan returns branch', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_issue_flow', { action: 'plan', issue: 47, title: 'issue flow', type: 'feat', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.match(result.data.branch, /^feat\/47-/)
+})
+
+test('gitea_issue_flow create makes PR', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_issue_flow', { action: 'create', issue: 47, head: 'feat/47-x', title: 'x', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.ok(client.calls.some((c) => c.method === 'createPull'))
+})
