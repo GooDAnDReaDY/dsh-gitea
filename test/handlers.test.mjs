@@ -122,6 +122,14 @@ function mockClient() {
       calls.push({ method: 'markNotificationsRead', args })
       return Promise.resolve({ ok: true, data: {} })
     },
+    listActionsRuns: (...args) => {
+      calls.push({ method: 'listActionsRuns', args })
+      return Promise.resolve({ ok: true, data: { workflow_runs: [] } })
+    },
+    listRunJobs: (...args) => {
+      calls.push({ method: 'listRunJobs', args })
+      return Promise.resolve({ ok: true, data: { jobs: [] } })
+    },
     getUser: (...args) => {
       calls.push({ method: 'getUser', args })
       return Promise.resolve({ ok: true, data: { login: 'alice', id: 1, html_url: 'https://gitea.example.com/alice' } })
@@ -858,4 +866,23 @@ test('gitea_notifications_mark_read with confirm calls client', async () => {
   const result = await runHandler('gitea_notifications_mark_read', { confirm: true }, deps)
   assert.equal(result.ok, true)
   assert.equal(client.calls[0].method, 'markNotificationsRead')
+})
+
+// ---- #107 Actions ----
+
+test('gitea_ci_status lists runs', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_ci_status', { owner: 'acme', repo: 'app', branch: 'main' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'listActionsRuns')
+})
+
+test('gitea_ci_jobs lists jobs for run', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_ci_jobs', { run_id: 5, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'listRunJobs')
+  assert.equal(client.calls[0].args[2], 5)
 })

@@ -94,6 +94,8 @@ Create a personal access token on your instance with **repository** and **issues
 | `gitea_label_auto` | Label-driven workflow rules (preview actions) |
 | `gitea_org_members` | List organization members |
 | `gitea_notifications_mark_read` | Mark notifications read (`confirm: true`) |
+| `gitea_ci_status` | List Gitea Actions runs (status/URL) |
+| `gitea_ci_jobs` | List jobs of an Actions run |
 | `gitea_whoami` | Show the user for the configured token |
 | `gitea_worktree_list` | List git worktrees |
 | `gitea_worktree_add` | Create a git worktree |
