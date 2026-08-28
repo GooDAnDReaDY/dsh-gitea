@@ -87,6 +87,7 @@ Create a personal access token on your instance with **repository** and **issues
 | `gitea_scheduled_checks` | Recurring read-only checks (list/add/run, dry-run default) |
 | `gitea_digest_delivery` | Deliver digest to webhook (dry-run default, audit log) |
 | `gitea_label_bootstrap` | Sync canonical label set (dry-run default, apply: true) |
+| `gitea_pr_template_check` | Check PR body vs template + risk checklist |
 | `gitea_whoami` | Show the user for the configured token |
 | `gitea_worktree_list` | List git worktrees |
 | `gitea_worktree_add` | Create a git worktree |

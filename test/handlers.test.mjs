@@ -755,3 +755,14 @@ test('gitea_label_bootstrap dry-run lists missing', async () => {
   assert.equal(result.data.dryRun, true)
   assert.ok(result.data.missing.length >= 30)
 })
+
+// ---- #63 PR template check ----
+
+test('gitea_pr_template_check checks body and risk labels', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_pr_template_check', { body: '## Что изменено\nx', labels: ['risk/breaking'] }, deps)
+  assert.equal(result.ok, true)
+  assert.ok(result.data.template.missing.length > 0)
+  assert.equal(result.data.riskChecklistNeeded, true)
+})
