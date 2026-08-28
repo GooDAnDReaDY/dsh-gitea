@@ -617,3 +617,14 @@ test('gitea_pr_summary builds summary from client data', async () => {
   assert.equal(result.data.number, 5)
   assert.ok(result.data.files.length >= 1)
 })
+
+// ---- #49 duplicate detection ----
+
+test('gitea_issue_duplicates returns candidates', async () => {
+  const client = mockClient()
+  client.searchIssues = async () => ({ ok: true, data: [{ number: 1, title: 'login crash', body: 'login crashes on start' }] })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_issue_duplicates', { title: 'login crashes', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.ok(Array.isArray(result.data.candidates))
+})
