@@ -784,3 +784,14 @@ test('gitea_issue_flow create makes PR', async () => {
   assert.equal(result.ok, true)
   assert.ok(client.calls.some((c) => c.method === 'createPull'))
 })
+
+// ---- #48 repo bootstrap ----
+
+test('gitea_repo_bootstrap dry-run returns plan', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_repo_bootstrap', { name: 'my-proj', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.dryRun, true)
+  assert.ok(result.data.files.length >= 3)
+})
