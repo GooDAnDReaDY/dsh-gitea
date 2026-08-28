@@ -718,3 +718,18 @@ test('gitea_pr_impact returns impact map', async () => {
   assert.ok(result.data.issueRefs.length >= 1)
   assert.ok(result.data.files.length >= 1)
 })
+
+// ---- #57 scheduled checks ----
+
+test('gitea_scheduled_checks add then run', async () => {
+  const client = mockClient()
+  client.listIssues = async () => ({ ok: true, data: [] })
+  client.listPulls = async () => ({ ok: true, data: [] })
+  client.listBranches = async () => ({ ok: true, data: [] })
+  const deps = baseDeps(client)
+  const add = await runHandler('gitea_scheduled_checks', { action: 'add', name: 't', schedule: 'daily', checkType: 'health', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(add.ok, true)
+  const run = await runHandler('gitea_scheduled_checks', { action: 'run', name: 't', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(run.ok, true)
+  assert.equal(run.data.dryRun, true)
+})

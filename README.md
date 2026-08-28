@@ -84,6 +84,7 @@ Create a personal access token on your instance with **repository** and **issues
 | `gitea_dep_watch` | Dependency/security scan (read-only, no updates/issues) |
 | `gitea_pr_policy` | Read/validate repo PR policy + evaluate changed files |
 | `gitea_pr_impact` | PR impact map: files, areas, issue refs (sourced) |
+| `gitea_scheduled_checks` | Recurring read-only checks (list/add/run, dry-run default) |
 | `gitea_whoami` | Show the user for the configured token |
 | `gitea_worktree_list` | List git worktrees |
 | `gitea_worktree_add` | Create a git worktree |
