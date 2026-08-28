@@ -81,6 +81,7 @@ Create a personal access token on your instance with **repository** and **issues
 | `gitea_merge_readiness` | PR merge-readiness checks (never merges) |
 | `gitea_release_notes` | Release notes from merged PRs + semver bump (preview only) |
 | `gitea_triage_digest` | Daily triage: PRs without review, stale issues/branches, priority action |
+| `gitea_dep_watch` | Dependency/security scan (read-only, no updates/issues) |
 | `gitea_whoami` | Show the user for the configured token |
 | `gitea_worktree_list` | List git worktrees |
 | `gitea_worktree_add` | Create a git worktree |
