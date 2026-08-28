@@ -91,6 +91,7 @@ Create a personal access token on your instance with **repository** and **issues
 | `gitea_issue_flow` | Issue → branch/worktree/PR flow (plan + create) |
 | `gitea_repo_bootstrap` | Create repo from template (dry-run default, apply: true) |
 | `gitea_duty_report` | Duty officer: read-only repo snapshot + actions |
+| `gitea_label_auto` | Label-driven workflow rules (preview actions) |
 | `gitea_whoami` | Show the user for the configured token |
 | `gitea_worktree_list` | List git worktrees |
 | `gitea_worktree_add` | Create a git worktree |

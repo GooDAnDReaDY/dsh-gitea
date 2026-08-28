@@ -810,3 +810,15 @@ test('gitea_duty_report returns read-only report', async () => {
   assert.equal(result.data.readOnly, true)
   assert.ok(Array.isArray(result.data.events))
 })
+
+// ---- #64 label automation ----
+
+test('gitea_label_auto returns preview actions', async () => {
+  const client = mockClient()
+  client.getIssue = async () => ({ ok: true, data: { number: 1, title: 'bug: x', labels: [{ name: 'type/bug' }] } })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_label_auto', { number: 1, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.ok(result.data.actions.length >= 1)
+  assert.equal(result.data.dryRun, true)
+})
