@@ -1,0 +1,37 @@
+name: Config change
+about: Изменение конфигурации, настроек, окружения
+labels:
+  - type/refactor
+  - scope/settings
+  - status/ready
+
+body:
+  - type: markdown
+    attributes:
+      value: "## Изменение конфигурации"
+  - type: textarea
+    id: what
+    attributes:
+      label: Что меняется
+      description: Конкретные поля/файлы/переменные
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Зачем
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Влияние и совместимость
+      description: Обратная совместимость, миграция, откат
+  - type: checkboxes
+    id: dod
+    attributes:
+      label: Definition of Done
+      options:
+        - label: Конфиг проверен на окружении
+        - label: Документация обновлена
+        - label: План отката описан

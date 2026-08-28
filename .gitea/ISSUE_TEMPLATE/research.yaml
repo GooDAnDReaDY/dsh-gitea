@@ -1,0 +1,42 @@
+name: Research / spike
+about: Исследование, проверка гипотезы, оценка
+labels:
+  - type/research
+  - status/ready
+
+body:
+  - type: markdown
+    attributes:
+      value: "## Research"
+  - type: textarea
+    id: question
+    attributes:
+      label: Вопрос
+      description: Что именно нужно доказать или опровергнуть
+    validations:
+      required: true
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: Гипотеза
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: Границы исследования
+      description: Какие источники/репозитории/API смотрим
+  - type: textarea
+    id: criterion
+    attributes:
+      label: Критерий решения
+      description: Как выглядит «делаем», «не делаем», «нужен второй этап»
+    validations:
+      required: true
+  - type: checkboxes
+    id: artifact
+    attributes:
+      label: Артефакт на выходе
+      options:
+        - label: Краткий отчёт
+        - label: Рекомендация
+        - label: Оценка объёма
+        - label: Список рисков
