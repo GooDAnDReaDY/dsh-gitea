@@ -77,6 +77,7 @@ Create a personal access token on your instance with **repository** and **issues
 | `gitea_pr_summary` | Read-only PR change/risk summary |
 | `gitea_issue_duplicates` | Find likely duplicate issues (ranked, non-destructive) |
 | `gitea_batch_issue_ops` | Batch labels/assignee with dry-run preview (`apply: true` to commit) |
+| `gitea_merge_readiness` | PR merge-readiness checks (never merges) |
 | `gitea_whoami` | Show the user for the configured token |
 | `gitea_worktree_list` | List git worktrees |
 | `gitea_worktree_add` | Create a git worktree |
