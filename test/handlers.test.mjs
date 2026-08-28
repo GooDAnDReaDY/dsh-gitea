@@ -705,3 +705,16 @@ test('gitea_pr_policy returns absent when no policy file', async () => {
   assert.equal(result.ok, true)
   assert.equal(result.data.present, false)
 })
+
+// ---- #56 PR impact map ----
+
+test('gitea_pr_impact returns impact map', async () => {
+  const client = mockClient()
+  client.getPull = async () => ({ ok: true, data: { number: 5, title: 'feat: x (#16)', body: 'Closes #16', user: { login: 'alice' } } })
+  client.listPullFiles = async () => ({ ok: true, data: [{ filename: 'lib/a.js' }] })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_pr_impact', { number: 5, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.ok(result.data.issueRefs.length >= 1)
+  assert.ok(result.data.files.length >= 1)
+})
