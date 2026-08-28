@@ -667,3 +667,18 @@ test('gitea_release_notes returns preview notes', async () => {
   assert.ok(result.data.count >= 1)
   assert.equal(result.data.preview, true)
 })
+
+// ---- #43 triage digest ----
+
+test('gitea_triage_digest returns digest', async () => {
+  const client = mockClient()
+  client.listIssues = async () => ({ ok: true, data: [] })
+  client.listPulls = async () => ({ ok: true, data: [{ number: 2, title: 'PR', user: { login: 'bob' } }] })
+  client.listPullReviews = async () => ({ ok: true, data: [] })
+  client.listBranches = async () => ({ ok: true, data: [] })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_triage_digest', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.ok(Array.isArray(result.data.pullRequestsNoReview))
+  assert.ok(result.data.priorityAction)
+})
