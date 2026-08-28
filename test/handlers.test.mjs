@@ -628,3 +628,16 @@ test('gitea_issue_duplicates returns candidates', async () => {
   assert.equal(result.ok, true)
   assert.ok(Array.isArray(result.data.candidates))
 })
+
+// ---- #50 batch issue ops ----
+
+test('gitea_batch_issue_ops dry-run returns preview without applying', async () => {
+  const client = mockClient()
+  client.listIssues = async () => ({ ok: true, data: [{ number: 1, title: 'a' }] })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_batch_issue_ops', { numbers: [1], label: 'type/bug', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.ok(Array.isArray(result.data.preview))
+  assert.equal(result.data.dryRun, true)
+  assert.equal(client.calls.length, 0)
+})
