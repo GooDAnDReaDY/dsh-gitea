@@ -65,6 +65,12 @@ Create a personal access token on your instance with **repository** and **issues
 | `gitea_repo_commits` | List commits |
 | `gitea_repo_compare` | Compare two commits/branches |
 | `gitea_repo_tags` | List tags |
+| `gitea_release_list` | List releases |
+| `gitea_release_create` | Create a release |
+| `gitea_release_delete` | Delete a release (`confirm: true`) |
+| `gitea_wiki_pages` | List wiki pages |
+| `gitea_org_repos` | List org repositories |
+| `gitea_notifications` | List notifications |
 | `gitea_whoami` | Show the user for the configured token |
 | `gitea_worktree_list` | List git worktrees |
 | `gitea_worktree_add` | Create a git worktree |

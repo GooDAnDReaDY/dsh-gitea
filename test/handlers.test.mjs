@@ -90,6 +90,30 @@ function mockClient() {
       calls.push({ method: 'listTags', args })
       return Promise.resolve({ ok: true, data: [{ name: 'v0.2.12' }] })
     },
+    listReleases: (...args) => {
+      calls.push({ method: 'listReleases', args })
+      return Promise.resolve({ ok: true, data: [{ id: 1, tag_name: 'v0.2.12' }] })
+    },
+    createRelease: (...args) => {
+      calls.push({ method: 'createRelease', args })
+      return Promise.resolve({ ok: true, data: { id: 2, tag_name: 'v0.3.0' } })
+    },
+    deleteRelease: (...args) => {
+      calls.push({ method: 'deleteRelease', args })
+      return Promise.resolve({ ok: true, data: {} })
+    },
+    listWikiPages: (...args) => {
+      calls.push({ method: 'listWikiPages', args })
+      return Promise.resolve({ ok: true, data: [{ pageName: 'Home' }] })
+    },
+    listOrgRepos: (...args) => {
+      calls.push({ method: 'listOrgRepos', args })
+      return Promise.resolve({ ok: true, data: [{ name: 'dsh-gitea' }] })
+    },
+    listNotifications: (...args) => {
+      calls.push({ method: 'listNotifications', args })
+      return Promise.resolve({ ok: true, data: [{ id: 1 }] })
+    },
     getUser: (...args) => {
       calls.push({ method: 'getUser', args })
       return Promise.resolve({ ok: true, data: { login: 'alice', id: 1, html_url: 'https://gitea.example.com/alice' } })
@@ -474,4 +498,67 @@ test('gitea_repo_tags calls client.listTags', async () => {
   const result = await runHandler('gitea_repo_tags', { owner: 'acme', repo: 'app' }, deps)
   assert.equal(result.ok, true)
   assert.equal(client.calls[0].method, 'listTags')
+})
+
+// ---- #19 releases, wiki, org repos, notifications ----
+
+test('gitea_release_list calls client.listReleases', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_release_list', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'listReleases')
+})
+
+test('gitea_release_create calls client.createRelease with tag/name/body', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_release_create', { tag_name: 'v0.3.0', name: 'v0.3.0', body: 'notes', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'createRelease')
+  assert.deepEqual(client.calls[0].args[2], { tag_name: 'v0.3.0', name: 'v0.3.0', body: 'notes' })
+})
+
+test('gitea_release_delete without confirm is rejected', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_release_delete', { release_id: 7, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, false)
+  assert.match(result.error, /confirm/i)
+  assert.equal(client.calls.length, 0)
+})
+
+test('gitea_release_delete with confirm calls client.deleteRelease', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_release_delete', { release_id: 7, confirm: true, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'deleteRelease')
+  assert.equal(client.calls[0].args[2], 7)
+})
+
+test('gitea_wiki_pages calls client.listWikiPages', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_wiki_pages', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'listWikiPages')
+})
+
+test('gitea_org_repos calls client.listOrgRepos without repo resolution', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  deps.settings = { tokenEnv: 'GITEA_TOKEN', defaultOwner: '', defaultRepo: '' }
+  const result = await runHandler('gitea_org_repos', { org: 'goodandready' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'listOrgRepos')
+  assert.equal(client.calls[0].args[0], 'goodandready')
+})
+
+test('gitea_notifications calls client.listNotifications', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_notifications', { status: 'unread' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'listNotifications')
 })
