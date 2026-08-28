@@ -64,6 +64,25 @@ Create a personal access token on your instance with **repository** and **issues
 
 **Worktree safety:** `gitea_worktree_remove` also requires `confirm: true`.
 
+## Issue templates
+
+The package ships a Gitea issue template pack under `.gitea/ISSUE_TEMPLATE/`:
+
+| File | Purpose | Starter labels |
+|------|---------|----------------|
+| `bug.yaml` | Bug report | type/bug, status/ready |
+| `feature.yaml` | Feature request | type/feature, status/ready |
+| `security.yaml` | Security issue | type/security, priority/high, scope/security |
+| `research.yaml` | Research / spike | type/research, status/ready |
+| `tech-debt.yaml` | Tech debt | type/tech-debt, status/ready |
+| `incident.yaml` | Incident | type/incident, priority/critical |
+| `config-change.yaml` | Config change | type/refactor, scope/settings, status/ready |
+
+Templates follow the Gitea YAML form format (name, about, labels, body). They
+suggest starter labels (including `priority/*`, `type/*`, `status/*`) but never
+write them automatically — the creator confirms. Validation helpers live in
+`lib/issue-templates.js` with tests in `test/issue-templates.test.mjs`.
+
 The chat header chip is a git status for this conversation: repository, branch, whether the tree is clean, recent commits, and uncommitted diff. It follows the git folder this chat actually used. Click the chip to open the panel. There is no repository picker in Settings.
 
 ## Identity

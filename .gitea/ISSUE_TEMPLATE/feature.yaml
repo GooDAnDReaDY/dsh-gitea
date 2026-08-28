@@ -1,0 +1,48 @@
+name: Feature request
+about: Новая функциональность или улучшение
+labels:
+  - type/feature
+  - status/ready
+
+body:
+  - type: markdown
+    attributes:
+      value: "## Предлагаемая функциональность"
+  - type: textarea
+    id: problem
+    attributes:
+      label: Проблема
+      description: Какую работу сейчас приходится делать вручную
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Предлагаемый результат
+      description: Наблюдаемое поведение, а не решение в коде
+    validations:
+      required: true
+  - type: textarea
+    id: scenario
+    attributes:
+      label: Пользовательский сценарий
+      description: 1. … 2. … 3. …
+  - type: textarea
+    id: outofscope
+    attributes:
+      label: Вне scope
+      description: Что намеренно не делаем
+  - type: textarea
+    id: risks
+    attributes:
+      label: Риски и интеграции
+      description: Gitea API, credentials, approvals, CI, scheduler
+  - type: checkboxes
+    id: dod
+    attributes:
+      label: Definition of Done
+      options:
+        - label: API/инструмент описан
+        - label: Есть тесты успеха и ошибок
+        - label: Write-операции защищены approval
+        - label: Документация и примеры обновлены
