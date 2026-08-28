@@ -1,6 +1,6 @@
 {
   "name": "@goodandready-private/dsh-gitea",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "description": "DSH plugin for Gitea/Forgejo issues, PRs, worktrees, and a git chip in the chat header.",
   "type": "module",
   "main": "lib/index.js",
