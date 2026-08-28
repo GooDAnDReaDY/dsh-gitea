@@ -576,3 +576,16 @@ test('gitea_project_health builds report from client data', async () => {
   assert.ok(result.data.openPRs >= 0)
   assert.ok(Array.isArray(result.data.staleIssues))
 })
+
+// ---- #44 review inbox ----
+
+test('gitea_review_inbox classifies PRs', async () => {
+  const client = mockClient()
+  client.listPulls = async () => ({ ok: true, data: [{ number: 1, title: 'PR1', user: { login: 'bob' }, mergeable: true }] })
+  client.listPullReviews = async () => ({ ok: true, data: [{ state: 'APPROVED', user: { login: 'alice' } }] })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_review_inbox', { user: 'alice', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.ok(Array.isArray(result.data.awaitingMine))
+  assert.ok(Array.isArray(result.data.mergeReady))
+})
