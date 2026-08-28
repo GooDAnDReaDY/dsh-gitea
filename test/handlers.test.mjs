@@ -114,6 +114,10 @@ function mockClient() {
       calls.push({ method: 'listNotifications', args })
       return Promise.resolve({ ok: true, data: [{ id: 1 }] })
     },
+    listOrgMembers: (...args) => {
+      calls.push({ method: 'listOrgMembers', args })
+      return Promise.resolve({ ok: true, data: [{ id: 1, login: 'alice' }] })
+    },
     getUser: (...args) => {
       calls.push({ method: 'getUser', args })
       return Promise.resolve({ ok: true, data: { login: 'alice', id: 1, html_url: 'https://gitea.example.com/alice' } })
@@ -821,4 +825,15 @@ test('gitea_label_auto returns preview actions', async () => {
   assert.equal(result.ok, true)
   assert.ok(result.data.actions.length >= 1)
   assert.equal(result.data.dryRun, true)
+})
+
+// ---- #99 org members ----
+
+test('gitea_org_members lists org members', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_org_members', { org: 'goodandready' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'listOrgMembers')
+  assert.equal(client.calls[0].args[0], 'goodandready')
 })
