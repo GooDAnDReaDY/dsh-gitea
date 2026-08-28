@@ -39,6 +39,15 @@ Create a personal access token on your instance with **repository** and **issues
 | `gitea_issue_get` | Get an issue by number |
 | `gitea_issue_comment` | Comment on an issue |
 | `gitea_issue_close` | Close an issue |
+| `gitea_issue_update` | Update an issue (title, body, state) |
+| `gitea_issue_search` | Search issues across the instance |
+| `gitea_issue_set_labels` | Replace labels on an issue |
+| `gitea_issue_set_assignee` | Set the assignee of an issue |
+| `gitea_label_list` | List repository labels |
+| `gitea_label_create` | Create a label |
+| `gitea_label_delete` | Delete a label |
+| `gitea_milestone_list` | List milestones |
+| `gitea_milestone_create` | Create a milestone |
 | `gitea_pr_create` | Create a pull request |
 | `gitea_pr_list` | List pull requests |
 | `gitea_pr_get` | Get a pull request by number |
