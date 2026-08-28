@@ -694,3 +694,14 @@ test('gitea_dep_watch scans package.json via contents', async () => {
   assert.ok(result.data.deps.length >= 1)
   assert.equal(result.data.readOnly, true)
 })
+
+// ---- #55 PR policy as code ----
+
+test('gitea_pr_policy returns absent when no policy file', async () => {
+  const client = mockClient()
+  client.getContents = async () => ({ ok: false, error: 'not found' })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_pr_policy', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.present, false)
+})
