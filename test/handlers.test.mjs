@@ -118,6 +118,10 @@ function mockClient() {
       calls.push({ method: 'listOrgMembers', args })
       return Promise.resolve({ ok: true, data: [{ id: 1, login: 'alice' }] })
     },
+    markNotificationsRead: (...args) => {
+      calls.push({ method: 'markNotificationsRead', args })
+      return Promise.resolve({ ok: true, data: {} })
+    },
     getUser: (...args) => {
       calls.push({ method: 'getUser', args })
       return Promise.resolve({ ok: true, data: { login: 'alice', id: 1, html_url: 'https://gitea.example.com/alice' } })
@@ -836,4 +840,22 @@ test('gitea_org_members lists org members', async () => {
   assert.equal(result.ok, true)
   assert.equal(client.calls[0].method, 'listOrgMembers')
   assert.equal(client.calls[0].args[0], 'goodandready')
+})
+
+// ---- #100 notifications mark read ----
+
+test('gitea_notifications_mark_read without confirm is rejected', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_notifications_mark_read', {}, deps)
+  assert.equal(result.ok, false)
+  assert.match(result.error, /confirm/i)
+})
+
+test('gitea_notifications_mark_read with confirm calls client', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_notifications_mark_read', { confirm: true }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'markNotificationsRead')
 })

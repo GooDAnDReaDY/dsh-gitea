@@ -499,3 +499,19 @@ test('listOrgMembers GETs orgs/{org}/members', async () => {
   assert.equal(result.ok, true)
   assert.equal(result.data[0].login, 'alice')
 })
+
+// ---- #100 notifications mark read ----
+
+test('markNotificationsRead POSTs /notifications/mark-read', async () => {
+  let capturedUrl, capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedUrl = url
+    capturedInit = init
+    return { ok: true, status: 204, json: async () => ({}) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.markNotificationsRead()
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/notifications/mark-read')
+  assert.equal(capturedInit.method, 'PUT')
+  assert.equal(result.ok, true)
+})
