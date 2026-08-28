@@ -50,6 +50,26 @@ function mockClient() {
       calls.push({ method: 'mergePull', args })
       return Promise.resolve({ ok: true, data: { merged: true } })
     },
+    listPullFiles: (...args) => {
+      calls.push({ method: 'listPullFiles', args })
+      return Promise.resolve({ ok: true, data: [{ filename: 'lib/a.js' }] })
+    },
+    listPullReviews: (...args) => {
+      calls.push({ method: 'listPullReviews', args })
+      return Promise.resolve({ ok: true, data: [{ id: 1, state: 'APPROVED' }] })
+    },
+    submitPullReview: (...args) => {
+      calls.push({ method: 'submitPullReview', args })
+      return Promise.resolve({ ok: true, data: { id: 1, state: 'APPROVED' } })
+    },
+    createPullComment: (...args) => {
+      calls.push({ method: 'createPullComment', args })
+      return Promise.resolve({ ok: true, data: { id: 2 } })
+    },
+    getPullMergeStatus: (...args) => {
+      calls.push({ method: 'getPullMergeStatus', args })
+      return Promise.resolve({ ok: true, data: {} })
+    },
     getUser: (...args) => {
       calls.push({ method: 'getUser', args })
       return Promise.resolve({ ok: true, data: { login: 'alice', id: 1, html_url: 'https://gitea.example.com/alice' } })
@@ -345,4 +365,49 @@ test('gitea_issue_lint passes for well-formed feature body', async () => {
   const result = await runHandler('gitea_issue_lint', { title: 'feat: x', body }, deps)
   assert.equal(result.ok, true)
   assert.equal(result.data.ok, true, JSON.stringify(result.data.missing))
+})
+
+// ---- #17 PR files, reviews, line comments, merge status ----
+
+test('gitea_pr_files calls client.listPullFiles', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_pr_files', { number: 5, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'listPullFiles')
+  assert.equal(client.calls[0].args[2], 5)
+})
+
+test('gitea_pr_reviews calls client.listPullReviews', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_pr_reviews', { number: 5, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'listPullReviews')
+})
+
+test('gitea_pr_submit_review calls client.submitPullReview with event/body', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_pr_submit_review', { number: 5, event: 'APPROVED', body: 'ok', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'submitPullReview')
+  assert.deepEqual(client.calls[0].args[3], { event: 'APPROVED', body: 'ok' })
+})
+
+test('gitea_pr_line_comment calls client.createPullComment with path/line', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_pr_line_comment', { number: 5, body: 'nit', path: 'lib/a.js', line: 3, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'createPullComment')
+  assert.deepEqual(client.calls[0].args[3], { body: 'nit', path: 'lib/a.js', line: 3 })
+})
+
+test('gitea_pr_merge_status calls client.getPullMergeStatus', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_pr_merge_status', { number: 5, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'getPullMergeStatus')
 })

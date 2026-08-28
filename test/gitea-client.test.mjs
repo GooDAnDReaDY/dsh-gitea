@@ -280,3 +280,70 @@ test('setIssueAssignee PATCHes assignee on issue', async () => {
   assert.deepEqual(JSON.parse(capturedInit.body), { assignee: 'claude' })
   assert.equal(result.ok, true)
 })
+
+// ---- #17 PR files, reviews, line comments, merge status ----
+
+test('listPullFiles GETs pulls/{n}/files', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => [{ filename: 'lib/a.js', additions: 3, deletions: 1 }] }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.listPullFiles('acme', 'app', 5)
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/pulls/5/files')
+  assert.equal(result.ok, true)
+  assert.equal(result.data[0].filename, 'lib/a.js')
+})
+
+test('listPullReviews GETs pulls/{n}/reviews', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => [{ id: 1, state: 'APPROVED' }] }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.listPullReviews('acme', 'app', 5)
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/pulls/5/reviews')
+  assert.equal(result.ok, true)
+})
+
+test('submitPullReview POSTs pulls/{n}/reviews', async () => {
+  let capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedInit = init
+    return { ok: true, status: 201, json: async () => ({ id: 1, state: 'APPROVED' }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.submitPullReview('acme', 'app', 5, { event: 'APPROVED', body: 'ok' })
+  assert.equal(capturedInit.method, 'POST')
+  assert.deepEqual(JSON.parse(capturedInit.body), { event: 'APPROVED', body: 'ok' })
+  assert.equal(result.ok, true)
+})
+
+test('createPullComment POSTs pulls/{n}/comments for line comment', async () => {
+  let capturedUrl, capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedUrl = url
+    capturedInit = init
+    return { ok: true, status: 201, json: async () => ({ id: 2 }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.createPullComment('acme', 'app', 5, { body: 'nit', path: 'lib/a.js', line: 3 })
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/pulls/5/comments')
+  assert.equal(capturedInit.method, 'POST')
+  assert.deepEqual(JSON.parse(capturedInit.body), { body: 'nit', path: 'lib/a.js', line: 3 })
+  assert.equal(result.ok, true)
+})
+
+test('getPullMergeStatus GETs pulls/{n}/merge', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 204, json: async () => ({}) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.getPullMergeStatus('acme', 'app', 5)
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/pulls/5/merge')
+  assert.equal(result.ok, true)
+})
