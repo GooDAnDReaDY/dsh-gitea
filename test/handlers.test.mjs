@@ -308,3 +308,41 @@ test('gitea_issue_set_assignee calls client.setIssueAssignee', async () => {
   assert.equal(client.calls[0].method, 'setIssueAssignee')
   assert.equal(client.calls[0].args[3], 'claude')
 })
+
+// ---- #54 issue quality lint ----
+
+test('gitea_issue_lint returns missing sections for empty body without network', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_issue_lint', { title: 'Bug: x', body: '' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.ok, false)
+  assert.ok(result.data.missing.length > 0)
+  assert.equal(client.calls.length, 0)
+})
+
+test('gitea_issue_lint passes for well-formed feature body', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const body = `## Проблема
+Что-то
+
+## Влияние
+Да
+
+## DoD
+- [ ] done
+
+## Границы
+Только X
+
+## Зависимости
+#16
+
+## План проверки
+Тест
+`
+  const result = await runHandler('gitea_issue_lint', { title: 'feat: x', body }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.ok, true, JSON.stringify(result.data.missing))
+})
