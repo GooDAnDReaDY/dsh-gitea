@@ -1,0 +1,41 @@
+name: Incident
+about: Инцидент, сбой, простой
+labels:
+  - type/incident
+  - priority/critical
+
+body:
+  - type: markdown
+    attributes:
+      value: "## Инцидент"
+  - type: textarea
+    id: what
+    attributes:
+      label: Что произошло
+      description: Наблюдаемый сбой, время, влияние
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Влияние
+      description: Кого/что затронуло, насколько
+    validations:
+      required: true
+  - type: textarea
+    id: mitigation
+    attributes:
+      label: Временный workaround
+      description: Что сделано для восстановления
+  - type: textarea
+    id: root
+    attributes:
+      label: Предполагаемая причина
+  - type: checkboxes
+    id: dod
+    attributes:
+      label: Definition of Done
+      options:
+        - label: Причина установлена
+        - label: Постоянное исправление
+        - label: Postmortem записан

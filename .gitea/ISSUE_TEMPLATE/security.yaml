@@ -1,0 +1,58 @@
+name: Security issue
+about: Проблема безопасности, уязвимость или риск
+labels:
+  - type/security
+  - priority/high
+  - scope/security
+
+body:
+  - type: markdown
+    attributes:
+      value: "## Security issue"
+  - type: textarea
+    id: summary
+    attributes:
+      label: Краткое описание
+      description: "Не публикуй секреты, токены и точные exploit-steps"
+    validations:
+      required: true
+  - type: dropdown
+    id: risk
+    attributes:
+      label: Уровень риска
+      options:
+        - critical
+        - high
+        - medium
+        - low
+    validations:
+      required: true
+  - type: checkboxes
+    id: surface
+    attributes:
+      label: Затронутая поверхность
+      options:
+        - label: credentials
+        - label: agent tools
+        - label: web UI
+        - label: webhook/API
+        - label: filesystem
+        - label: CI/release
+  - type: textarea
+    id: impact
+    attributes:
+      label: Влияние и временный workaround
+  - type: textarea
+    id: plan
+    attributes:
+      label: План исправления
+      description: Минимальный безопасный путь
+  - type: checkboxes
+    id: dod
+    attributes:
+      label: Definition of Done
+      options:
+        - label: Риск устранён или снижен
+        - label: Добавлен regression test
+        - label: Секреты не попали в историю/логи
+        - label: Проведён review угроз

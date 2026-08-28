@@ -1,0 +1,49 @@
+name: Bug report
+about: Сообщить о дефекте или ошибке поведения
+labels:
+  - type/bug
+  - status/ready
+
+body:
+  - type: markdown
+    attributes:
+      value: "## Что произошло"
+  - type: textarea
+    id: observed
+    attributes:
+      label: Наблюдаемый результат
+      description: Что фактически происходит (ошибка, лог, скриншот)
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Ожидаемый результат
+      description: Как должно работать
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Шаги воспроизведения
+      description: 1. … 2. … 3. …
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Окружение
+      description: Версия плагина, DSH, Gitea/Forgejo, способ подключения
+  - type: textarea
+    id: impact
+    attributes:
+      label: Влияние
+      description: Кого блокирует, можно ли обойти
+  - type: checkboxes
+    id: dod
+    attributes:
+      label: Definition of Done
+      options:
+        - label: Воспроизведение покрыто тестом
+        - label: Исправление реализовано
+        - label: Документация обновлена при необходимости
