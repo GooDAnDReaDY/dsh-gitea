@@ -515,3 +515,53 @@ test('markNotificationsRead POSTs /notifications/mark-read', async () => {
   assert.equal(capturedInit.method, 'PUT')
   assert.equal(result.ok, true)
 })
+
+// ---- #107 Gitea Actions ----
+
+test('listActionsRuns GETs actions/runs', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => ({ workflow_runs: [{ id: 5, status: 'success' }] }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.listActionsRuns('acme', 'app', { limit: 5 })
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/actions/runs?limit=5')
+  assert.equal(result.ok, true)
+})
+
+test('getActionsRun GETs actions/runs/{id}', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => ({ id: 5, status: 'success' }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.getActionsRun('acme', 'app', 5)
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/actions/runs/5')
+  assert.equal(result.ok, true)
+})
+
+test('listRunJobs GETs actions/runs/{id}/jobs', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => ({ jobs: [{ id: 9, name: 'test', status: 'failed' }] }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.listRunJobs('acme', 'app', 5)
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/actions/runs/5/jobs')
+  assert.equal(result.ok, true)
+})
+
+test('getJobLogs GETs actions/jobs/{id}/logs', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => ({}) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.getJobLogs('acme', 'app', 9)
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/actions/jobs/9/logs')
+  assert.equal(result.ok, true)
+})
