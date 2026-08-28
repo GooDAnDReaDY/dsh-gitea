@@ -641,3 +641,17 @@ test('gitea_batch_issue_ops dry-run returns preview without applying', async () 
   assert.equal(result.data.dryRun, true)
   assert.equal(client.calls.length, 0)
 })
+
+// ---- #51 merge readiness ----
+
+test('gitea_merge_readiness returns checks', async () => {
+  const client = mockClient()
+  client.getPull = async () => ({ ok: true, data: { number: 5, title: 'x', body: 'full description', mergeable: true } })
+  client.listPullReviews = async () => ({ ok: true, data: [{ state: 'APPROVED' }] })
+  client.listPullFiles = async () => ({ ok: true, data: [{ filename: 'test/a.test.mjs' }] })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_merge_readiness', { number: 5, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.ok(Array.isArray(result.data.checks))
+  assert.ok(result.data.checks.length >= 4)
+})
