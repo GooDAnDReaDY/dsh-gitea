@@ -1,0 +1,37 @@
+name: Tech debt
+about: Технический долг, рефакторинг, улучшение качества
+labels:
+  - type/tech-debt
+  - status/ready
+
+body:
+  - type: markdown
+    attributes:
+      value: "## Технический долг"
+  - type: textarea
+    id: debt
+    attributes:
+      label: Что за долг
+      description: Конкретное место/проблема в коде или процессах
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Почему это долг
+      description: Влияние на разработку, риски, скорость
+    validations:
+      required: true
+  - type: textarea
+    id: plan
+    attributes:
+      label: План устранения
+      description: Шаги и затронутые модули
+  - type: checkboxes
+    id: dod
+    attributes:
+      label: Definition of Done
+      options:
+        - label: Изменение реализовано без изменения поведения
+        - label: Тесты покрывают затронутые пути
+        - label: Документация обновлена при необходимости
