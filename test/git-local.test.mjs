@@ -55,15 +55,16 @@ test('runWorktreeAction list uses git worktree list --porcelain', async () => {
 test('runWorktreeAction add passes path and branch', async () => {
   const calls = []
   const execFile = async (bin, args, opts) => {
-    calls.push({ args, cwd: opts.cwd })
+    calls.push({ bin, args, cwd: opts.cwd })
     return { stdout: '', stderr: '' }
   }
   const result = await runWorktreeAction('add', {
     path: '/tmp/example/app',
     worktreePath: '/tmp/example/app-feat',
     branch: 'feat/x',
-  }, { settings: {}, execFile })
+  }, { settings: { gitWrapper: 'git-agent' }, execFile })
   assert.equal(result.ok, true)
+  assert.equal(calls[0].bin, 'git-agent')
   assert.deepEqual(calls[0].args, ['worktree', 'add', '/tmp/example/app-feat', 'feat/x'])
 })
 
@@ -85,16 +86,17 @@ test('runWorktreeAction remove without confirm does not run git', async () => {
 test('runWorktreeAction remove with confirm calls git worktree remove', async () => {
   const calls = []
   const execFile = async (bin, args) => {
-    calls.push(args)
+    calls.push({ bin, args })
     return { stdout: '', stderr: '' }
   }
   const result = await runWorktreeAction('remove', {
     path: '/tmp/example/app',
     worktreePath: '/tmp/example/app-feat',
     confirm: true,
-  }, { settings: {}, execFile })
+  }, { settings: { gitWrapper: 'git-agent' }, execFile })
   assert.equal(result.ok, true)
-  assert.deepEqual(calls[0], ['worktree', 'remove', '/tmp/example/app-feat'])
+  assert.equal(calls[0].bin, 'git-agent')
+  assert.deepEqual(calls[0].args, ['worktree', 'remove', '/tmp/example/app-feat'])
 })
 
 test('runWorktreeAction use returns the selected path', async () => {
