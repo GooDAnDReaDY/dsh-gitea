@@ -70,6 +70,26 @@ function mockClient() {
       calls.push({ method: 'getPullMergeStatus', args })
       return Promise.resolve({ ok: true, data: {} })
     },
+    getContents: (...args) => {
+      calls.push({ method: 'getContents', args })
+      return Promise.resolve({ ok: true, data: { name: 'README.md' } })
+    },
+    listBranches: (...args) => {
+      calls.push({ method: 'listBranches', args })
+      return Promise.resolve({ ok: true, data: [{ name: 'main' }] })
+    },
+    listCommits: (...args) => {
+      calls.push({ method: 'listCommits', args })
+      return Promise.resolve({ ok: true, data: [{ sha: 'abc' }] })
+    },
+    compareCommits: (...args) => {
+      calls.push({ method: 'compareCommits', args })
+      return Promise.resolve({ ok: true, data: { commits: [] } })
+    },
+    listTags: (...args) => {
+      calls.push({ method: 'listTags', args })
+      return Promise.resolve({ ok: true, data: [{ name: 'v0.2.12' }] })
+    },
     getUser: (...args) => {
       calls.push({ method: 'getUser', args })
       return Promise.resolve({ ok: true, data: { login: 'alice', id: 1, html_url: 'https://gitea.example.com/alice' } })
@@ -410,4 +430,48 @@ test('gitea_pr_merge_status calls client.getPullMergeStatus', async () => {
   const result = await runHandler('gitea_pr_merge_status', { number: 5, owner: 'acme', repo: 'app' }, deps)
   assert.equal(result.ok, true)
   assert.equal(client.calls[0].method, 'getPullMergeStatus')
+})
+
+// ---- #18 git metadata tools ----
+
+test('gitea_repo_contents calls client.getContents with path and ref', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_repo_contents', { path: 'README.md', ref: 'main', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'getContents')
+  assert.deepEqual(client.calls[0].args[3], { ref: 'main' })
+})
+
+test('gitea_repo_branches calls client.listBranches', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_repo_branches', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'listBranches')
+})
+
+test('gitea_repo_commits calls client.listCommits', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_repo_commits', { sha: 'main', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'listCommits')
+})
+
+test('gitea_repo_compare calls client.compareCommits with range', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_repo_compare', { range: 'main...feat/x', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'compareCommits')
+  assert.equal(client.calls[0].args[2], 'main...feat/x')
+})
+
+test('gitea_repo_tags calls client.listTags', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_repo_tags', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'listTags')
 })
