@@ -655,3 +655,15 @@ test('gitea_merge_readiness returns checks', async () => {
   assert.ok(Array.isArray(result.data.checks))
   assert.ok(result.data.checks.length >= 4)
 })
+
+// ---- #53 release notes ----
+
+test('gitea_release_notes returns preview notes', async () => {
+  const client = mockClient()
+  client.listPulls = async () => ({ ok: true, data: [{ number: 1, title: 'fix: a', merged_at: '2026-08-01T00:00:00Z', state: 'closed' }] })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_release_notes', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.ok(result.data.count >= 1)
+  assert.equal(result.data.preview, true)
+})
