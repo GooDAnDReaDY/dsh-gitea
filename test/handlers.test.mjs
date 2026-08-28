@@ -682,3 +682,15 @@ test('gitea_triage_digest returns digest', async () => {
   assert.ok(Array.isArray(result.data.pullRequestsNoReview))
   assert.ok(result.data.priorityAction)
 })
+
+// ---- #52 dependency watch ----
+
+test('gitea_dep_watch scans package.json via contents', async () => {
+  const client = mockClient()
+  client.getContents = async () => ({ ok: true, data: { content: Buffer.from(JSON.stringify({ dependencies: { lodash: '^4.17.21' } })).toString('base64') } })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_dep_watch', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.ok(result.data.deps.length >= 1)
+  assert.equal(result.data.readOnly, true)
+})
