@@ -743,3 +743,15 @@ test('gitea_digest_delivery dry-run previews without sending', async () => {
   assert.equal(result.ok, true)
   assert.equal(result.data.dryRun, true)
 })
+
+// ---- #61 label bootstrap ----
+
+test('gitea_label_bootstrap dry-run lists missing', async () => {
+  const client = mockClient()
+  client.listLabels = async () => ({ ok: true, data: [] })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_label_bootstrap', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.dryRun, true)
+  assert.ok(result.data.missing.length >= 30)
+})
