@@ -74,6 +74,7 @@ Create a personal access token on your instance with **repository** and **issues
 | `gitea_project_health` | Read-only project health report (PRs, stale issues, branches) |
 | `gitea_review_inbox` | Classify PRs: awaiting my review / awaiting theirs / merge-ready |
 | `gitea_ci_explain` | Extract first error from a failed CI job log (capped) |
+| `gitea_pr_summary` | Read-only PR change/risk summary |
 | `gitea_whoami` | Show the user for the configured token |
 | `gitea_worktree_list` | List git worktrees |
 | `gitea_worktree_add` | Create a git worktree |

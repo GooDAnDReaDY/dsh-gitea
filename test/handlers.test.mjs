@@ -602,3 +602,18 @@ test('gitea_ci_explain extracts error from failed job log', async () => {
   assert.match(result.data.error, /cannot find module X/)
   assert.equal(client.calls.length, 0)
 })
+
+// ---- #45 PR summary ----
+
+test('gitea_pr_summary builds summary from client data', async () => {
+  const client = mockClient()
+  client.getPull = async () => ({ ok: true, data: { number: 5, title: 'feat: x', body: 'b', state: 'open', user: { login: 'alice' } } })
+  client.listPullFiles = async () => ({ ok: true, data: [{ filename: 'lib/index.js', additions: 2, deletions: 1 }] })
+  client.listPullReviews = async () => ({ ok: true, data: [] })
+  client.getPullMergeStatus = async () => ({ ok: true, data: { mergeable: true } })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_pr_summary', { number: 5, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.number, 5)
+  assert.ok(result.data.files.length >= 1)
+})
