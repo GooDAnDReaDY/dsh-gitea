@@ -409,3 +409,78 @@ test('listTags GETs repos/{o}/{r}/tags', async () => {
   assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/tags')
   assert.equal(result.ok, true)
 })
+
+// ---- #19 releases, wiki, org repos, notifications ----
+
+test('listReleases GETs repos/{o}/{r}/releases', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => [{ id: 1, tag_name: 'v0.2.12' }] }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.listReleases('acme', 'app')
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/releases')
+  assert.equal(result.ok, true)
+})
+
+test('createRelease POSTs releases endpoint', async () => {
+  let capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedInit = init
+    return { ok: true, status: 201, json: async () => ({ id: 1, tag_name: 'v0.3.0' }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.createRelease('acme', 'app', { tag_name: 'v0.3.0', name: 'v0.3.0' })
+  assert.equal(capturedInit.method, 'POST')
+  assert.deepEqual(JSON.parse(capturedInit.body), { tag_name: 'v0.3.0', name: 'v0.3.0' })
+  assert.equal(result.ok, true)
+})
+
+test('deleteRelease DELETEs release endpoint', async () => {
+  let capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedInit = init
+    return { ok: true, status: 204, json: async () => ({}) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.deleteRelease('acme', 'app', 7)
+  assert.equal(capturedInit.method, 'DELETE')
+  assert.equal(result.ok, true)
+})
+
+test('listWikiPages GETs wiki pages', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => [{ pageName: 'Home' }] }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.listWikiPages('acme', 'app')
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/wiki/pages')
+  assert.equal(result.ok, true)
+})
+
+test('listOrgRepos GETs orgs/{org}/repos', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => [{ name: 'dsh-gitea' }] }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.listOrgRepos('goodandready')
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/orgs/goodandready/repos')
+  assert.equal(result.ok, true)
+})
+
+test('listNotifications GETs notifications', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => [{ id: 1, subject: { title: 'x' } }] }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.listNotifications()
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/notifications')
+  assert.equal(result.ok, true)
+})
