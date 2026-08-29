@@ -103,6 +103,8 @@ Create a personal access token on your instance with **repository** and **issues
 | `gitea_wiki_page` | Get wiki page content |
 | `gitea_release_update` | Update a release |
 | `gitea_webhook_list` / `gitea_webhook_create` / `gitea_webhook_delete` | Manage repo webhooks (delete requires confirm) |
+| `gitea_ci_rerun` | Rerun failed Actions job (`confirm: true`) |
+| `gitea_user_search` / `gitea_org_list` / `gitea_org_teams` | User/org/teams discovery |
 | `gitea_whoami` | Show the user for the configured token |
 | `gitea_worktree_list` | List git worktrees |
 | `gitea_worktree_add` | Create a git worktree |

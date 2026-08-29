@@ -178,6 +178,22 @@ function mockClient() {
       calls.push({ method: 'deleteWebhook', args })
       return Promise.resolve({ ok: true, data: {} })
     },
+    rerunActionsJob: (...args) => {
+      calls.push({ method: 'rerunActionsJob', args })
+      return Promise.resolve({ ok: true, data: {} })
+    },
+    searchUsers: (...args) => {
+      calls.push({ method: 'searchUsers', args })
+      return Promise.resolve({ ok: true, data: { data: [] } })
+    },
+    listUserOrgs: (...args) => {
+      calls.push({ method: 'listUserOrgs', args })
+      return Promise.resolve({ ok: true, data: [] })
+    },
+    listOrgTeams: (...args) => {
+      calls.push({ method: 'listOrgTeams', args })
+      return Promise.resolve({ ok: true, data: [] })
+    },
     getUser: (...args) => {
       calls.push({ method: 'getUser', args })
       return Promise.resolve({ ok: true, data: { login: 'alice', id: 1, html_url: 'https://gitea.example.com/alice' } })
@@ -1044,4 +1060,40 @@ test('gitea_webhook_delete requires confirm', async () => {
   const ok = await runHandler('gitea_webhook_delete', { hook_id: 3, confirm: true, owner: 'acme', repo: 'app' }, deps)
   assert.equal(ok.ok, true)
   assert.equal(client.calls[0].method, 'deleteWebhook')
+})
+
+// ---- #112 rerun, user search, org/teams ----
+
+test('gitea_ci_rerun requires confirm', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const denied = await runHandler('gitea_ci_rerun', { job_id: 9, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(denied.ok, false)
+  const ok = await runHandler('gitea_ci_rerun', { job_id: 9, confirm: true, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(ok.ok, true)
+  assert.equal(client.calls[0].method, 'rerunActionsJob')
+})
+
+test('gitea_user_search calls searchUsers', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_user_search', { q: 'ali' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'searchUsers')
+})
+
+test('gitea_org_list calls listUserOrgs', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_org_list', {}, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'listUserOrgs')
+})
+
+test('gitea_org_teams calls listOrgTeams', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_org_teams', { org: 'goodandready' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'listOrgTeams')
 })

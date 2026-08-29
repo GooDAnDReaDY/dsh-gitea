@@ -728,3 +728,55 @@ test('deleteWebhook DELETEs hooks/{id}', async () => {
   assert.equal(capturedInit.method, 'DELETE')
   assert.equal(result.ok, true)
 })
+
+// ---- #112 rerun, user search, org/teams ----
+
+test('rerunActionsJob POSTs actions/jobs/{id}/rerun', async () => {
+  let capturedUrl, capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedUrl = url
+    capturedInit = init
+    return { ok: true, status: 204, json: async () => ({}) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.rerunActionsJob('acme', 'app', 9)
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/actions/jobs/9/rerun')
+  assert.equal(capturedInit.method, 'POST')
+  assert.equal(result.ok, true)
+})
+
+test('searchUsers GETs /users/search', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => ({ data: [{ login: 'alice' }] }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.searchUsers({ q: 'ali' })
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/users/search?q=ali')
+  assert.equal(result.ok, true)
+})
+
+test('listUserOrgs GETs /user/orgs', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => [{ name: 'goodandready' }] }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.listUserOrgs()
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/user/orgs')
+  assert.equal(result.ok, true)
+})
+
+test('listOrgTeams GETs orgs/{org}/teams', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => [{ id: 1, name: 'Owners' }] }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.listOrgTeams('goodandready')
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/orgs/goodandready/teams')
+  assert.equal(result.ok, true)
+})
