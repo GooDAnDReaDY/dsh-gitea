@@ -27,7 +27,15 @@ Open **Settings -> Plugins** and expand the **Gitea** card.
 
 Tools take `owner`/`repo` on each call. If omitted, they infer from `git remote origin` of the current session workspace. Settings does not pick a repository.
 
-### API token
+### Gitea events panel
+
+`dsh-gitea` exposes a webhook endpoint (`POST /dsh-gitea/webhook`, expects
+`X-Gitea-Event` header). In Gitea: Settings → Webhooks → Add Webhook with
+type `gitea`, URL `<your-dsh-origin>/dsh-gitea/webhook`, and events such as
+`pull_request` (opened) and `workflow_run` (conclusion). The last 50 events
+are shown in the plugin Settings card (Gitea events), refreshed every 5s.
+
+## API token
 
 Create a personal access token on your instance with **repository** and **issues** scopes. Add it as a DSH credential using the ref name from Settings (default `GITEA_TOKEN`).
 
