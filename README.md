@@ -96,6 +96,9 @@ Create a personal access token on your instance with **repository** and **issues
 | `gitea_notifications_mark_read` | Mark notifications read (`confirm: true`) |
 | `gitea_ci_status` | List Gitea Actions runs (status/URL) |
 | `gitea_ci_jobs` | List jobs of an Actions run |
+| `gitea_repo_create_org` | Create repo in an org |
+| `gitea_repo_branch_create` / `gitea_repo_branch_delete` | Create/delete branch (delete requires confirm) |
+| `gitea_repo_tag_create` / `gitea_repo_tag_delete` | Create/delete tag (delete requires confirm) |
 | `gitea_whoami` | Show the user for the configured token |
 | `gitea_worktree_list` | List git worktrees |
 | `gitea_worktree_add` | Create a git worktree |
