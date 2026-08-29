@@ -35,6 +35,9 @@ Restart the Web UI, then hard-refresh the browser.
 
 - **Write operations require `confirm: true`**: merge, worktree/branch/tag/webhook/milestone/release delete, notifications mark-read, CI rerun.
 - **Dry-run by default** for batch ops, bootstrap, scheduled checks, digest delivery.
+- **Background scheduler** (`bgSchedulerEnabled`, default off; `bgSchedulerIntervalMin`,
+  `bgSchedulerOwner/Repo`, `bgSchedulerWebhook`) — periodically runs the daily triage
+  digest in the host process and optionally delivers it to a webhook. Never session-local.
 - **`gitWrapper`** — worktree write operations go through the `git-<agent>` wrapper or are refused; read stays on bare git.
 - **Secrets never leave the credentials store** — Settings keeps only the credential name.
 - **Retry with backoff** on transient HTTP 429/5xx.
