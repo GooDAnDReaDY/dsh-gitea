@@ -635,3 +635,45 @@ test('deleteTag DELETEs tags/{tag}', async () => {
   assert.equal(capturedInit.method, 'DELETE')
   assert.equal(result.ok, true)
 })
+
+// ---- #110 milestone write + wiki page ----
+
+test('updateMilestone PATCHes milestones/{id}', async () => {
+  let capturedUrl, capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedUrl = url
+    capturedInit = init
+    return { ok: true, status: 200, json: async () => ({ id: 5, title: 'v0.3', state: 'closed' }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.updateMilestone('acme', 'app', 5, { state: 'closed' })
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/milestones/5')
+  assert.equal(capturedInit.method, 'PATCH')
+  assert.deepEqual(JSON.parse(capturedInit.body), { state: 'closed' })
+  assert.equal(result.ok, true)
+})
+
+test('deleteMilestone DELETEs milestones/{id}', async () => {
+  let capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedInit = init
+    return { ok: true, status: 204, json: async () => ({}) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.deleteMilestone('acme', 'app', 5)
+  assert.equal(capturedInit.method, 'DELETE')
+  assert.equal(result.ok, true)
+})
+
+test('getWikiPage GETs wiki/page/{name}', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => ({ pageName: 'Home', contentBase64: Buffer.from('# Home').toString('base64') }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.getWikiPage('acme', 'app', 'Home')
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/wiki/page/Home')
+  assert.equal(result.ok, true)
+  assert.equal(result.data.pageName, 'Home')
+})
