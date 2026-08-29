@@ -134,7 +134,7 @@ suggest starter labels (including `priority/*`, `type/*`, `status/*`) but never
 write them automatically — the creator confirms. Validation helpers live in
 `lib/issue-templates.js` with tests in `test/issue-templates.test.mjs`.
 
-The chat header chip is a git status for this conversation: repository, branch, whether the tree is clean, recent commits, and uncommitted diff. It follows the git folder this chat actually used. Click the chip to open the panel. There is no repository picker in Settings.
+The chat header chip is a git status for this conversation: repository, branch, whether the tree is clean, recent commits, uncommitted diff, plus the open PR for the current branch and failed CI for the current SHA (when Gitea is configured). It follows the git folder this chat actually used. Click the chip to open the panel. There is no repository picker in Settings.
 
 ## Identity
 
