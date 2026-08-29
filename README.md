@@ -153,6 +153,16 @@ Repository: https://github.com/goodandready-private/dsh-gitea
 The HTTP client retries transient failures (HTTP 429/5xx) with exponential
 backoff (default 1 retry, 300ms base). Configurable per instance if needed.
 
+## E2E against a real Gitea
+
+Run the smoke e2e (whoami, create/get/comment/close issue) against a real
+instance by setting env vars — skipped when unset:
+
+```bash
+GITEA_TEST_URL=https://gitea.example.com GITEA_TEST_TOKEN=<token> \
+GITEA_TEST_OWNER=owner GITEA_TEST_REPO=repo npm test
+```
+
 ## Verification
 
 ```bash
