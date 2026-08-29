@@ -189,6 +189,9 @@ GITEA_TEST_URL=https://gitea.example.com GITEA_TEST_TOKEN=<token> \
 GITEA_TEST_OWNER=owner GITEA_TEST_REPO=repo npm test
 ```
 
+Set `GITEA_TEST_NAME=forgejo` to label the run (the client uses the same
+`/api/v1`; the smoke is compatible with both Gitea and Forgejo).
+
 ## Verification
 
 ```bash
