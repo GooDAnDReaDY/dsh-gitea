@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Syntax check (host files)
+        run: |
+          for f in lib/index.js lib/gitea-client.js lib/handlers.js lib/git-local.js lib/secrets.js lib/events-store.js; do
+            node --check "$f"
+          done
+
+      - name: Run tests
+        run: npm test
+
+      - name: Leak scan (no infra paths or tokens in source)
+        run: |
+          if rg -n -i '192\.168|INSTALLED_PATH/|DEV_SOURCE|/mnt/|/opt/|36c9614607417f02736f35565a8340ccdf20437c' lib test README.md .gitea; then
+            echo "Leak found" >&2
+            exit 1
+          fi
+          echo "No leaks"
