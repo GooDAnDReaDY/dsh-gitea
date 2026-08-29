@@ -41,5 +41,26 @@ test(`e2e: smoke against real ${NAME} (skipped without env)`, { skip: !hasEnv &&
   const closed = await client.closeIssue(OWNER, REPO, number)
   assert.equal(closed.ok, true)
 
-  console.log(`e2e OK: ${NAME} user=${who.data.login} issue #${number} created/read/commented/closed`)
+  // 6. labels: list + create
+  const labels = await client.listLabels(OWNER, REPO)
+  assert.equal(labels.ok, true, `listLabels failed: ${labels.error}`)
+  const labelName = `e2e-${Date.now()}`
+  const createdLabel = await client.createLabel(OWNER, REPO, { name: labelName, color: '1d76db' })
+  assert.equal(createdLabel.ok, true, `createLabel failed: ${createdLabel.error}`)
+
+  // 7. milestones: list + create
+  const milestones = await client.listMilestones(OWNER, REPO)
+  assert.equal(milestones.ok, true, `listMilestones failed: ${milestones.error}`)
+  const createdMilestone = await client.createMilestone(OWNER, REPO, { title: `e2e-m-${Date.now()}` })
+  assert.equal(createdMilestone.ok, true, `createMilestone failed: ${createdMilestone.error}`)
+
+  // 8. branches list
+  const branches = await client.listBranches(OWNER, REPO)
+  assert.equal(branches.ok, true, `listBranches failed: ${branches.error}`)
+
+  // 9. releases list
+  const releases = await client.listReleases(OWNER, REPO)
+  assert.equal(releases.ok, true, `listReleases failed: ${releases.error}`)
+
+  console.log(`e2e OK: ${NAME} user=${who.data.login} issue #${number} + labels/milestones/branches/releases`)
 })
