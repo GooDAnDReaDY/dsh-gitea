@@ -4,6 +4,14 @@ Gitea and Forgejo issues, pull requests, repository search, git worktrees, and a
 
 Forgejo exposes the same REST API as Gitea (`/api/v1`); this plugin works with both.
 
+## What you get
+
+- **Issues & PRs** — create, read, comment, close, update, search, labels, milestones, assignees, reviews, line comments, merge (with `confirm`).
+- **Repo operations** — contents, branches, commits, compare, tags, releases, wiki, org repos/members/teams, webhooks.
+- **CI** — Gitea Actions runs, jobs, rerun (with `confirm`), failure explainer.
+- **Operations** — project health, daily triage digest, PR review inbox, merge-readiness gate, release notes, duplicate detection, batch ops, duty officer, label-driven automation, scheduled checks, digest delivery.
+- **UX** — git chip in the chat header (branch, dirty state, open PR, failed CI) and a Gitea events panel fed by a webhook.
+
 ## Install
 
 ```bash
@@ -15,6 +23,21 @@ dsh plugin --profile web add a temporary package artifact
 ```
 
 Restart the Web UI, then hard-refresh the browser.
+
+## Quick start
+
+1. Open **Settings -> Plugins**, expand the **Gitea** card.
+2. Set **Instance URL** (e.g. `https://gitea.example.com`).
+3. Create a DSH credential named `GITEA_TOKEN` with your Gitea API token (repository + issues scopes), and type only the credential name.
+4. Save — the plugin is ready. Tools infer `owner`/`repo` from the session's `git remote origin`, or take them explicitly.
+
+## Safety model
+
+- **Write operations require `confirm: true`**: merge, worktree/branch/tag/webhook/milestone/release delete, notifications mark-read, CI rerun.
+- **Dry-run by default** for batch ops, bootstrap, scheduled checks, digest delivery.
+- **`gitWrapper`** — worktree write operations go through the `git-<agent>` wrapper or are refused; read stays on bare git.
+- **Secrets never leave the credentials store** — Settings keeps only the credential name.
+- **Retry with backoff** on transient HTTP 429/5xx.
 
 ## Configure
 
