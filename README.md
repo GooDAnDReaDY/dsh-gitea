@@ -46,6 +46,9 @@ Restart the Web UI, then hard-refresh the browser.
 
 Open **Settings -> Plugins** and expand the **Gitea** card.
 
+- **Instances** (optional) — additional Gitea/Forgejo instances as a list of
+  `{ name, baseUrl, tokenEnv }`. Tools accept an `instance` parameter to select
+  one; when omitted they use the primary (baseUrl/tokenEnv).
 - **Instance URL** -- e.g. `https://gitea.example.com` (no trailing slash required).
 - **Credential name** -- name of a DSH credential that already holds the API token (default `GITEA_TOKEN`). Type the name, never the token. The token stays in the credentials store and is never returned by Settings GET.
 - **DoD reminder** (`dodReminder`, default off) — after a tool run that changed git files, remind if no issue/PR reference was made. Never blocks.
