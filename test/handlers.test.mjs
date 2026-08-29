@@ -150,6 +150,18 @@ function mockClient() {
       calls.push({ method: 'deleteTag', args })
       return Promise.resolve({ ok: true, data: {} })
     },
+    updateMilestone: (...args) => {
+      calls.push({ method: 'updateMilestone', args })
+      return Promise.resolve({ ok: true, data: { id: 5, state: 'closed' } })
+    },
+    deleteMilestone: (...args) => {
+      calls.push({ method: 'deleteMilestone', args })
+      return Promise.resolve({ ok: true, data: {} })
+    },
+    getWikiPage: (...args) => {
+      calls.push({ method: 'getWikiPage', args })
+      return Promise.resolve({ ok: true, data: { pageName: 'Home' } })
+    },
     getUser: (...args) => {
       calls.push({ method: 'getUser', args })
       return Promise.resolve({ ok: true, data: { login: 'alice', id: 1, html_url: 'https://gitea.example.com/alice' } })
@@ -952,4 +964,32 @@ test('gitea_repo_tag_delete requires confirm', async () => {
   const ok = await runHandler('gitea_repo_tag_delete', { tag: 'v0.3.0', confirm: true, owner: 'acme', repo: 'app' }, deps)
   assert.equal(ok.ok, true)
   assert.equal(client.calls[0].method, 'deleteTag')
+})
+
+// ---- #110 milestone write + wiki page ----
+
+test('gitea_milestone_update closes milestone', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_milestone_update', { milestone_id: 5, state: 'closed', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'updateMilestone')
+})
+
+test('gitea_milestone_delete requires confirm', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const denied = await runHandler('gitea_milestone_delete', { milestone_id: 5, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(denied.ok, false)
+  const ok = await runHandler('gitea_milestone_delete', { milestone_id: 5, confirm: true, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(ok.ok, true)
+  assert.equal(client.calls[0].method, 'deleteMilestone')
+})
+
+test('gitea_wiki_page gets page content', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_wiki_page', { pageName: 'Home', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'getWikiPage')
 })
