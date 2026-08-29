@@ -565,3 +565,73 @@ test('getJobLogs GETs actions/jobs/{id}/logs', async () => {
   assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/actions/jobs/9/logs')
   assert.equal(result.ok, true)
 })
+
+// ---- #109 org repo + branch/tag write ----
+
+test('createOrgRepo POSTs orgs/{org}/repos', async () => {
+  let capturedUrl, capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedUrl = url
+    capturedInit = init
+    return { ok: true, status: 201, json: async () => ({ name: 'app', full_name: 'acme/app' }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.createOrgRepo('acme', { name: 'app', private: true })
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/orgs/acme/repos')
+  assert.equal(capturedInit.method, 'POST')
+  assert.deepEqual(JSON.parse(capturedInit.body), { name: 'app', private: true })
+  assert.equal(result.ok, true)
+})
+
+test('createBranch POSTs repos/{o}/{r}/branches', async () => {
+  let capturedUrl, capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedUrl = url
+    capturedInit = init
+    return { ok: true, status: 201, json: async () => ({ name: 'feat/x' }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.createBranch('acme', 'app', { branch_name: 'feat/x', ref: 'main' })
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/branches')
+  assert.deepEqual(JSON.parse(capturedInit.body), { branch_name: 'feat/x', ref: 'main' })
+  assert.equal(result.ok, true)
+})
+
+test('deleteBranch DELETEs branches/{branch}', async () => {
+  let capturedUrl, capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedUrl = url
+    capturedInit = init
+    return { ok: true, status: 204, json: async () => ({}) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.deleteBranch('acme', 'app', 'feat/x')
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/branches/feat%2Fx')
+  assert.equal(capturedInit.method, 'DELETE')
+  assert.equal(result.ok, true)
+})
+
+test('createTag POSTs repos/{o}/{r}/tags', async () => {
+  let capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedInit = init
+    return { ok: true, status: 201, json: async () => ({ name: 'v0.3.0' }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.createTag('acme', 'app', { tag_name: 'v0.3.0', target: 'main' })
+  assert.equal(capturedInit.method, 'POST')
+  assert.deepEqual(JSON.parse(capturedInit.body), { tag_name: 'v0.3.0', target: 'main' })
+  assert.equal(result.ok, true)
+})
+
+test('deleteTag DELETEs tags/{tag}', async () => {
+  let capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedInit = init
+    return { ok: true, status: 204, json: async () => ({}) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.deleteTag('acme', 'app', 'v0.3.0')
+  assert.equal(capturedInit.method, 'DELETE')
+  assert.equal(result.ok, true)
+})

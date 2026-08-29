@@ -130,6 +130,26 @@ function mockClient() {
       calls.push({ method: 'listRunJobs', args })
       return Promise.resolve({ ok: true, data: { jobs: [] } })
     },
+    createOrgRepo: (...args) => {
+      calls.push({ method: 'createOrgRepo', args })
+      return Promise.resolve({ ok: true, data: { name: 'app' } })
+    },
+    createBranch: (...args) => {
+      calls.push({ method: 'createBranch', args })
+      return Promise.resolve({ ok: true, data: { name: 'feat/x' } })
+    },
+    deleteBranch: (...args) => {
+      calls.push({ method: 'deleteBranch', args })
+      return Promise.resolve({ ok: true, data: {} })
+    },
+    createTag: (...args) => {
+      calls.push({ method: 'createTag', args })
+      return Promise.resolve({ ok: true, data: { name: 'v0.3.0' } })
+    },
+    deleteTag: (...args) => {
+      calls.push({ method: 'deleteTag', args })
+      return Promise.resolve({ ok: true, data: {} })
+    },
     getUser: (...args) => {
       calls.push({ method: 'getUser', args })
       return Promise.resolve({ ok: true, data: { login: 'alice', id: 1, html_url: 'https://gitea.example.com/alice' } })
@@ -885,4 +905,51 @@ test('gitea_ci_jobs lists jobs for run', async () => {
   assert.equal(result.ok, true)
   assert.equal(client.calls[0].method, 'listRunJobs')
   assert.equal(client.calls[0].args[2], 5)
+})
+
+// ---- #109 org repo + branch/tag write ----
+
+test('gitea_repo_create_org creates repo in org', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_repo_create_org', { org: 'goodandready', name: 'app', private: true }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'createOrgRepo')
+  assert.equal(client.calls[0].args[0], 'goodandready')
+})
+
+test('gitea_repo_branch_create calls createBranch', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_repo_branch_create', { branch_name: 'feat/x', ref: 'main', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'createBranch')
+})
+
+test('gitea_repo_branch_delete requires confirm', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const denied = await runHandler('gitea_repo_branch_delete', { branch: 'feat/x', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(denied.ok, false)
+  const ok = await runHandler('gitea_repo_branch_delete', { branch: 'feat/x', confirm: true, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(ok.ok, true)
+  assert.equal(client.calls[0].method, 'deleteBranch')
+})
+
+test('gitea_repo_tag_create calls createTag', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_repo_tag_create', { tag_name: 'v0.3.0', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'createTag')
+})
+
+test('gitea_repo_tag_delete requires confirm', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const denied = await runHandler('gitea_repo_tag_delete', { tag: 'v0.3.0', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(denied.ok, false)
+  const ok = await runHandler('gitea_repo_tag_delete', { tag: 'v0.3.0', confirm: true, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(ok.ok, true)
+  assert.equal(client.calls[0].method, 'deleteTag')
 })
