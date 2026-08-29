@@ -677,3 +677,54 @@ test('getWikiPage GETs wiki/page/{name}', async () => {
   assert.equal(result.ok, true)
   assert.equal(result.data.pageName, 'Home')
 })
+
+// ---- #111 releases edit + webhooks ----
+
+test('updateRelease PATCHes releases/{id}', async () => {
+  let capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedInit = init
+    return { ok: true, status: 200, json: async () => ({ id: 7, name: 'v0.3.0' }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.updateRelease('acme', 'app', 7, { name: 'v0.3.0', body: 'notes' })
+  assert.equal(capturedInit.method, 'PATCH')
+  assert.deepEqual(JSON.parse(capturedInit.body), { name: 'v0.3.0', body: 'notes' })
+  assert.equal(result.ok, true)
+})
+
+test('listWebhooks GETs repos/{o}/{r}/hooks', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => [{ id: 3, type: 'gitea' }] }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.listWebhooks('acme', 'app')
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/hooks')
+  assert.equal(result.ok, true)
+})
+
+test('createWebhook POSTs hooks endpoint', async () => {
+  let capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedInit = init
+    return { ok: true, status: 201, json: async () => ({ id: 3 }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.createWebhook('acme', 'app', { type: 'gitea', config: { url: 'https://x/hook' } })
+  assert.equal(capturedInit.method, 'POST')
+  assert.equal(result.ok, true)
+})
+
+test('deleteWebhook DELETEs hooks/{id}', async () => {
+  let capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedInit = init
+    return { ok: true, status: 204, json: async () => ({}) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.deleteWebhook('acme', 'app', 3)
+  assert.equal(capturedInit.method, 'DELETE')
+  assert.equal(result.ok, true)
+})

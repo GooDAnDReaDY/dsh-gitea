@@ -162,6 +162,22 @@ function mockClient() {
       calls.push({ method: 'getWikiPage', args })
       return Promise.resolve({ ok: true, data: { pageName: 'Home' } })
     },
+    updateRelease: (...args) => {
+      calls.push({ method: 'updateRelease', args })
+      return Promise.resolve({ ok: true, data: { id: 7 } })
+    },
+    listWebhooks: (...args) => {
+      calls.push({ method: 'listWebhooks', args })
+      return Promise.resolve({ ok: true, data: [] })
+    },
+    createWebhook: (...args) => {
+      calls.push({ method: 'createWebhook', args })
+      return Promise.resolve({ ok: true, data: { id: 3 } })
+    },
+    deleteWebhook: (...args) => {
+      calls.push({ method: 'deleteWebhook', args })
+      return Promise.resolve({ ok: true, data: {} })
+    },
     getUser: (...args) => {
       calls.push({ method: 'getUser', args })
       return Promise.resolve({ ok: true, data: { login: 'alice', id: 1, html_url: 'https://gitea.example.com/alice' } })
@@ -992,4 +1008,40 @@ test('gitea_wiki_page gets page content', async () => {
   const result = await runHandler('gitea_wiki_page', { pageName: 'Home', owner: 'acme', repo: 'app' }, deps)
   assert.equal(result.ok, true)
   assert.equal(client.calls[0].method, 'getWikiPage')
+})
+
+// ---- #111 release update + webhooks ----
+
+test('gitea_release_update calls updateRelease', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_release_update', { release_id: 7, name: 'v0.3.0', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'updateRelease')
+})
+
+test('gitea_webhook_list calls listWebhooks', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_webhook_list', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'listWebhooks')
+})
+
+test('gitea_webhook_create calls createWebhook', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_webhook_create', { url: 'https://x/hook', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'createWebhook')
+})
+
+test('gitea_webhook_delete requires confirm', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const denied = await runHandler('gitea_webhook_delete', { hook_id: 3, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(denied.ok, false)
+  const ok = await runHandler('gitea_webhook_delete', { hook_id: 3, confirm: true, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(ok.ok, true)
+  assert.equal(client.calls[0].method, 'deleteWebhook')
 })

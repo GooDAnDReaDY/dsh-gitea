@@ -101,6 +101,8 @@ Create a personal access token on your instance with **repository** and **issues
 | `gitea_repo_tag_create` / `gitea_repo_tag_delete` | Create/delete tag (delete requires confirm) |
 | `gitea_milestone_update` / `gitea_milestone_delete` | Update/close/delete milestone (delete requires confirm) |
 | `gitea_wiki_page` | Get wiki page content |
+| `gitea_release_update` | Update a release |
+| `gitea_webhook_list` / `gitea_webhook_create` / `gitea_webhook_delete` | Manage repo webhooks (delete requires confirm) |
 | `gitea_whoami` | Show the user for the configured token |
 | `gitea_worktree_list` | List git worktrees |
 | `gitea_worktree_add` | Create a git worktree |
