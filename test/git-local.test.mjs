@@ -111,6 +111,7 @@ test('buildGitSnapshot reports branch, dirty, graph, and diff', async () => {
   const execFile = async (bin, args) => {
     const joined = args.join(' ')
     if (joined === 'rev-parse --abbrev-ref HEAD') return { stdout: 'main\n', stderr: '' }
+    if (joined === 'rev-parse HEAD') return { stdout: 'abc123\n', stderr: '' }
     if (joined === 'rev-parse --show-toplevel') return { stdout: '/tmp/example/app\n', stderr: '' }
     if (joined === 'status --porcelain') return { stdout: ' M lib/index.js\n', stderr: '' }
     if (args[0] === 'log') return { stdout: 'abc hello\n', stderr: '' }
