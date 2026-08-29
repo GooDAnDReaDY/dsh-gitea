@@ -150,6 +150,9 @@ Package: `@goodandready-private/dsh-gitea`
 
 Repository: https://github.com/goodandready-private/dsh-gitea
 
+The HTTP client retries transient failures (HTTP 429/5xx) with exponential
+backoff (default 1 retry, 300ms base). Configurable per instance if needed.
+
 ## Verification
 
 ```bash
