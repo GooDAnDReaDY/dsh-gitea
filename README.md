@@ -1,98 +1,190 @@
-# dsh-gitea
+# 📦 @goodandready/dsh-gitea
 
-Gitea and Forgejo issues, pull requests, repository search, git worktrees, and a git chip in the chat header for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness).
+<div align="center">
 
-Forgejo exposes the same REST API as Gitea (`/api/v1`); this plugin works with both.
+<h3>Enterprise Gitea & Forgejo Integration Suite for DeepSeek Harness</h3>
 
-## Install
+<p align="center">
+  <a href="https://www.npmjs.com/package/@goodandready/dsh-gitea"><img src="https://img.shields.io/npm/v/@goodandready/dsh-gitea.svg?style=for-the-badge&color=6366f1&labelColor=1e1b4b" alt="npm version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/GooDAnDReaDY/dsh-gitea.svg?style=for-the-badge&color=10b981&labelColor=064e3b" alt="license"></a>
+  <a href="https://github.com/topics/dsh-plugin"><img src="https://img.shields.io/badge/DSH-Plugin-8b5cf6.svg?style=for-the-badge&labelColor=2e1065" alt="DSH Plugin"></a>
+  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/Node-20%2B-f59e0b.svg?style=for-the-badge&labelColor=451a03" alt="Node version"></a>
+</p>
 
-```bash
-# From npm (when published):
-dsh plugin --profile web add @goodandready/dsh-gitea
+<p align="center">
+  <a href="https://goodandready.app/"><img src="https://img.shields.io/badge/All_Author_Projects-goodandready.app-ff4500.svg?style=for-the-badge&logo=rocket&logoColor=white&labelColor=1a1a2e" alt="All Author Projects"></a>
+</p>
 
-# From a local checkout:
-dsh plugin --profile web add a temporary package artifact
+<p align="center">
+  <a href="README.md"><b>🇬🇧 English</b></a> •
+  <a href="README.ru.md"><b>🇷🇺 Русский</b></a> •
+  <a href="README.zh.md"><b>🇨🇳 中文说明</b></a>
+</p>
+
+</div>
+
+---
+
+## ⚡ Overview & Problem Solved
+
+When autonomous AI coding agents perform complex multi-step development in DeepSeek Harness, they require seamless access to issue trackers, pull request review workflows, branch creation, and isolated workspace worktrees without risking repository corruption or leaking credentials into chat logs.
+
+**`@goodandready/dsh-gitea`** bridges DeepSeek Harness to self-hosted **Gitea** and **Forgejo** instances. It equips agents with a complete suite of 20+ structured tools, registers a live **Git Status Chip** directly in the Web UI chat header, and enforces safety rails (`confirm: true` merge guards and dedicated write wrappers).
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+graph LR
+    subgraph DSH ["DeepSeek Harness"]
+        UI["Web UI Chat Header<br/>(Git Status Chip)"]
+        Agent["Autonomous Agent<br/>(20+ Gitea Tools)"]
+        Creds["Credentials Store<br/>(GITEA_TOKEN Ref)"]
+    end
+
+    subgraph Plugin ["dsh-gitea Plugin"]
+        ChipPoller["/git-status API<br/>Branch & Diff Inspector"]
+        Client["GiteaClient<br/>(REST API v1)"]
+        WorktreeMgr["Worktree Manager<br/>(Isolated Task Trees)"]
+    end
+
+    subgraph Server ["Self-Hosted VCS"]
+        Gitea["Gitea / Forgejo Server<br/>(Issues, PRs, Labels, Milestones)"]
+        GitRepo["Git Repository<br/>(Worktrees & Remotes)"]
+    end
+
+    UI -->|Polls Status| ChipPoller
+    ChipPoller -->|Reads Status| GitRepo
+    Agent -->|Executes Tools| Client
+    Agent -->|Manages Branches| WorktreeMgr
+    WorktreeMgr -->|git worktree| GitRepo
+    Client -->|Authenticated REST| Gitea
+    Creds -.->|Resolves In-Memory| Client
 ```
 
-Restart the Web UI, then hard-refresh the browser.
+---
 
-## Configure
+## ✨ Full Feature Breakdown
 
-Open **Settings -> Plugins** and expand the **Gitea** card.
+### 1. 20+ Agent Tools Suite
 
-- **Instance URL** -- e.g. `https://gitea.example.com` (no trailing slash required).
-- **Credential name** -- name of a DSH credential that already holds the API token (default `GITEA_TOKEN`). Type the name, never the token. The token stays in the credentials store and is never returned by Settings GET.
-- **Git wrapper** (`gitWrapper`) -- binary used for write operations (`gitea_worktree_add`, `gitea_worktree_remove`), e.g. `git-deepseek-harness`. Default empty: write operations are **disabled** and return a clear error. Read operations (status, worktree list, origin) always use bare `git`. This keeps the Gitea agent identity: write operations must go through the `git-<agent>` wrapper, never bare `git`.
+All tools infer `owner` and `repo` automatically from the active workspace's `git remote get-url origin` when omitted by the agent.
 
-Tools take `owner`/`repo` on each call. If omitted, they infer from `git remote origin` of the current session workspace. Settings does not pick a repository.
+| Tool Name | Scope | Description | Safety Requirements |
+|:---|:---|:---|:---|
+| `gitea_issue_create` | Issues | Creates a new issue with title, body, labels, and assignees | - |
+| `gitea_issue_list` | Issues | Lists issues with state (`open`/`closed`), milestone, and label filters | - |
+| `gitea_issue_get` | Issues | Fetches detailed issue data by issue index | - |
+| `gitea_issue_comment`| Issues | Posts comments, progress updates, and code reviews | - |
+| `gitea_issue_update` | Issues | Updates issue title, body, or status | - |
+| `gitea_issue_close`  | Issues | Closes an issue | - |
+| `gitea_issue_search` | Issues | Full-text issue query across the repository/instance | - |
+| `gitea_issue_set_labels` | Labels | Replaces or updates issue labels | - |
+| `gitea_issue_set_assignee` | Team | Assigns developers or agents to issues | - |
+| `gitea_label_list`   | Labels | Lists all repository labels | - |
+| `gitea_label_create` | Labels | Creates custom labels with colors | - |
+| `gitea_label_delete` | Labels | Deletes repository labels | - |
+| `gitea_milestone_list` | Milestones | Lists repository milestones and progress | - |
+| `gitea_milestone_create` | Milestones | Creates roadmap milestones with due dates | - |
+| `gitea_pr_create`    | Pull Requests | Opens PR from source branch to base branch | - |
+| `gitea_pr_list`      | Pull Requests | Lists open and closed pull requests | - |
+| `gitea_pr_get`       | Pull Requests | Fetches PR diff summary, reviews, and status | - |
+| `gitea_pr_comment`   | Pull Requests | Adds line comments and general PR feedback | - |
+| `gitea_pr_merge`     | Pull Requests | Merges PR via merge/rebase/squash | ⚠️ Requires `confirm: true` |
+| `gitea_worktree_list`| Worktrees | Lists active git worktrees and branch paths | - |
+| `gitea_worktree_add` | Worktrees | Creates an isolated worktree for concurrent tasks | - |
+| `gitea_worktree_use` | Worktrees | Switches session context to a worktree directory | - |
+| `gitea_worktree_remove` | Worktrees | Prunes and deletes completed worktrees | ⚠️ Requires `confirm: true` |
+| `gitea_repo_search`  | Discovery | Searches repositories across the Gitea instance | - |
+| `gitea_whoami`       | Auth | Returns authenticated user details and permissions | - |
 
-### API token
+---
 
-Create a personal access token on your instance with **repository** and **issues** scopes. Add it as a DSH credential using the ref name from Settings (default `GITEA_TOKEN`).
+### 2. Live Git Status Chip in Chat Header
 
-## Tools
+The client component injects a real-time Git Status Chip into the DSH Web UI top navigation bar:
+* **Active Repository & Branch**: Displays current branch name (e.g., `feature/issue-42-auth`).
+* **Tree Cleanliness**: Color-coded badges indicating clean vs dirty working trees.
+* **Uncommitted Diff Inspector**: 1-click modal drawer showing modified files and diff lines.
+* **Ahead/Behind Tracker**: Sync indicator with upstream origin remote.
 
-| Tool | Purpose |
-|------|---------|
-| `gitea_issue_create` | Create an issue |
-| `gitea_issue_list` | List issues |
-| `gitea_issue_get` | Get an issue by number |
-| `gitea_issue_comment` | Comment on an issue |
-| `gitea_issue_close` | Close an issue |
-| `gitea_issue_update` | Update an issue (title, body, state) |
-| `gitea_issue_search` | Search issues across the instance |
-| `gitea_issue_set_labels` | Replace labels on an issue |
-| `gitea_issue_set_assignee` | Set the assignee of an issue |
-| `gitea_label_list` | List repository labels |
-| `gitea_label_create` | Create a label |
-| `gitea_label_delete` | Delete a label |
-| `gitea_milestone_list` | List milestones |
-| `gitea_milestone_create` | Create a milestone |
-| `gitea_pr_create` | Create a pull request |
-| `gitea_pr_list` | List pull requests |
-| `gitea_pr_get` | Get a pull request by number |
-| `gitea_pr_comment` | Comment on a pull request |
-| `gitea_pr_merge` | Merge a pull request |
-| `gitea_repo_search` | Search repositories on the configured instance |
-| `gitea_whoami` | Show the user for the configured token |
-| `gitea_worktree_list` | List git worktrees |
-| `gitea_worktree_add` | Create a git worktree |
-| `gitea_worktree_use` | Make a worktree the current working copy |
-| `gitea_worktree_remove` | Remove a worktree (`confirm: true`) |
+---
 
-**Merge safety:** `gitea_pr_merge` requires `confirm: true` (boolean). Calls without it are rejected.
+### 3. Worktree Isolation & Agent Safety Rails
 
-**Worktree safety:** `gitea_worktree_remove` also requires `confirm: true`.
+To allow autonomous agents to work on multiple issues without touching the primary branch:
+* **Non-destructive Worktrees**: Creates worktree paths under `.worktrees/issue-<id>/` or custom directories.
+* **Confirm Guard Matrix**: Destructive operations like `gitea_pr_merge` and `gitea_worktree_remove` strictly require explicit boolean `confirm: true`. Unconfirmed tool calls are automatically rejected.
+* **Git Wrapper Enforcement**: Write operations can be routed through a dedicated wrapper (`gitWrapper`, e.g., `git-deepseek-harness`) to enforce agent author signatures.
 
-## Issue templates
+---
 
-The package ships a Gitea issue template pack under `.gitea/ISSUE_TEMPLATE/`:
+### 4. Gitea Issue Templates Pack
 
-| File | Purpose | Starter labels |
-|------|---------|----------------|
-| `bug.yaml` | Bug report | type/bug, status/ready |
-| `feature.yaml` | Feature request | type/feature, status/ready |
-| `security.yaml` | Security issue | type/security, priority/high, scope/security |
-| `research.yaml` | Research / spike | type/research, status/ready |
-| `tech-debt.yaml` | Tech debt | type/tech-debt, status/ready |
-| `incident.yaml` | Incident | type/incident, priority/critical |
-| `config-change.yaml` | Config change | type/refactor, scope/settings, status/ready |
+Includes standardized Gitea YAML issue templates under `.gitea/ISSUE_TEMPLATE/`:
 
-Templates follow the Gitea YAML form format (name, about, labels, body). They
-suggest starter labels (including `priority/*`, `type/*`, `status/*`) but never
-write them automatically — the creator confirms. Validation helpers live in
-`lib/issue-templates.js` with tests in `test/issue-templates.test.mjs`.
+| Template File | Purpose | Recommended Starter Labels |
+|:---|:---|:---|
+| `bug.yaml` | Bug report | `type/bug`, `status/ready` |
+| `feature.yaml` | Feature proposal | `type/feature`, `status/ready` |
+| `security.yaml` | Security vulnerability | `type/security`, `priority/high`, `scope/security` |
+| `research.yaml` | Architectural research / spike | `type/research`, `status/ready` |
+| `tech-debt.yaml` | Technical debt & refactoring | `type/tech-debt`, `status/ready` |
+| `incident.yaml` | Production incident report | `type/incident`, `priority/critical` |
+| `config-change.yaml` | Infrastructure & config change | `type/refactor`, `scope/settings`, `status/ready` |
 
-The chat header chip is a git status for this conversation: repository, branch, whether the tree is clean, recent commits, and uncommitted diff. It follows the git folder this chat actually used. Click the chip to open the panel. There is no repository picker in Settings.
+---
 
-## Identity
+## 📦 Installation
 
-Package: `@goodandready/dsh-gitea`
+Install via DeepSeek Harness CLI:
 
-Repository: https://github.com/GooDAnDReaDY/dsh-gitea
+```bash
+dsh plugin --profile web add @goodandready/dsh-gitea
+```
 
-## Verification
+Restart DSH Web UI and perform a hard-refresh (`Ctrl+F5` or `Cmd+Shift+R`).
+
+---
+
+## ⚙️ Configuration
+
+Navigate to **Settings -> Plugins -> Gitea**:
+
+```yaml
+# config.yaml
+dsh-gitea:
+  baseUrl: "https://gitea.yourcompany.com"
+  tokenEnv: "GITEA_TOKEN"
+  gitWrapper: ""
+  timeoutMs: 15000
+```
+
+### Settings Reference Table
+
+| Key | Type | Default | Description |
+|:---|:---|:---|:---|
+| `baseUrl` | `string` | `""` | Base URL of your Gitea or Forgejo instance (e.g. `https://gitea.example.com`) |
+| `tokenEnv` | `string` | `"GITEA_TOKEN"` | Name of the DSH Credential containing the personal access token |
+| `gitWrapper` | `string` | `""` | Optional executable wrapper for write operations (e.g., `git-dsh`) |
+| `timeoutMs` | `number` | `15000` | HTTP request timeout in milliseconds |
+
+> [!IMPORTANT]
+> Never put the raw API token in the `tokenEnv` field. Store the token securely in DSH Credentials and enter only its reference key name.
+
+---
+
+## 🧪 Testing & Verification
+
+Run the comprehensive unit and integration test suite:
 
 ```bash
 npm test
 ```
+
+---
+
+## 📄 License
+
+MIT © [GooDAnDReaDY](https://github.com/GooDAnDReaDY)
