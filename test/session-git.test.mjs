@@ -117,10 +117,10 @@ const LIVE_WORKTREE = 'DEV/photographer-onepage/.worktrees/1-single-page'
 test('candidate matrix covers how an agent actually reaches a git folder', () => {
   const cases = [
     { name: 'live wrapper worktree add', exec: { arguments: { command: LIVE_WORKTREE_ADD } }, expect: LIVE_WORKTREE },
-    { name: 'git-cursor worktree add', exec: { arguments: { command: 'cd /tmp/app && git-cursor worktree add -b feat/x .worktrees/x origin/main' } }, expect: '/tmp/app/.worktrees/x' },
+    { name: 'git-agent worktree add', exec: { arguments: { command: 'cd /tmp/app && git-agent worktree add -b feat/x .worktrees/x origin/main' } }, expect: '/tmp/app/.worktrees/x' },
     { name: 'plain git worktree add abs', exec: { arguments: { command: 'git worktree add /tmp/app/.worktrees/x main' } }, expect: '/tmp/app/.worktrees/x' },
     { name: 'git -C status', exec: { arguments: { command: 'git -C /tmp/app status' } }, expect: '/tmp/app' },
-    { name: 'git-cursor -C log', exec: { arguments: { command: 'git-cursor -C /tmp/app log -1' } }, expect: '/tmp/app' },
+    { name: 'git-agent -C log', exec: { arguments: { command: 'git-agent -C /tmp/app log -1' } }, expect: '/tmp/app' },
     { name: 'cd then git status', exec: { arguments: { command: 'cd /tmp/app && git status' } }, expect: '/tmp/app' },
     { name: 'ls absolute worktree', exec: { arguments: { command: 'ls /tmp/app/.worktrees/x' } }, expect: '/tmp/app/.worktrees/x' },
     { name: 'gitea_worktree_use args', exec: { arguments: { worktreePath: '/tmp/app/.worktrees/x' } }, expect: '/tmp/app/.worktrees/x' },
