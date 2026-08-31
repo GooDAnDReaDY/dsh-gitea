@@ -1,5 +1,5 @@
 {
-  "name": "@@goodandready/dsh-gitea",
+  "name": "@goodandready/dsh-gitea",
   "version": "0.2.11",
   "description": "DSH plugin for Gitea/Forgejo issues, PRs, worktrees, and a git chip in the chat header.",
   "type": "module",
@@ -28,11 +28,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/@goodandready/dsh-gitea.git"
+    "url": "git+https://github.com/GooDAnDReaDY/dsh-gitea.git"
   },
-  "homepage": "https://github.com/@goodandready/dsh-gitea#readme",
+  "homepage": "https://github.com/GooDAnDReaDY/dsh-gitea#readme",
   "bugs": {
-    "url": "https://github.com/@goodandready/dsh-gitea/issues"
+    "url": "https://github.com/GooDAnDReaDY/dsh-gitea/issues"
   },
   "license": "MIT",
   "dsh": {

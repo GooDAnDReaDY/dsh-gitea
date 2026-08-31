@@ -36,7 +36,7 @@ test('client factory returns apply after CommonJS shim', () => {
       head: { appendChild() {} },
     },
   }))
-  assert.equal(captured.id, '@@goodandready/dsh-gitea')
+  assert.equal(captured.id, '@goodandready/dsh-gitea')
   const fakeReact = {
     createElement() { return null },
     useState(v) { return [v, () => {}] },

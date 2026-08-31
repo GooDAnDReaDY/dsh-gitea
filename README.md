@@ -8,7 +8,7 @@ Forgejo exposes the same REST API as Gitea (`/api/v1`); this plugin works with b
 
 ```bash
 # From npm (when published):
-dsh plugin --profile web add @@goodandready/dsh-gitea
+dsh plugin --profile web add @goodandready/dsh-gitea
 
 # From a local checkout:
 dsh plugin --profile web add a temporary package artifact
@@ -87,9 +87,9 @@ The chat header chip is a git status for this conversation: repository, branch, 
 
 ## Identity
 
-Package: `@@goodandready/dsh-gitea`
+Package: `@goodandready/dsh-gitea`
 
-Repository: https://github.com/@goodandready/dsh-gitea
+Repository: https://github.com/GooDAnDReaDY/dsh-gitea
 
 ## Verification
 
