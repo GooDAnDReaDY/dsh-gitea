@@ -1124,3 +1124,14 @@ test('gitea_auto_merge requires confirm', async () => {
   assert.equal(denied.data.merged, false)
   assert.equal(denied.data.needConfirm, true)
 })
+
+// ---- #144 mirror public ----
+
+test('gitea_mirror_public returns plan', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_mirror_public', { source: 'gitea', target: 'github' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.dryRun, true)
+  assert.ok(result.data.steps.length >= 3)
+})
