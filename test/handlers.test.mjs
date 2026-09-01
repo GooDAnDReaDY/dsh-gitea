@@ -1147,3 +1147,16 @@ test('gitea_auto_actions dry-runs without confirm', async () => {
   assert.equal(result.data.applied, false)
   assert.ok(result.data.actions.length >= 1)
 })
+
+// ---- #146 repo analytics ----
+
+test('gitea_repo_analytics returns metrics', async () => {
+  const client = mockClient()
+  client.listIssues = async () => ({ ok: true, data: [{ number: 1, state: 'open' }, { number: 2, state: 'closed' }] })
+  client.listPulls = async () => ({ ok: true, data: [{ number: 1, state: 'open' }] })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_repo_analytics', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.issues.open, 1)
+  assert.equal(result.data.pulls.open, 1)
+})
