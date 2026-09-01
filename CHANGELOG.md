@@ -2,58 +2,21 @@
 
 All notable changes to dsh-gitea.
 
-## 0.2.17 (unreleased)
+## 0.4.0 — 2026-09-01
 
-- **feat:** repo org create + branch/tag create/delete (#109)
-- **feat:** milestone update/delete/close, wiki page content (#110)
-- **feat:** release update, webhooks list/create/delete (#111)
-- **feat:** actions rerun, user search, org list/teams (#112)
-- **feat:** git chip shows open PR and failed CI (#113)
-- **feat:** Gitea webhook → DSH events panel (#114)
-- **chore:** Gitea Actions CI for the plugin itself (#115)
-- **chore:** retry with backoff in client (#116)
-- **test:** e2e smoke against real Gitea (#117)
-- **docs:** publication-ready documentation (#118)
+- Hybrid AI-style PR review (#141)
+- Auto-merge gate (#142)
+- Push notifications on critical events (#143)
+- Public GitHub mirror plan (#144)
+- Auto-actions rules (#145)
+- Repository analytics (#146)
 
-## 0.2.16 — 2026-08-28
+## 0.3.1 — 2026-08-31
 
-- Scheduled project checks (#57)
-- External digest delivery (#58)
-- Label taxonomy bootstrap (#61)
-- PR template pack and risk checklist (#63)
-- Issue → branch → worktree → PR flow (#47)
+- Repair npm packument (empty from 0.3.0)
+- Public scope `@goodandready/dsh-gitea`
 
-## 0.2.15 — 2026-08-28
+## 0.3.0 — 2026-08-31
 
-- DoD reminder hook (default off) (#15)
-- Daily triage digest (#43)
-- Dependency and security watch (#52)
-- PR policy as code (#55)
-- PR impact map (#56)
-
-## 0.2.14 — 2026-08-28
-
-- PR change and risk summary (#45)
-- Issue duplicate detection (#49)
-- Batch issue operations with preview (#50)
-- Merge readiness gate (#51)
-- Release assistant (#53)
-
-## 0.2.13 — 2026-08-28
-
-- Repo git metadata: contents, branches, commits, compare, tags (#18)
-- Releases, wiki, org repos, notifications (#19)
-- Project health report (#42)
-- PR review inbox (#44)
-- CI failure explainer (#46)
-
-## 0.2.12 — 2026-08-28
-
-- Issue governance API: update/search/labels/milestones/assignees (#16)
-- Issue template pack (#62)
-- Issue quality lint (#54)
-- PR files, reviews, line comments, merge status (#17)
-
-## 0.2.11 — 2026-08-28
-
-- Git wrapper for write operations (#37)
+- First public release
+- 3-language README (EN/RU/ZH)

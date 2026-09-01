@@ -6,14 +6,14 @@ import { test } from 'node:test'
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..')
 const read = (name) => fs.readFileSync(path.join(root, name), 'utf8')
 const pkg = JSON.parse(read('package.json'))
-const name = '@goodandready-private/dsh-gitea'
+const name = '@goodandready/dsh-gitea'
 
 test('private package identity matches all loader sites', () => {
   assert.equal(pkg.name, name)
   assert.equal(pkg.private, undefined)
-  assert.equal(pkg.publishConfig.registry, 'https://npm.pkg.github.com')
-  assert.ok(read('cordis.patch.yml').includes("name: '@goodandready-private/dsh-gitea'"))
-  assert.ok(read('lib/client.js').includes("id: '@goodandready-private/dsh-gitea'"))
+  assert.equal(pkg.publishConfig.registry, 'https://registry.npmjs.org/')
+  assert.ok(read('cordis.patch.yml').includes("name: '@goodandready/dsh-gitea'"))
+  assert.ok(read('lib/client.js').includes("id: '@goodandready/dsh-gitea'"))
 })
 
 test('tracked package sources contain no host-specific infra references', () => {

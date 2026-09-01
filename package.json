@@ -1,7 +1,7 @@
 {
-  "name": "@goodandready-private/dsh-gitea",
-  "version": "0.2.17",
-  "description": "DSH plugin for Gitea/Forgejo issues, PRs, worktrees, and a git chip in the chat header.",
+  "name": "@goodandready/dsh-gitea",
+  "version": "0.3.3",
+  "description": "Enterprise Gitea & Forgejo integration for DeepSeek Harness: 20+ issue/PR/worktree tools and a real-time Git status chip in chat.",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -14,8 +14,9 @@
     "lib/",
     "cordis.patch.yml",
     "README.md",
+    "docs/",
     "LICENSE",
-    "CHANGELOG.md"
+    ".gitea/"
   ],
   "scripts": {
     "test": "node --test test/*.test.mjs"
@@ -25,15 +26,17 @@
     "dsh-plugin",
     "gitea",
     "forgejo",
-    "git"
+    "git",
+    "worktrees",
+    "deepseek-harness"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/goodandready-private/dsh-gitea.git"
+    "url": "git+https://github.com/GooDAnDReaDY/dsh-gitea.git"
   },
-  "homepage": "https://github.com/goodandready-private/dsh-gitea#readme",
+  "homepage": "https://github.com/GooDAnDReaDY/dsh-gitea#readme",
   "bugs": {
-    "url": "https://github.com/goodandready-private/dsh-gitea/issues"
+    "url": "https://github.com/GooDAnDReaDY/dsh-gitea/issues"
   },
   "license": "MIT",
   "dsh": {
@@ -57,6 +60,7 @@
     "@deepseek-ai/schemastery": "^3.18.1"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }
