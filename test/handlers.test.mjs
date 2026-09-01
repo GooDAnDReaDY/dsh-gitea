@@ -1135,3 +1135,15 @@ test('gitea_mirror_public returns plan', async () => {
   assert.equal(result.data.dryRun, true)
   assert.ok(result.data.steps.length >= 3)
 })
+
+// ---- #145 auto actions ----
+
+test('gitea_auto_actions dry-runs without confirm', async () => {
+  const client = mockClient()
+  client.getIssue = async () => ({ ok: true, data: { number: 1, title: 'x', labels: [{ name: 'type/security' }], assignees: [] } })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_auto_actions', { number: 1, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.applied, false)
+  assert.ok(result.data.actions.length >= 1)
+})
