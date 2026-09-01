@@ -56,7 +56,10 @@ Open **Settings -> Plugins** and expand the **Gitea** card.
 
 Tools take `owner`/`repo` on each call. If omitted, they infer from `git remote origin` of the current session workspace. Settings does not pick a repository.
 
-#Webhook verification: if `webhookSecret` is set, the `/dsh-gitea/webhook`
+#Push notifications: set `notifyWebhook` to receive immediate delivery on
+critical events (new PR opened, CI failed) — in addition to the events panel.
+
+Webhook verification: if `webhookSecret` is set, the `/dsh-gitea/webhook`
 endpoint requires a valid `X-Gitea-Signature` (HMAC-SHA256) header — set the
 same secret in Gitea's webhook settings. Empty secret disables verification.
 
