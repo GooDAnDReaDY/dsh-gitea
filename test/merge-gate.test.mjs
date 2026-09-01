@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { checkMergeReadiness } from '../lib/merge-gate.js'
+import { checkMergeReadiness, autoMergeIfReady } from '../lib/merge-gate.js'
 
 function mkDeps(over = {}) {
   const client = {
@@ -43,4 +43,31 @@ test('checkMergeReadiness handles missing PR data as unknown', async () => {
   }))
   assert.equal(r.ok, true)
   assert.equal(r.data.ready, false)
+})
+
+// ---- #142 auto-merge gate ----
+
+test('autoMergeIfReady merges when ready and confirm', async () => {
+  const merged = []
+  const deps = mkDeps({
+    getPull: async () => ({ ok: true, data: { number: 1, title: 't', body: 'описание достаточно длинное для прохождения', mergeable: true, merged: false } }),
+    mergePull: async (o, r, n) => { merged.push(n); return { ok: true, data: {} } },
+  })
+  const r = await autoMergeIfReady({ owner: 'acme', repo: 'app', number: 1, confirm: true }, deps)
+  assert.equal(r.ok, true)
+  assert.equal(r.data.merged, true)
+  assert.deepEqual(merged, [1])
+})
+
+test('autoMergeIfReady refuses without confirm', async () => {
+  const merged = []
+  const deps = mkDeps({
+    getPull: async () => ({ ok: true, data: { number: 2, title: 't', body: 'описание достаточно длинное для прохождения', mergeable: true, merged: false } }),
+    mergePull: async (o, r, n) => { merged.push(n); return { ok: true, data: {} } },
+  })
+  const r = await autoMergeIfReady({ owner: 'acme', repo: 'app', number: 2 }, deps)
+  assert.equal(r.ok, true)
+  assert.equal(r.data.merged, false)
+  assert.equal(r.data.needConfirm, true)
+  assert.deepEqual(merged, [])
 })

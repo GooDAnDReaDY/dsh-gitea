@@ -1110,3 +1110,17 @@ test('gitea_pr_review builds review', async () => {
   assert.equal(result.data.readOnly, true)
   assert.ok(Array.isArray(result.data.files))
 })
+
+// ---- #142 auto merge ----
+
+test('gitea_auto_merge requires confirm', async () => {
+  const client = mockClient()
+  client.getPull = async () => ({ ok: true, data: { number: 5, title: 't', body: 'описание достаточно длинное для прохождения', mergeable: true, merged: false } })
+  client.listPullReviews = async () => ({ ok: true, data: [{ state: 'APPROVED' }] })
+  client.listPullFiles = async () => ({ ok: true, data: [{ filename: 'test/app.test.ts', status: 'modified', additions: 5, deletions: 0 }] })
+  const deps = baseDeps(client)
+  const denied = await runHandler('gitea_auto_merge', { number: 5, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(denied.ok, true)
+  assert.equal(denied.data.merged, false)
+  assert.equal(denied.data.needConfirm, true)
+})
