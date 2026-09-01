@@ -116,6 +116,7 @@ Create a personal access token on your instance with **repository** and **issues
 | `gitea_project_health` | Read-only project health report (PRs, stale issues, branches) |
 | `gitea_review_inbox` | Classify PRs: awaiting my review / awaiting theirs / merge-ready |
 | `gitea_ci_explain` | Extract first error from a failed CI job log (capped) |
+| `gitea_pr_review` | Hybrid AI-style PR review (rules + verdict/questions) |
 | `gitea_pr_summary` | Read-only PR change/risk summary |
 | `gitea_issue_duplicates` | Find likely duplicate issues (ranked, non-destructive) |
 | `gitea_batch_issue_ops` | Batch labels/assignee with dry-run preview (`apply: true` to commit) |
