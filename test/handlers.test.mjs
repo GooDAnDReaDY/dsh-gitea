@@ -1097,3 +1097,16 @@ test('gitea_org_teams calls listOrgTeams', async () => {
   assert.equal(result.ok, true)
   assert.equal(client.calls[0].method, 'listOrgTeams')
 })
+
+// ---- #141 AI PR review ----
+
+test('gitea_pr_review builds review', async () => {
+  const client = mockClient()
+  if (!client.listPullFiles) client.listPullFiles = async () => ({ ok: true, data: [{ filename: 'src/a.ts', status: 'modified', additions: 5, deletions: 1 }] })
+  if (!client.getPullMergeStatus) client.getPullMergeStatus = async () => ({ ok: true, data: { mergeable: true, has_conflicts: false } })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_pr_review', { number: 1, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.readOnly, true)
+  assert.ok(Array.isArray(result.data.files))
+})
