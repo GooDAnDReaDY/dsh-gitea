@@ -17,7 +17,8 @@
     "README.ru.md",
     "README.zh.md",
     "LICENSE",
-    ".gitea/"
+    ".gitea/",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "test": "node --test test/*.test.mjs"
