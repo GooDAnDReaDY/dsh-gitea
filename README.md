@@ -99,6 +99,7 @@ All tools infer `owner` and `repo` automatically from the active workspace's `gi
 | `gitea_worktree_remove` | Worktrees | Prunes and deletes completed worktrees | ⚠️ Requires `confirm: true` |
 | `gitea_code_search` | Discovery | Server-side code search across a repo (Gitea API; prefer local codegraph/fff when cloned) | - |
 | `gitea_repo_search`  | Discovery | Searches repositories across the Gitea instance | - |
+| `gitea_flavor` | Discovery | Detect gitea/forgejo flavor + feature notes | - |
 | `gitea_whoami`       | Auth | Returns authenticated user details and permissions | - |
 
 ---

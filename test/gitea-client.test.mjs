@@ -808,3 +808,17 @@ test('getRepo GETs repos/{o}/{r}', async () => {
   assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app')
   assert.equal(result.data.size, 1234)
 })
+
+// ---- #162 forgejo detect ----
+
+test('getVersion GETs /version', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => ({ version: '1.22.0' }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.getVersion()
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/version')
+  assert.equal(result.data.version, '1.22.0')
+})
