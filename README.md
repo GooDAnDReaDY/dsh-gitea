@@ -175,6 +175,19 @@ dsh-gitea:
 
 ---
 
+## 🔒 HTTPS and mixed content
+
+When DSH is served over HTTPS, embedded Gitea pages must also be HTTPS or the
+browser blocks them (mixed content). Requirements:
+
+- Configure Gitea behind HTTPS (or a reverse proxy) and set **Instance URL** to
+  the HTTPS endpoint — then generated links are already HTTPS.
+- If Gitea only answers HTTP while DSH is HTTPS, the Settings card shows a
+  warning. Optionally enable **`forceHttpsUrls`** to rewrite `http://` links to
+  `https://` in tool results when Gitea sits behind an HTTPS reverse proxy that
+  accepts both schemes.
+- Never disable the browser's mixed-content protections.
+
 ## 🧪 Testing & Verification
 
 Run the comprehensive unit and integration test suite:
