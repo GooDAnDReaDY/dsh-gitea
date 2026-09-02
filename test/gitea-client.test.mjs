@@ -822,3 +822,31 @@ test('getVersion GETs /version', async () => {
   assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/version')
   assert.equal(result.data.version, '1.22.0')
 })
+
+test('addIssueLabels POSTs labels to /issues/{number}/labels', async () => {
+  let capturedUrl
+  let capturedInit
+  const fetchImpl = async (url, init) => {
+    capturedUrl = url
+    capturedInit = init
+    return { ok: true, status: 200, json: async () => [{ id: 1, name: 'bug' }] }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.addIssueLabels('acme', 'app', 42, [1, 2])
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/issues/42/labels')
+  assert.equal(capturedInit.method, 'POST')
+  assert.deepEqual(JSON.parse(capturedInit.body), { labels: [1, 2] })
+  assert.equal(result.ok, true)
+})
+
+test('getContents handles Windows backslashes and encoded path segments', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => ({ name: 'index.js' }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.getContents('acme', 'app', 'src\\nested\\index.js')
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/contents/src/nested/index.js')
+  assert.equal(result.ok, true)
+})

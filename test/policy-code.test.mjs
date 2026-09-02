@@ -16,6 +16,7 @@ test('parsePolicy accepts a valid policy document', () => {
   const r = parsePolicy(GOOD)
   assert.equal(r.ok, true)
   assert.equal(r.data.requireApproval, true)
+  assert.deepEqual(r.data.requiredChecks, ['ci'])
   assert.ok(r.data.protectedPaths.length === 1)
 })
 

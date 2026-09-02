@@ -2,7 +2,8 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { shouldRetry, retryWithBackoff } from '../lib/retry.js'
 
-test('shouldRetry true for 429 and 5xx', () => {
+test('shouldRetry true for 429 and 5xx and 0', () => {
+  assert.equal(shouldRetry(0), true)
   assert.equal(shouldRetry(429), true)
   assert.equal(shouldRetry(500), true)
   assert.equal(shouldRetry(503), true)

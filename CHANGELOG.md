@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.4.3 — 2026-09-02
+
+- Bugfix suite & stability improvements (#173):
+  - `GiteaClient`: added `addIssueLabels` method for adding issue labels via POST `/issues/{number}/labels`
+  - Webhooks & push notifications: fixed `deliverDigest` and `push-notify` default `fetch` handler to send JSON payloads via HTTP POST
+  - Repository analytics: fixed `pullsMerged` metric to recognize Gitea REST API `merged: true` / `merged_at` closed PR states
+  - Policy parser: fixed `parseSimpleYaml` section tracking so `requiredChecks` list items are correctly parsed
+  - DoD reminder: removed stateful `/g` flag from module-level regex to ensure reliable, deterministic reminder triggering
+  - Tool routing: added `gitea_repo_create_org`, `gitea_repo_bootstrap`, and `gitea_digest_delivery` to `NO_REPO` so they can execute outside a repository context
+  - Cross-platform path handling: unified Windows and POSIX path resolution in `session-git` and `gitea-client`
+  - Tool output schema: relaxed `OUTPUT_SCHEMA` to allow rich data structures from all 57 tools
+  - Local git snapshot: resilient inspection on brand new repositories without commits
+  - HTTP retry handler: retry on transient status 0 (network interruptions / timeouts)
+
 ## 0.4.2 — 2026-09-02
 
 - Per-branch PR templates (#159)

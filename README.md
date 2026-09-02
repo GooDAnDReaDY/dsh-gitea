@@ -195,6 +195,19 @@ browser blocks them (mixed content). Requirements:
   accepts both schemes.
 - Never disable the browser's mixed-content protections.
 
+---
+
+## 🛠️ Reliability, Webhooks & Multi-Platform Support
+
+Added in `v0.4.3`:
+- **Webhook Delivery**: `gitea_digest_delivery` and push notification dispatchers use fully-formed HTTP POST JSON requests with standard headers, ensuring delivery to Slack, Discord, Telegram, or custom webhook endpoints.
+- **Cross-Platform Path Resolution**: Seamless operation across both POSIX (Linux/macOS) and Windows file systems, normalizing path separators and handling drive letters transparently.
+- **Accurate Merge Analytics**: `gitea_repo_analytics` accurately detects merged pull requests matching Gitea's REST API `merged: true` specifications.
+- **Branch & Path Policy Checking**: `gitea_pr_policy` reliably parses `requiredChecks` rules alongside protected branch paths from YAML configuration files.
+- **Autonomous Tool Routing**: Non-repository tools (`gitea_repo_create_org`, `gitea_repo_bootstrap`, `gitea_digest_delivery`) execute cleanly without requiring an active local Git repository origin.
+
+---
+
 ## 🧪 Testing & Verification
 
 Run the comprehensive unit and integration test suite:
