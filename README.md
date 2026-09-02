@@ -92,6 +92,7 @@ All tools infer `owner` and `repo` automatically from the active workspace's `gi
 | `gitea_pr_get`       | Pull Requests | Fetches PR diff summary, reviews, and status | - |
 | `gitea_pr_comment`   | Pull Requests | Adds line comments and general PR feedback | - |
 | `gitea_pr_merge`     | Pull Requests | Merges PR via merge/rebase/squash | ⚠️ Requires `confirm: true` |
+| `gitea_pr_rebase`    | Pull Requests | Auto-rebase PR branch on fresh main (conflicts reported) | ⚠️ Requires `confirm: true` |
 | `gitea_worktree_list`| Worktrees | Lists active git worktrees and branch paths | - |
 | `gitea_worktree_add` | Worktrees | Creates an isolated worktree for concurrent tasks | - |
 | `gitea_worktree_use` | Worktrees | Switches session context to a worktree directory | - |
