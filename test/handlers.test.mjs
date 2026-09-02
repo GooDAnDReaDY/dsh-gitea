@@ -1206,3 +1206,15 @@ test('gitea_review_escalate dry-runs without confirm', async () => {
   assert.equal(result.ok, true)
   assert.equal(result.data.applied, false)
 })
+
+// ---- #161 sprint plan ----
+
+test('gitea_sprint_plan returns plan', async () => {
+  const client = mockClient()
+  client.listIssues = async () => ({ ok: true, data: [{ number: 1, title: 'x', state: 'open', labels: [{ name: 'status/ready' }] }] })
+  client.listMilestones = async () => ({ ok: true, data: [] })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_sprint_plan', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.dryRun, true)
+})
