@@ -103,7 +103,11 @@ All tools infer `owner` and `repo` automatically from the active workspace's `gi
 
 ---
 
-### 2. Live Git Status Chip in Chat Header
+### 2. Per-branch PR templates
+
+When creating a PR via issue-flow without an explicit body, the plugin fills a template by branch type: `feat/`, `fix/`, `docs/`, `chore/`, `refactor/`.
+
+### 3. Live Git Status Chip in Chat Header
 
 The client component injects a real-time Git Status Chip into the DSH Web UI top navigation bar:
 * **Active Repository & Branch**: Displays current branch name (e.g., `feature/issue-42-auth`).
