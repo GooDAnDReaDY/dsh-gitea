@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.2 — 2026-09-02
+
+- Per-branch PR templates (#159)
+- Review escalations for stale high-priority PRs (#160)
+- Issue sprint planning (#161)
+- Forgejo-aware mode (#162)
+
 ## 0.4.1 — 2026-09-02
 
 - Auto-rebase PR branch on fresh main (#155)
