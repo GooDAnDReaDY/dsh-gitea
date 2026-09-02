@@ -1184,3 +1184,14 @@ test('gitea_code_search calls searchCode', async () => {
   assert.equal(result.ok, true)
   assert.equal(client.calls[0].method, 'searchCode')
 })
+
+// ---- #157 release now ----
+
+test('gitea_release_now returns release plan', async () => {
+  const client = mockClient()
+  client.listPulls = async () => ({ ok: true, data: [{ number: 1, title: 'feat: x', state: 'closed', merged_at: '2026-09-01T00:00:00Z' }] })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_release_now', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.dryRun, true)
+})
