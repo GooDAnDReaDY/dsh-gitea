@@ -1195,3 +1195,14 @@ test('gitea_release_now returns release plan', async () => {
   assert.equal(result.ok, true)
   assert.equal(result.data.dryRun, true)
 })
+
+// ---- #160 review escalation ----
+
+test('gitea_review_escalate dry-runs without confirm', async () => {
+  const client = mockClient()
+  client.listPulls = async () => ({ ok: true, data: [] })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_review_escalate', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.applied, false)
+})
