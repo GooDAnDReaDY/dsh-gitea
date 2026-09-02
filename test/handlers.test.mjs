@@ -207,6 +207,10 @@ function mockClient() {
         },
       })
     },
+    searchCode: (...args) => {
+      calls.push({ method: 'searchCode', args })
+      return Promise.resolve({ ok: true, data: { data: [] } })
+    },
     updateIssue: (...args) => {
       calls.push({ method: 'updateIssue', args })
       return Promise.resolve({ ok: true, data: { number: 3, title: 'Updated' } })
@@ -1169,4 +1173,14 @@ test('gitea_pr_rebase dry-runs without confirm', async () => {
   const result = await runHandler('gitea_pr_rebase', { number: 3, owner: 'acme', repo: 'app' }, deps)
   assert.equal(result.ok, true)
   assert.equal(result.data.dryRun, true)
+})
+
+// ---- #156 code search ----
+
+test('gitea_code_search calls searchCode', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_code_search', { q: 'buildAnalytics', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'searchCode')
 })
