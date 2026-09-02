@@ -194,6 +194,10 @@ function mockClient() {
       calls.push({ method: 'listOrgTeams', args })
       return Promise.resolve({ ok: true, data: [] })
     },
+    getVersion: (...args) => {
+      calls.push({ method: 'getVersion', args })
+      return Promise.resolve({ ok: true, data: { version: '1.22.0' } })
+    },
     getUser: (...args) => {
       calls.push({ method: 'getUser', args })
       return Promise.resolve({ ok: true, data: { login: 'alice', id: 1, html_url: 'https://gitea.example.com/alice' } })
@@ -1217,4 +1221,14 @@ test('gitea_sprint_plan returns plan', async () => {
   const result = await runHandler('gitea_sprint_plan', { owner: 'acme', repo: 'app' }, deps)
   assert.equal(result.ok, true)
   assert.equal(result.data.dryRun, true)
+})
+
+// ---- #162 flavor ----
+
+test('gitea_flavor detects gitea', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_flavor', {}, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.flavor, 'gitea')
 })
