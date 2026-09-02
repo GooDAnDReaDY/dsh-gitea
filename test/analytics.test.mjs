@@ -40,9 +40,12 @@ test('buildAnalytics counts open PRs', async () => {
     { number: 1, state: 'open' },
     { number: 2, state: 'open' },
     { number: 3, state: 'merged' },
+    { number: 4, state: 'closed', merged: true },
+    { number: 5, state: 'closed', merged: false },
   ]))
   assert.equal(r.data.pulls.open, 2)
-  assert.equal(r.data.pulls.merged, 1)
+  assert.equal(r.data.pulls.merged, 2)
+  assert.equal(r.data.pulls.closed, 1)
 })
 
 test('buildAnalytics handles empty repo', async () => {

@@ -174,6 +174,17 @@ dsh-gitea:
 
 ---
 
+## 🛠️ 可靠性、Webhook 与跨平台支持
+
+在 `v0.4.3` 中新增与优化：
+- **Webhook 推送投递**：`gitea_digest_delivery` 与事件推送处理器采用标准 HTTP POST JSON 封装与请求头，确保可靠投递至 Slack、Discord、Telegram 或自定义 Webhook 接收端。
+- **全平台路径兼容**：全面兼容 Linux/macOS (POSIX) 与 Windows 文件路径体系，统一斜杠规范化与盘符解析。
+- **精准合并统计**：`gitea_repo_analytics` 遵循 Gitea REST API 规范，精确统计已合并的 PR 指标。
+- **分支与路径规则校验**：`gitea_pr_policy` 完整解析 YAML 规则中的 `requiredChecks` 列表与受保护分支路径。
+- **独立工具执行路由**：无仓库绑定的工具（如 `gitea_repo_create_org`、`gitea_repo_bootstrap`、`gitea_digest_delivery`）无需依赖本地 Git Remote 即可直接执行。
+
+---
+
 ## 🧪 测试与校验
 
 运行完整单元测试与集成测试套件：

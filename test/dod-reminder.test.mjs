@@ -26,3 +26,10 @@ test('checkDoD detects issue reference in text', () => {
   assert.equal(r.ok, true)
   assert.equal(r.reminder, false)
 })
+
+test('checkDoD is stateless across consecutive calls with refs', () => {
+  for (let i = 0; i < 5; i += 1) {
+    const r = checkDoD({ changedGitFiles: true, references: ['#12'] })
+    assert.equal(r.reminder, false, `iteration ${i} must not produce reminder`)
+  }
+})

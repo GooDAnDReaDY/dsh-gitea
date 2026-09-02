@@ -3,7 +3,9 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { test } from 'node:test'
 
-const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..')
+import { fileURLToPath } from 'node:url'
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const read = (name) => fs.readFileSync(path.join(root, name), 'utf8')
 const pkg = JSON.parse(read('package.json'))
 const name = '@goodandready/dsh-gitea'
