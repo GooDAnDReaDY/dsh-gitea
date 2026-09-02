@@ -92,16 +92,23 @@ All tools infer `owner` and `repo` automatically from the active workspace's `gi
 | `gitea_pr_get`       | Pull Requests | Fetches PR diff summary, reviews, and status | - |
 | `gitea_pr_comment`   | Pull Requests | Adds line comments and general PR feedback | - |
 | `gitea_pr_merge`     | Pull Requests | Merges PR via merge/rebase/squash | ⚠️ Requires `confirm: true` |
+| `gitea_pr_rebase`    | Pull Requests | Auto-rebase PR branch on fresh main (conflicts reported) | ⚠️ Requires `confirm: true` |
 | `gitea_worktree_list`| Worktrees | Lists active git worktrees and branch paths | - |
 | `gitea_worktree_add` | Worktrees | Creates an isolated worktree for concurrent tasks | - |
 | `gitea_worktree_use` | Worktrees | Switches session context to a worktree directory | - |
 | `gitea_worktree_remove` | Worktrees | Prunes and deletes completed worktrees | ⚠️ Requires `confirm: true` |
+| `gitea_code_search` | Discovery | Server-side code search across a repo (Gitea API; prefer local codegraph/fff when cloned) | - |
 | `gitea_repo_search`  | Discovery | Searches repositories across the Gitea instance | - |
+| `gitea_flavor` | Discovery | Detect gitea/forgejo flavor + feature notes | - |
 | `gitea_whoami`       | Auth | Returns authenticated user details and permissions | - |
 
 ---
 
-### 2. Live Git Status Chip in Chat Header
+### 2. Per-branch PR templates
+
+When creating a PR via issue-flow without an explicit body, the plugin fills a template by branch type: `feat/`, `fix/`, `docs/`, `chore/`, `refactor/`.
+
+### 3. Live Git Status Chip in Chat Header
 
 The client component injects a real-time Git Status Chip into the DSH Web UI top navigation bar:
 * **Active Repository & Branch**: Displays current branch name (e.g., `feature/issue-42-auth`).
@@ -174,6 +181,19 @@ dsh-gitea:
 > Never put the raw API token in the `tokenEnv` field. Store the token securely in DSH Credentials and enter only its reference key name.
 
 ---
+
+## 🔒 HTTPS and mixed content
+
+When DSH is served over HTTPS, embedded Gitea pages must also be HTTPS or the
+browser blocks them (mixed content). Requirements:
+
+- Configure Gitea behind HTTPS (or a reverse proxy) and set **Instance URL** to
+  the HTTPS endpoint — then generated links are already HTTPS.
+- If Gitea only answers HTTP while DSH is HTTPS, the Settings card shows a
+  warning. Optionally enable **`forceHttpsUrls`** to rewrite `http://` links to
+  `https://` in tool results when Gitea sits behind an HTTPS reverse proxy that
+  accepts both schemes.
+- Never disable the browser's mixed-content protections.
 
 ## 🧪 Testing & Verification
 

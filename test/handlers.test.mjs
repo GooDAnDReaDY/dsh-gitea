@@ -194,6 +194,10 @@ function mockClient() {
       calls.push({ method: 'listOrgTeams', args })
       return Promise.resolve({ ok: true, data: [] })
     },
+    getVersion: (...args) => {
+      calls.push({ method: 'getVersion', args })
+      return Promise.resolve({ ok: true, data: { version: '1.22.0' } })
+    },
     getUser: (...args) => {
       calls.push({ method: 'getUser', args })
       return Promise.resolve({ ok: true, data: { login: 'alice', id: 1, html_url: 'https://gitea.example.com/alice' } })
@@ -206,6 +210,10 @@ function mockClient() {
           data: [{ name: 'app', full_name: 'acme/app', html_url: 'https://gitea.example.com/acme/app' }],
         },
       })
+    },
+    searchCode: (...args) => {
+      calls.push({ method: 'searchCode', args })
+      return Promise.resolve({ ok: true, data: { data: [] } })
     },
     updateIssue: (...args) => {
       calls.push({ method: 'updateIssue', args })
@@ -1159,4 +1167,68 @@ test('gitea_repo_analytics returns metrics', async () => {
   assert.equal(result.ok, true)
   assert.equal(result.data.issues.open, 1)
   assert.equal(result.data.pulls.open, 1)
+})
+
+// ---- #155 auto-rebase ----
+
+test('gitea_pr_rebase dry-runs without confirm', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_pr_rebase', { number: 3, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.dryRun, true)
+})
+
+// ---- #156 code search ----
+
+test('gitea_code_search calls searchCode', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_code_search', { q: 'buildAnalytics', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls[0].method, 'searchCode')
+})
+
+// ---- #157 release now ----
+
+test('gitea_release_now returns release plan', async () => {
+  const client = mockClient()
+  client.listPulls = async () => ({ ok: true, data: [{ number: 1, title: 'feat: x', state: 'closed', merged_at: '2026-09-01T00:00:00Z' }] })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_release_now', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.dryRun, true)
+})
+
+// ---- #160 review escalation ----
+
+test('gitea_review_escalate dry-runs without confirm', async () => {
+  const client = mockClient()
+  client.listPulls = async () => ({ ok: true, data: [] })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_review_escalate', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.applied, false)
+})
+
+// ---- #161 sprint plan ----
+
+test('gitea_sprint_plan returns plan', async () => {
+  const client = mockClient()
+  client.listIssues = async () => ({ ok: true, data: [{ number: 1, title: 'x', state: 'open', labels: [{ name: 'status/ready' }] }] })
+  client.listMilestones = async () => ({ ok: true, data: [] })
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_sprint_plan', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.dryRun, true)
+})
+
+// ---- #162 flavor ----
+
+test('gitea_flavor detects gitea', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_flavor', {}, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.flavor, 'gitea')
 })
