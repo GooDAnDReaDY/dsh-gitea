@@ -794,3 +794,17 @@ test('searchCode GETs repos/{o}/{r}/search/code', async () => {
   assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/search/code?q=buildAnalytics')
   assert.equal(result.ok, true)
 })
+
+// ---- #158 perf ----
+
+test('getRepo GETs repos/{o}/{r}', async () => {
+  let capturedUrl
+  const fetchImpl = async (url) => {
+    capturedUrl = url
+    return { ok: true, status: 200, json: async () => ({ name: 'app', size: 1234, full_name: 'acme/app' }) }
+  }
+  const client = new GiteaClient({ baseUrl: 'https://gitea.example.com', token: 't-test', fetchImpl })
+  const result = await client.getRepo('acme', 'app')
+  assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app')
+  assert.equal(result.data.size, 1234)
+})

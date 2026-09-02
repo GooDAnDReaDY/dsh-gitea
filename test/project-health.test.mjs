@@ -66,3 +66,21 @@ test('buildHealthReport handles API errors gracefully', async () => {
   assert.equal(report.data.openIssues, 0)
   assert.ok(report.data.errors.length >= 1)
 })
+
+// ---- #158 perf metrics ----
+
+test('buildHealthReport includes api latency and repo size', async () => {
+  const client = {
+    listIssues: async () => ({ ok: true, data: [] }),
+    listPulls: async () => ({ ok: true, data: [] }),
+    listBranches: async () => ({ ok: true, data: [] }),
+    getRepo: async () => ({ ok: true, data: { size: 1234, full_name: 'acme/app' } }),
+    rateLimitRemaining: 42,
+    lastRequestMs: 15,
+  }
+  const r = await buildHealthReport({ owner: 'acme', repo: 'app' }, { client })
+  assert.equal(r.ok, true)
+  assert.equal(r.data.repoSize, 1234)
+  assert.ok(r.data.apiMs >= 0)
+  assert.equal(r.data.rateLimitRemaining, 42)
+})
