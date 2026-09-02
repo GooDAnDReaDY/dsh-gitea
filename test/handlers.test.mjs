@@ -1160,3 +1160,13 @@ test('gitea_repo_analytics returns metrics', async () => {
   assert.equal(result.data.issues.open, 1)
   assert.equal(result.data.pulls.open, 1)
 })
+
+// ---- #155 auto-rebase ----
+
+test('gitea_pr_rebase dry-runs without confirm', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_pr_rebase', { number: 3, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.dryRun, true)
+})
