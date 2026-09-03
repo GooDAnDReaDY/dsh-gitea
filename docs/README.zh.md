@@ -96,18 +96,21 @@ graph LR
 | `gitea_worktree_add` | Worktree | 为独立子任务快速创建隔离的 Git 工作树 | - |
 | `gitea_worktree_use` | Worktree | 将当前会话的执行工作目录切换至指定工作树 | - |
 | `gitea_worktree_remove` | Worktree | 清理并删除已合并的工作树目录 | ⚠️ 强制要求 `confirm: true` |
+| `gitea_git_graph`    | Git 图谱 | 可视化拓扑提交图谱、等宽轨道分支、分支/标签及 CI 状态 | - |
 | `gitea_repo_search`  | 发现探索 | 检索 Gitea 实例内的公开与私有代码仓库 | - |
 | `gitea_whoami`       | 认证信息 | 返回当前鉴权 Token 对应的用户信息与权限范围 | - |
 
 ---
 
-### 2. 聊天头部实时 Git Status Chip 状态胶囊
+### 2. 聊天头部实时 Git Status 状态胶囊与拓扑提交图谱
 
 客户端组件在 DSH Web UI 顶部导航栏提供直观的 Git 状态胶囊：
 * **当前仓库与分支**：实时展示当前所在分支（如 `feature/issue-42-auth`）。
-* **工作区干净度指示**：绿色/黄色状态标识当前工作树是否有未暂存的修改。
-* **一键 Diff 抽屉**：点击状态胶囊即可弹出变更文件列表与代码 Diff 预览。
-* **Ahead/Behind 上游追踪**：精准展示与远端分支的超前/落后提交数。
+* **工作区干净度指示**：绿色/黄色状态标识当前工作树是否有未暂存的修改及修改文件计数。
+* **Ahead/Behind 实时角标**：精准展示与远端分支的超前/落后提交数（`↑ahead` / `↓behind`）。
+* **拓扑提交图谱弹窗**：等宽字符分支/合并轨道可视化（`●`, `◆`, `│`）、Gitea Web UI 提交链接、分支与标签角标，以及 Gitea Actions CI 实时状态（`CI ✓`, `CI ✗`, `CI ●`）。
+* **跨标签页状态同步**：通过 `navigator.locks` 选举 Leader 与 `BroadcastChannel` 广播，避免多页面重复轮询网络。
+* **一键变更抽屉**：点击状态胶囊即可查看最新提交与未暂存 Diff。
 
 ---
 
