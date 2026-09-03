@@ -97,6 +97,7 @@ All tools infer `owner` and `repo` automatically from the active workspace's `gi
 | `gitea_worktree_add` | Worktrees | Creates an isolated worktree for concurrent tasks | - |
 | `gitea_worktree_use` | Worktrees | Switches session context to a worktree directory | - |
 | `gitea_worktree_remove` | Worktrees | Prunes and deletes completed worktrees | ⚠️ Requires `confirm: true` |
+| `gitea_git_graph`    | Git & Graph | Visual topological commit graph with monospace lanes, branch/tag refs, and CI statuses | - |
 | `gitea_code_search` | Discovery | Server-side code search across a repo (Gitea API; prefer local codegraph/fff when cloned) | - |
 | `gitea_repo_search`  | Discovery | Searches repositories across the Gitea instance | - |
 | `gitea_flavor` | Discovery | Detect gitea/forgejo flavor + feature notes | - |
@@ -108,13 +109,15 @@ All tools infer `owner` and `repo` automatically from the active workspace's `gi
 
 When creating a PR via issue-flow without an explicit body, the plugin fills a template by branch type: `feat/`, `fix/`, `docs/`, `chore/`, `refactor/`.
 
-### 3. Live Git Status Chip in Chat Header
+### 3. Live Git Status Chip & Topological Commit Graph
 
-The client component injects a real-time Git Status Chip into the DSH Web UI top navigation bar:
+The client component injects a real-time Git Status Chip into the DSH Web UI chat header:
 * **Active Repository & Branch**: Displays current branch name (e.g., `feature/issue-42-auth`).
-* **Tree Cleanliness**: Color-coded badges indicating clean vs dirty working trees.
-* **Uncommitted Diff Inspector**: 1-click modal drawer showing modified files and diff lines.
-* **Ahead/Behind Tracker**: Sync indicator with upstream origin remote.
+* **Tree Cleanliness**: Color-coded badges indicating clean vs dirty working trees and modified files count.
+* **Ahead/Behind Sync Badges**: Real-time sync indicator (`↑ahead`, `↓behind`) relative to upstream or `origin/<branch>`.
+* **Topological Commit Graph Modal**: Monospace branch/merge lane visualization (`●`, `◆`, `│`), commit links to Gitea Web UI, branch and tag badges, and live Gitea Actions CI statuses (`CI ✓`, `CI ✗`, `CI ●`).
+* **Cross-Tab Synchronization**: Efficient multi-tab coordination using `navigator.locks` leader election and `BroadcastChannel`, eliminating duplicate network polling.
+* **Uncommitted Diff Inspector**: 1-click panel showing recent commits and uncommitted diff.
 
 ---
 
