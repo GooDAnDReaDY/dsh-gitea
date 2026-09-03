@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.0 — 2026-09-03
+
+- Topological Commit Graph & Remote Sync in Chat Chip (#176):
+  - Added topological commit graph engine (`lib/graph.js`) with `computeLanes` algorithm for monospace lane visualization (`●`, `◆`, `│`).
+  - Added `gitea_git_graph` agent tool and `/dsh-gitea/git-graph` HTTP route with Gitea Actions CI statuses.
+  - Enhanced Git status chat chip with live ahead/behind badges (`↑ahead`, `↓behind`) and dirty files count.
+  - Interactive Commit Graph Modal with monospace branch/merge lanes, commit links to Gitea Web UI, branch/tag badges, and CI badges.
+  - Cross-tab coordination via `navigator.locks` leader election and `BroadcastChannel`, eliminating duplicate network polling.
+  - Created `docs/design/DESIGN.md` design contract.
+
 ## 0.4.3 — 2026-09-02
 
 - Bugfix suite & stability improvements (#173):
