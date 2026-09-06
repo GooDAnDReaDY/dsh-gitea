@@ -59,3 +59,12 @@ test('validateAllTemplates passes for the shipped template pack', () => {
     assert.equal(r.ok, true, `${r.file}: ${r.errors.join('; ')}`)
   }
 })
+
+test('runHandler gitea_issue_templates returns templates and validation', async () => {
+  const { runHandler } = await import('../lib/handlers.js')
+  const res = await runHandler('gitea_issue_templates', { dir: TEMPLATE_DIR }, {})
+  assert.equal(res.ok, true)
+  assert.ok(Array.isArray(res.data.templates))
+  assert.ok(Array.isArray(res.data.validation))
+  assert.ok(res.data.templates.length >= 4)
+})

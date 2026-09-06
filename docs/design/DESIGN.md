@@ -3,7 +3,7 @@
 ## Product / Purpose
 - **Назначение**: Полноценная интеграция DeepSeek Harness с Git-кузницами Gitea и Forgejo — управление репозиториями, задачами, пул-реквестами, ревью, проверками безопасности и визуальным статусом репозитория в чате.
 - **Аудитория**: Разработчики и автономные агенты, работающие в среде DeepSeek Harness.
-- **Статус**: В активной разработке. Текущая базовая версия — 0.4.3.
+- **Статус**: В активной разработке. Текущая базовая версия — 0.5.1.
 
 ---
 
@@ -13,8 +13,7 @@
   - Выпадающая панель быстрого статуса текущего репозитория.
   - Модальное окно топологического графа коммитов (`Commit Graph Modal`) с моноширинными дорожками ветвления и статусами CI Gitea Actions.
 - **DSH UI / settings / slots**:
-  - Карточка настроек плагина `settings.plugin.item`: параметры `baseUrl`, `tokenEnv`, `gitWrapper`, `timeoutMs`.
-  - Встраивание чипа в слот ввода сессии (`conversation.input.dock` / `conversation.input.selector.context`) через `createPortal`.
+  - Карточка настроек плагина `settings.plugin.item`: параметры `baseUrl`, `tokenEnv` (credential-ref), `webhookSecretEnv` (credential-ref), `gitWrapper`, `timeoutMs`. Поддержка `settingsScope` с проверкой состояний (`loading`, `unavailable`, `ready`) и защитой от перезаписи частичными обновлениями.
 - **API / Agent Tools**:
   - 57 специализированных инструментов `gitea_*` для агентов (PR, issues, reviews, releases, policies, analytics, git-snapshot, git-graph).
 - **CLI**:
