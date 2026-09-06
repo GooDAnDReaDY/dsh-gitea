@@ -20,6 +20,10 @@ test('verifySignature rejects wrong signature', () => {
   assert.equal(verifySignature('secret', body, sig), false)
 })
 
-test('verifySignature with empty secret returns true (disabled)', () => {
-  assert.equal(verifySignature('', 'body', 'anything'), true)
+test('verifySignature with empty secret returns false', () => {
+  assert.equal(verifySignature('', 'body', 'anything'), false)
+})
+
+test('verifySignature with empty signature returns false', () => {
+  assert.equal(verifySignature('secret', 'body', ''), false)
 })

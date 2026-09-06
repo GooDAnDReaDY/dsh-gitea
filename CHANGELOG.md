@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.1 — 2026-09-06
+
+- Authoring, Quality & Security Bugfix Suite (#181, #182, #183, #184, #185, #186, #187):
+  - **#181 (`lib/index.js`)**: Updated server entry `export const name = '@goodandready/dsh-gitea'` to match `package.json` and client bundle registration.
+  - **#182 (`lib/index.js`)**: Merged incoming payload with existing configuration in `/dsh-gitea/config` POST handler, preventing partial updates from wiping other `Config` fields.
+  - **#183 (`lib/client.js`)**: Bound `settingsScope` in `GiteaSettingsForm`, gating on snapshot status (`loading`, `unavailable`, `ready`) and respecting `writable` status.
+  - **#184 (`lib/index.js`, `lib/secrets.js`)**: Replaced plaintext `webhookSecret` in `Config` with `webhookSecretEnv` credential ref with `.role('credential-ref')`. Stripped `webhookSecret` from `/dsh-gitea/config` GET responses.
+  - **#185 (`lib/webhook-signature.js`)**: Fixed `verifySignature` to return `false` when secret or signature is empty.
+  - **#186 (`lib/issue-templates.js`, `lib/handlers.js`, `lib/index.js`)**: Wired `lib/issue-templates.js` into `gitea_issue_templates` tool in `TOOL_DEFS` and `runHandler`.
+  - **#187 (`lib/client.js`)**: Removed `settings.section` sidebar fallback to adhere to DSH plugin slot standards (`settings.plugin.item` only).
+
 ## 0.5.0 — 2026-09-03
 
 - Topological Commit Graph & Remote Sync in Chat Chip (#176):

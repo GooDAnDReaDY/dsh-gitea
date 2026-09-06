@@ -96,6 +96,7 @@ graph LR
 | `gitea_worktree_add` | Worktree | 为独立子任务快速创建隔离的 Git 工作树 | - |
 | `gitea_worktree_use` | Worktree | 将当前会话的执行工作目录切换至指定工作树 | - |
 | `gitea_worktree_remove` | Worktree | 清理并删除已合并的工作树目录 | ⚠️ 强制要求 `confirm: true` |
+| `gitea_issue_templates` | Issue 管理 | 获取并验证 `.gitea/ISSUE_TEMPLATE` 中标准化的 YAML Issue 模版 | - |
 | `gitea_git_graph`    | Git 图谱 | 可视化拓扑提交图谱、等宽轨道分支、分支/标签及 CI 状态 | - |
 | `gitea_repo_search`  | 发现探索 | 检索 Gitea 实例内的公开与私有代码仓库 | - |
 | `gitea_whoami`       | 认证信息 | 返回当前鉴权 Token 对应的用户信息与权限范围 | - |

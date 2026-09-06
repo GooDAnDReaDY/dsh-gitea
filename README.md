@@ -97,6 +97,7 @@ All tools infer `owner` and `repo` automatically from the active workspace's `gi
 | `gitea_worktree_add` | Worktrees | Creates an isolated worktree for concurrent tasks | - |
 | `gitea_worktree_use` | Worktrees | Switches session context to a worktree directory | - |
 | `gitea_worktree_remove` | Worktrees | Prunes and deletes completed worktrees | ⚠️ Requires `confirm: true` |
+| `gitea_issue_templates` | Issues | Lists and validates standardized Gitea YAML issue templates from `.gitea/ISSUE_TEMPLATE` | - |
 | `gitea_git_graph`    | Git & Graph | Visual topological commit graph with monospace lanes, branch/tag refs, and CI statuses | - |
 | `gitea_code_search` | Discovery | Server-side code search across a repo (Gitea API; prefer local codegraph/fff when cloned) | - |
 | `gitea_repo_search`  | Discovery | Searches repositories across the Gitea instance | - |
