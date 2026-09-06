@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.5.1 — 2026-09-06
+## 0.5.2 — 2026-09-06
 
 - Authoring, Quality & Security Bugfix Suite (#181, #182, #183, #184, #185, #186, #187):
   - **#181 (`lib/index.js`)**: Updated server entry `export const name = '@goodandready/dsh-gitea'` to match `package.json` and client bundle registration.
