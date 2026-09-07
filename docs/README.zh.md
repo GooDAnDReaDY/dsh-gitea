@@ -73,6 +73,15 @@ graph LR
 
 | 工具名称 | 分类 | 功能描述 | 安全校验 |
 |:---|:---|:---|:---|
+| `gitea_labels` | 标签管理 | 统一标签管理门面：`list`, `create`, `delete`, `set` | - |
+| `gitea_milestones` | 里程碑 | 统一里程碑管理门面：`list`, `create`, `update`, `delete` | ⚠️ 删除需 `confirm: true` |
+| `gitea_releases` | 发布管理 | 统一发布版本管理门面：`list`, `create`, `update`, `delete`, `plan`, `notes` | ⚠️ 删除需 `confirm: true` |
+| `gitea_ci` | CI / Actions | 统一 CI 工作流管理门面：`status`, `jobs`, `rerun`, `explain` | ⚠️ 重新运行需 `confirm: true` |
+| `gitea_branches` | 分支管理 | 统一分支管理门面：`list`, `create`, `delete` | ⚠️ 删除需 `confirm: true` |
+| `gitea_tags` | 标签管理 | 统一 Git 标签管理门面：`list`, `create`, `delete` | ⚠️ 删除需 `confirm: true` |
+| `gitea_webhooks` | Webhook | 统一 Webhook 管理门面：`list`, `create`, `delete` | ⚠️ 删除需 `confirm: true` |
+| `gitea_org` | 组织与团队 | 统一组织门面：`list`, `repos`, `members`, `teams`, `create_repo` | - |
+| `gitea_wiki` | Wiki 文档 | 统一 Wiki 门面：`list`, `get` | - |
 | `gitea_issue_create` | Issue 管理 | 创建新任务 Issue（支持标题、正文、标签与指派人） | - |
 | `gitea_issue_list` | Issue 管理 | 获取 Issue 列表（支持状态、里程碑与标签过滤） | - |
 | `gitea_issue_get` | Issue 管理 | 根据编号获取 Issue 详细内容与上下文 | - |
@@ -80,13 +89,7 @@ graph LR
 | `gitea_issue_update` | Issue 管理 | 修改 Issue 标题、正文描述或状态 | - |
 | `gitea_issue_close`  | Issue 管理 | 关闭已完成的 Issue | - |
 | `gitea_issue_search` | 搜索检索 | 在整个仓库或实例范围内全文检索 Issue | - |
-| `gitea_issue_set_labels` | 标签管理 | 替换或更新指定 Issue 的关联标签 | - |
 | `gitea_issue_set_assignee` | 团队协作 | 为 Issue 指派负责人或智能体 | - |
-| `gitea_label_list`   | 标签管理 | 列出仓库所有标签及其配色 | - |
-| `gitea_label_create` | 标签管理 | 创建自定义项目标签 | - |
-| `gitea_label_delete` | 标签管理 | 删除指定标签 | - |
-| `gitea_milestone_list` | 里程碑 | 获取项目里程碑列表及完成度百分比 | - |
-| `gitea_milestone_create` | 里程碑 | 创建新里程碑并设置截止日期 | - |
 | `gitea_pr_create`    | Pull Request | 从开发分支向基准分支发起 Pull Request | - |
 | `gitea_pr_list`      | Pull Request | 查询开放中及已关闭的 PR 列表 | - |
 | `gitea_pr_get`       | Pull Request | 获取 PR 的变更代码摘要、审查意见与 CI 状态 | - |
@@ -100,6 +103,8 @@ graph LR
 | `gitea_git_graph`    | Git 图谱 | 可视化拓扑提交图谱、等宽轨道分支、分支/标签及 CI 状态 | - |
 | `gitea_repo_search`  | 发现探索 | 检索 Gitea 实例内的公开与私有代码仓库 | - |
 | `gitea_whoami`       | 认证信息 | 返回当前鉴权 Token 对应的用户信息与权限范围 | - |
+
+*(说明：所有历史旧工具名如 `gitea_label_list`、`gitea_release_now`、`gitea_ci_explain` 等均通过无缝兼容映射保持 100% 可用)。*
 
 ---
 

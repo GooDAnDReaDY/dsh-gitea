@@ -73,6 +73,15 @@ All tools infer `owner` and `repo` automatically from the active workspace's `gi
 
 | Tool Name | Scope | Description | Safety Requirements |
 |:---|:---|:---|:---|
+| `gitea_labels` | Labels | Consolidated label facade: `list`, `create`, `delete`, `set` | - |
+| `gitea_milestones` | Milestones | Consolidated milestone facade: `list`, `create`, `update`, `delete` | ⚠️ Delete requires `confirm: true` |
+| `gitea_releases` | Releases | Consolidated release facade: `list`, `create`, `update`, `delete`, `plan`, `notes` | ⚠️ Delete requires `confirm: true` |
+| `gitea_ci` | CI / Actions | Consolidated CI facade: `status`, `jobs`, `rerun`, `explain` | ⚠️ Rerun requires `confirm: true` |
+| `gitea_branches` | Branches | Consolidated branch facade: `list`, `create`, `delete` | ⚠️ Delete requires `confirm: true` |
+| `gitea_tags` | Tags | Consolidated tag facade: `list`, `create`, `delete` | ⚠️ Delete requires `confirm: true` |
+| `gitea_webhooks` | Webhooks | Consolidated webhook facade: `list`, `create`, `delete` | ⚠️ Delete requires `confirm: true` |
+| `gitea_org` | Org & Teams | Consolidated organization facade: `list`, `repos`, `members`, `teams`, `create_repo` | - |
+| `gitea_wiki` | Wiki | Consolidated wiki facade: `list`, `get` | - |
 | `gitea_issue_create` | Issues | Creates a new issue with title, body, labels, and assignees | - |
 | `gitea_issue_list` | Issues | Lists issues with state (`open`/`closed`), milestone, and label filters | - |
 | `gitea_issue_get` | Issues | Fetches detailed issue data by issue index | - |
@@ -80,13 +89,7 @@ All tools infer `owner` and `repo` automatically from the active workspace's `gi
 | `gitea_issue_update` | Issues | Updates issue title, body, or status | - |
 | `gitea_issue_close`  | Issues | Closes an issue | - |
 | `gitea_issue_search` | Issues | Full-text issue query across the repository/instance | - |
-| `gitea_issue_set_labels` | Labels | Replaces or updates issue labels | - |
 | `gitea_issue_set_assignee` | Team | Assigns developers or agents to issues | - |
-| `gitea_label_list`   | Labels | Lists all repository labels | - |
-| `gitea_label_create` | Labels | Creates custom labels with colors | - |
-| `gitea_label_delete` | Labels | Deletes repository labels | - |
-| `gitea_milestone_list` | Milestones | Lists repository milestones and progress | - |
-| `gitea_milestone_create` | Milestones | Creates roadmap milestones with due dates | - |
 | `gitea_pr_create`    | Pull Requests | Opens PR from source branch to base branch | - |
 | `gitea_pr_list`      | Pull Requests | Lists open and closed pull requests | - |
 | `gitea_pr_get`       | Pull Requests | Fetches PR diff summary, reviews, and status | - |
@@ -103,6 +106,8 @@ All tools infer `owner` and `repo` automatically from the active workspace's `gi
 | `gitea_repo_search`  | Discovery | Searches repositories across the Gitea instance | - |
 | `gitea_flavor` | Discovery | Detect gitea/forgejo flavor + feature notes | - |
 | `gitea_whoami`       | Auth | Returns authenticated user details and permissions | - |
+
+*(Note: Legacy individual tool names such as `gitea_label_list`, `gitea_release_now`, `gitea_ci_explain`, etc. remain 100% supported via automatic backward compatibility mapping).*
 
 ---
 
