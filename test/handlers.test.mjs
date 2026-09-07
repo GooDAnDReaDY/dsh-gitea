@@ -771,17 +771,6 @@ test('gitea_triage_digest returns digest', async () => {
   assert.ok(result.data.priorityAction)
 })
 
-// ---- #52 dependency watch ----
-
-test('gitea_dep_watch scans package.json via contents', async () => {
-  const client = mockClient()
-  client.getContents = async () => ({ ok: true, data: { content: Buffer.from(JSON.stringify({ dependencies: { lodash: '^4.17.21' } })).toString('base64') } })
-  const deps = baseDeps(client)
-  const result = await runHandler('gitea_dep_watch', { owner: 'acme', repo: 'app' }, deps)
-  assert.equal(result.ok, true)
-  assert.ok(result.data.deps.length >= 1)
-  assert.equal(result.data.readOnly, true)
-})
 
 // ---- #55 PR policy as code ----
 
@@ -822,15 +811,6 @@ test('gitea_scheduled_checks add then run', async () => {
   assert.equal(run.data.dryRun, true)
 })
 
-// ---- #58 digest delivery ----
-
-test('gitea_digest_delivery dry-run previews without sending', async () => {
-  const client = mockClient()
-  const deps = baseDeps(client)
-  const result = await runHandler('gitea_digest_delivery', { target: 'https://hooks.example.com/x', text: 'hi', owner: 'acme', repo: 'app' }, deps)
-  assert.equal(result.ok, true)
-  assert.equal(result.data.dryRun, true)
-})
 
 // ---- #61 label bootstrap ----
 
@@ -1144,17 +1124,6 @@ test('gitea_mirror_public returns plan', async () => {
   assert.ok(result.data.steps.length >= 3)
 })
 
-// ---- #145 auto actions ----
-
-test('gitea_auto_actions dry-runs without confirm', async () => {
-  const client = mockClient()
-  client.getIssue = async () => ({ ok: true, data: { number: 1, title: 'x', labels: [{ name: 'type/security' }], assignees: [] } })
-  const deps = baseDeps(client)
-  const result = await runHandler('gitea_auto_actions', { number: 1, owner: 'acme', repo: 'app' }, deps)
-  assert.equal(result.ok, true)
-  assert.equal(result.data.applied, false)
-  assert.ok(result.data.actions.length >= 1)
-})
 
 // ---- #146 repo analytics ----
 
@@ -1211,17 +1180,6 @@ test('gitea_review_escalate dry-runs without confirm', async () => {
   assert.equal(result.data.applied, false)
 })
 
-// ---- #161 sprint plan ----
-
-test('gitea_sprint_plan returns plan', async () => {
-  const client = mockClient()
-  client.listIssues = async () => ({ ok: true, data: [{ number: 1, title: 'x', state: 'open', labels: [{ name: 'status/ready' }] }] })
-  client.listMilestones = async () => ({ ok: true, data: [] })
-  const deps = baseDeps(client)
-  const result = await runHandler('gitea_sprint_plan', { owner: 'acme', repo: 'app' }, deps)
-  assert.equal(result.ok, true)
-  assert.equal(result.data.dryRun, true)
-})
 
 // ---- #162 flavor ----
 
@@ -1231,4 +1189,289 @@ test('gitea_flavor detects gitea', async () => {
   const result = await runHandler('gitea_flavor', {}, deps)
   assert.equal(result.ok, true)
   assert.equal(result.data.flavor, 'gitea')
+})
+
+// ---- Consolidated Facade Tools & Legacy Mapping Tests ----
+
+test('gitea_labels facade: list, create, delete, set and legacy mapping', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+
+  // 1. list
+  const rList = await runHandler('gitea_labels', { action: 'list', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rList.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'listLabels')
+
+  // 2. create
+  const rCreate = await runHandler('gitea_labels', { action: 'create', name: 'bug', color: 'ff0000', description: 'Bug report', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rCreate.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'createLabel')
+
+  // 3. delete
+  const rDelete = await runHandler('gitea_labels', { action: 'delete', label_id: 12, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rDelete.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'deleteLabel')
+
+  // 4. set
+  const rSet = await runHandler('gitea_labels', { action: 'set', number: 10, labels: [1, 2], owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rSet.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'setIssueLabels')
+
+  // 5. legacy mapping
+  const rLegacy = await runHandler('gitea_label_list', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rLegacy.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'listLabels')
+})
+
+test('gitea_milestones facade: list, create, update, delete and legacy mapping', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+
+  // 1. list
+  const rList = await runHandler('gitea_milestones', { action: 'list', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rList.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'listMilestones')
+
+  // 2. create
+  const rCreate = await runHandler('gitea_milestones', { action: 'create', title: 'v1.0', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rCreate.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'createMilestone')
+
+  // 3. update
+  const rUpdate = await runHandler('gitea_milestones', { action: 'update', milestone_id: 5, state: 'closed', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rUpdate.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'updateMilestone')
+
+  // 4. delete without confirm
+  const rDelNoConf = await runHandler('gitea_milestones', { action: 'delete', milestone_id: 5, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rDelNoConf.ok, false)
+
+  // 5. delete with confirm
+  const rDelConf = await runHandler('gitea_milestones', { action: 'delete', milestone_id: 5, confirm: true, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rDelConf.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'deleteMilestone')
+
+  // 6. legacy mapping
+  const rLegacy = await runHandler('gitea_milestone_list', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rLegacy.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'listMilestones')
+})
+
+test('gitea_releases facade: list, create, update, delete, plan, notes and legacy mapping', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+
+  // 1. list
+  const rList = await runHandler('gitea_releases', { action: 'list', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rList.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'listReleases')
+
+  // 2. create
+  const rCreate = await runHandler('gitea_releases', { action: 'create', tag_name: 'v1.0.0', name: 'v1.0.0', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rCreate.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'createRelease')
+
+  // 3. update
+  const rUpdate = await runHandler('gitea_releases', { action: 'update', release_id: 1, name: 'v1.0.1', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rUpdate.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'updateRelease')
+
+  // 4. delete without confirm
+  const rDelNoConf = await runHandler('gitea_releases', { action: 'delete', release_id: 1, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rDelNoConf.ok, false)
+
+  // 5. delete with confirm
+  const rDelConf = await runHandler('gitea_releases', { action: 'delete', release_id: 1, confirm: true, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rDelConf.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'deleteRelease')
+
+  // 6. plan
+  const rPlan = await runHandler('gitea_releases', { action: 'plan', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rPlan.ok, true)
+  assert.equal(rPlan.data.dryRun, true)
+
+  // 7. notes
+  const rNotes = await runHandler('gitea_releases', { action: 'notes', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rNotes.ok, true)
+
+  // 8. legacy mapping
+  const rLegacy = await runHandler('gitea_release_now', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rLegacy.ok, true)
+  assert.equal(rLegacy.data.dryRun, true)
+})
+
+test('gitea_ci facade: status, jobs, rerun, explain and legacy mapping', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+
+  // 1. status
+  const rStatus = await runHandler('gitea_ci', { action: 'status', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rStatus.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'listActionsRuns')
+
+  // 2. jobs
+  const rJobs = await runHandler('gitea_ci', { action: 'jobs', run_id: 42, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rJobs.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'listRunJobs')
+
+  // 3. rerun without confirm
+  const rRerunNo = await runHandler('gitea_ci', { action: 'rerun', job_id: 101, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rRerunNo.ok, false)
+
+  // 4. rerun with confirm
+  const rRerunYes = await runHandler('gitea_ci', { action: 'rerun', job_id: 101, confirm: true, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rRerunYes.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'rerunActionsJob')
+
+  // 5. explain
+  const rExplain = await runHandler('gitea_ci', { action: 'explain', job: { log: 'Error: Cannot find module foo' } }, deps)
+  assert.equal(rExplain.ok, true)
+  assert.ok(rExplain.data.error)
+
+  // 6. legacy mapping
+  const rLegacy = await runHandler('gitea_ci_explain', { job: { log: 'Error: Cannot find module foo' } }, deps)
+  assert.equal(rLegacy.ok, true)
+  assert.ok(rLegacy.data.error)
+})
+
+test('gitea_branches facade: list, create, delete and legacy mapping', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+
+  // 1. list
+  const rList = await runHandler('gitea_branches', { action: 'list', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rList.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'listBranches')
+
+  // 2. create
+  const rCreate = await runHandler('gitea_branches', { action: 'create', branch_name: 'feat/new', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rCreate.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'createBranch')
+
+  // 3. delete without confirm
+  const rDelNo = await runHandler('gitea_branches', { action: 'delete', branch: 'feat/new', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rDelNo.ok, false)
+
+  // 4. delete with confirm
+  const rDelYes = await runHandler('gitea_branches', { action: 'delete', branch: 'feat/new', confirm: true, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rDelYes.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'deleteBranch')
+
+  // 5. legacy mapping
+  const rLegacy = await runHandler('gitea_repo_branches', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rLegacy.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'listBranches')
+})
+
+test('gitea_tags facade: list, create, delete and legacy mapping', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+
+  // 1. list
+  const rList = await runHandler('gitea_tags', { action: 'list', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rList.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'listTags')
+
+  // 2. create
+  const rCreate = await runHandler('gitea_tags', { action: 'create', tag_name: 'v1.0.0', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rCreate.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'createTag')
+
+  // 3. delete without confirm
+  const rDelNo = await runHandler('gitea_tags', { action: 'delete', tag: 'v1.0.0', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rDelNo.ok, false)
+
+  // 4. delete with confirm
+  const rDelYes = await runHandler('gitea_tags', { action: 'delete', tag: 'v1.0.0', confirm: true, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rDelYes.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'deleteTag')
+
+  // 5. legacy mapping
+  const rLegacy = await runHandler('gitea_repo_tags', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rLegacy.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'listTags')
+})
+
+test('gitea_webhooks facade: list, create, delete and legacy mapping', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+
+  // 1. list
+  const rList = await runHandler('gitea_webhooks', { action: 'list', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rList.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'listWebhooks')
+
+  // 2. create
+  const rCreate = await runHandler('gitea_webhooks', { action: 'create', url: 'https://example.com/hook', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rCreate.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'createWebhook')
+
+  // 3. delete without confirm
+  const rDelNo = await runHandler('gitea_webhooks', { action: 'delete', hook_id: 1, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rDelNo.ok, false)
+
+  // 4. delete with confirm
+  const rDelYes = await runHandler('gitea_webhooks', { action: 'delete', hook_id: 1, confirm: true, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rDelYes.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'deleteWebhook')
+
+  // 5. legacy mapping
+  const rLegacy = await runHandler('gitea_webhook_list', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rLegacy.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'listWebhooks')
+})
+
+test('gitea_org facade: list, repos, members, teams, create_repo and legacy mapping', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+
+  // 1. list
+  const rList = await runHandler('gitea_org', { action: 'list' }, deps)
+  assert.equal(rList.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'listUserOrgs')
+
+  // 2. repos
+  const rRepos = await runHandler('gitea_org', { action: 'repos', org: 'goodandready' }, deps)
+  assert.equal(rRepos.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'listOrgRepos')
+
+  // 3. members
+  const rMembers = await runHandler('gitea_org', { action: 'members', org: 'goodandready' }, deps)
+  assert.equal(rMembers.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'listOrgMembers')
+
+  // 4. teams
+  const rTeams = await runHandler('gitea_org', { action: 'teams', org: 'goodandready' }, deps)
+  assert.equal(rTeams.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'listOrgTeams')
+
+  // 5. create_repo
+  const rCreate = await runHandler('gitea_org', { action: 'create_repo', org: 'goodandready', name: 'new-repo' }, deps)
+  assert.equal(rCreate.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'createOrgRepo')
+
+  // 6. legacy mapping
+  const rLegacy = await runHandler('gitea_org_list', {}, deps)
+  assert.equal(rLegacy.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'listUserOrgs')
+})
+
+test('gitea_wiki facade: list, get and legacy mapping', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+
+  // 1. list
+  const rList = await runHandler('gitea_wiki', { action: 'list', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rList.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'listWikiPages')
+
+  // 2. get
+  const rGet = await runHandler('gitea_wiki', { action: 'get', pageName: 'Home', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rGet.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'getWikiPage')
+
+  // 3. legacy mapping
+  const rLegacy = await runHandler('gitea_wiki_pages', { owner: 'acme', repo: 'app' }, deps)
+  assert.equal(rLegacy.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'listWikiPages')
 })

@@ -1,6 +1,20 @@
 # Changelog
 
-## 0.5.2 — 2026-09-06
+## 0.6.0 — 2026-09-07
+
+- Tool Consolidation, Architecture Decoupling & Stability Release:
+  - **Tool Consolidation & Facades**: Consolidated repetitive CRUD micro-tools into 9 facade tools (`gitea_labels`, `gitea_milestones`, `gitea_releases`, `gitea_ci`, `gitea_branches`, `gitea_tags`, `gitea_webhooks`, `gitea_org`, `gitea_wiki`), reducing schema registry definitions from 95 to ~30 while keeping clean semantic actions.
+  - **100% Backward Compatibility**: Added automatic legacy tool mapping in `runHandler` (`lib/handlers.js`) so that all legacy tool calls (e.g. `gitea_label_list`, `gitea_release_now`, `gitea_ci_explain`, etc.) map transparently to the corresponding facade actions without breaking existing workflows or agents.
+  - **Architectural Decoupling & Feature Creep Removal**:
+    - Removed `lib/sprint-plan.js` (delegated to `@goodandready/dsh-kanban`).
+    - Removed `lib/digest-delivery.js` (delegated to `@goodandready/dsh-plugin-notify`).
+    - Removed `lib/auto-actions.js` & `lib/dep-watch.js`.
+  - **Performance & Concurrency Hardening**:
+    - `lib/git-local.js`: Implemented a 3-second TTL cache for `buildGitSnapshot` to prevent repetitive subshell `git` executions on chat/session polling.
+    - `lib/duty-officer.js`: Optimized PR review lookups with `Promise.all` batching and capped queries.
+    - `lib/pr-templates.js`: Added bilingual (EN/RU) template detection for PR checklist verification.
+    - `lib/bg-scheduler.js`: Added in-flight concurrency guard to prevent overlapping ticks when external requests lag.
+
 
 - Authoring, Quality & Security Bugfix Suite (#181, #182, #183, #184, #185, #186, #187):
   - **#181 (`lib/index.js`)**: Updated server entry `export const name = '@goodandready/dsh-gitea'` to match `package.json` and client bundle registration.
