@@ -179,12 +179,27 @@ dsh-gitea:
 
 ### Settings Reference Table
 
-| Key | Type | Default | Description |
-|:---|:---|:---|:---|
-| `baseUrl` | `string` | `""` | Base URL of your Gitea or Forgejo instance (e.g. `https://gitea.example.com`) |
-| `tokenEnv` | `string` | `"GITEA_TOKEN"` | Name of the DSH Credential containing the personal access token |
-| `gitWrapper` | `string` | `""` | Optional executable wrapper for write operations (e.g., `git-dsh`) |
-| `timeoutMs` | `number` | `15000` | HTTP request timeout in milliseconds |
+The plugin settings card in **Settings -> Plugins -> Gitea** organizes all 17 schema options into intuitive Core and Advanced sections:
+
+| Key | Type | Default | Section | Description |
+|:---|:---|:---|:---|:---|
+| `baseUrl` | `string` | `""` | Core | Base URL of your Gitea or Forgejo instance (e.g. `https://gitea.example.com`) |
+| `tokenEnv` | `string` | `"GITEA_TOKEN"` | Core | Name of the DSH Credential containing the personal access token |
+| `defaultOwner` | `string` | `""` | Core | Default organization or user when tool calls omit owner |
+| `defaultRepo` | `string` | `""` | Core | Default repository name when tool calls omit repo |
+| `gitWrapper` | `string` | `""` | Advanced (Git) | Optional executable wrapper for write operations (e.g. `git-dsh`) |
+| `dodReminder` | `boolean` | `false` | Advanced (Git) | Definition of Done reminder if a tool changes git files without referencing an issue/PR |
+| `forceHttpsUrls` | `boolean` | `false` | Advanced (Git) | Rewrite `http://` links to `https://` behind an HTTPS reverse proxy |
+| `timeoutMs` | `number` | `30000` | Advanced (Git) | HTTP request timeout in milliseconds (default 30000) |
+| `webhookSecretEnv` | `string` | `""` | Advanced (Webhooks) | DSH Credential name holding secret to verify incoming `X-Gitea-Signature` |
+| `webhookSecret` | `string` | `""` | N/A | *Deprecated*: use `webhookSecretEnv` credential ref. Kept for backwards compatibility |
+| `notifyWebhook` | `string` | `""` | Advanced (Webhooks) | External webhook URL for push notifications on PR and CI failures |
+| `bgSchedulerEnabled` | `boolean` | `false` | Advanced (Scheduler) | Enable background triage/health checks and digest event logging |
+| `bgSchedulerIntervalMin` | `number` | `60` | Advanced (Scheduler) | Background check interval in minutes (default 60) |
+| `bgSchedulerOwner` | `string` | `""` | Advanced (Scheduler) | Target owner for background triage (defaults to `defaultOwner` if empty) |
+| `bgSchedulerRepo` | `string` | `""` | Advanced (Scheduler) | Target repo for background triage (defaults to `defaultRepo` if empty) |
+| `bgSchedulerWebhook` | `string` | `""` | Advanced (Scheduler) | Optional webhook URL to deliver triage digests to external channel |
+| `instances` | `array` | `[]` | Advanced (Instances) | Additional Gitea instances (`name`, `baseUrl`, `tokenEnv`) configured via profile |
 
 > [!IMPORTANT]
 > Never put the raw API token in the `tokenEnv` field. Store the token securely in DSH Credentials and enter only its reference key name.

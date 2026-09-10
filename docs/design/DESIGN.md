@@ -13,7 +13,7 @@
   - Выпадающая панель быстрого статуса текущего репозитория.
   - Модальное окно топологического графа коммитов (`Commit Graph Modal`) с моноширинными дорожками ветвления и статусами CI Gitea Actions.
 - **DSH UI / settings / slots**:
-  - Карточка настроек плагина `settings.plugin.item`: параметры `baseUrl`, `tokenEnv` (credential-ref), `webhookSecretEnv` (credential-ref), `gitWrapper`, `timeoutMs`. Поддержка `settingsScope` с проверкой состояний (`loading`, `unavailable`, `ready`) и защитой от перезаписи частичными обновлениями.
+  - Карточка настроек плагина `settings.plugin.item`: полная поддержка всех 17 параметров схемы `Config`. Основные параметры (`baseUrl`, `tokenEnv` credential-ref, `defaultOwner`, `defaultRepo`) выведены на первый экран; расширенные параметры (`gitWrapper`, `dodReminder`, `forceHttpsUrls`, `timeoutMs`, `webhookSecretEnv`, `notifyWebhook`, `bgScheduler*`, `instances`) сгруппированы в раскрывающейся секции. Поддержка `settingsScope` с проверкой состояний (`loading`, `unavailable`, `ready`), изолированная регистрация словарей с защитой от повторного вызова и безопасное чтение сервисов через `ctx.get`.
 - **API / Agent Tools**:
   - 57 специализированных инструментов `gitea_*` для агентов (PR, issues, reviews, releases, policies, analytics, git-snapshot, git-graph).
 - **CLI**:

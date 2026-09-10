@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.1 — 2026-09-10
+
+- Client Stability, Safe Locale & Full Settings Card Suite (#192):
+  - **Safe Locale Registration (`lib/client.js`)**: Wrapped `locale.register` in an isolated `try/catch` with `console.warn` logging, ensuring duplicate locale registration attempts ("already has locale") never crash client UI slots.
+  - **Context Service Access (`lib/client.js`, `lib/index.js`)**: Standardized service resolution via `ctx.get('service')` helper (`locale`, `settingsScope`, `slots`, `credentials`, `settings`), preventing `undefined` lookups on Cordis proxies.
+  - **Comprehensive Settings Card (`lib/client.js`)**: Extended `GiteaSettingsForm` to cover all 17 schema configuration fields grouped into Core and Advanced sections (`defaultOwner`, `defaultRepo`, `gitWrapper`, `dodReminder`, `forceHttpsUrls`, `timeoutMs`, `webhookSecretEnv`, `notifyWebhook`, `bgScheduler*`, `instances`).
+  - **Deprecation & Security**: Explicitly documented `webhookSecret` as deprecated in favor of `webhookSecretEnv` credential references, keeping sensitive values out of browser DOM.
+  - **Documentation**: Updated Settings Reference Tables in English, Russian, and Chinese documentation.
+
 ## 0.6.0 — 2026-09-07
 
 - Tool Consolidation, Architecture Decoupling & Stability Release:
