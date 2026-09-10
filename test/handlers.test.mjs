@@ -46,6 +46,18 @@ function mockClient() {
       calls.push({ method: 'getPull', args })
       return Promise.resolve({ ok: true, data: { number: 4, title: 'Feature' } })
     },
+    addIssueLabels: (...args) => {
+      calls.push({ method: 'addIssueLabels', args })
+      return Promise.resolve({ ok: true, data: [{ id: 10 }] })
+    },
+    getActionsRun: (...args) => {
+      calls.push({ method: 'getActionsRun', args })
+      return Promise.resolve({ ok: true, data: { id: 123 } })
+    },
+    getJobLogs: (...args) => {
+      calls.push({ method: 'getJobLogs', args })
+      return Promise.resolve({ ok: true, data: 'Job logs content' })
+    },
     mergePull: (...args) => {
       calls.push({ method: 'mergePull', args })
       return Promise.resolve({ ok: true, data: { merged: true } })
@@ -1474,4 +1486,46 @@ test('gitea_wiki facade: list, get and legacy mapping', async () => {
   const rLegacy = await runHandler('gitea_wiki_pages', { owner: 'acme', repo: 'app' }, deps)
   assert.equal(rLegacy.ok, true)
   assert.equal(client.calls[client.calls.length - 1].method, 'listWikiPages')
+})
+
+
+
+test('gitea_labels: add_to_issue calls addIssueLabels on client', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const res = await runHandler('gitea_labels', {
+    action: 'add_to_issue',
+    owner: 'acme',
+    repo: 'app',
+    number: 42,
+    labels: [10, 20]
+  }, deps)
+  assert.equal(res.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'addIssueLabels')
+})
+
+test('gitea_ci: action run calls getActionsRun on client', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const res = await runHandler('gitea_ci', {
+    action: 'run',
+    owner: 'acme',
+    repo: 'app',
+    run_id: 123
+  }, deps)
+  assert.equal(res.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'getActionsRun')
+})
+
+test('gitea_ci: action logs calls getJobLogs on client', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const res = await runHandler('gitea_ci', {
+    action: 'logs',
+    owner: 'acme',
+    repo: 'app',
+    job_id: 456
+  }, deps)
+  assert.equal(res.ok, true)
+  assert.equal(client.calls[client.calls.length - 1].method, 'getJobLogs')
 })

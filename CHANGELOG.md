@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.6.2] - 2026-09-10
+
+### Added
+- React `ErrorBoundary` wrapping `GiteaPluginCard` and `GiteaSettingsForm` inspired by `dsh-clinebot`.
+- Native SVG `Chevron` icon in `GiteaPluginCard` with smooth 180-degree rotation on toggle.
+- Host status badge (`badgeOnline` / `badgeOffline`) and token status badge in settings header.
+- Connected `gitea_ci` with `action: 'run'` (`client.getActionsRun`) and `action: 'logs'` (`client.getJobLogs`).
+- Connected `gitea_labels` with `action: 'add_to_issue'` (`client.addIssueLabels`).
+- Tests covering `ErrorBoundary`, `Chevron`, and the new `gitea_ci` / `gitea_labels` actions.
+
+### Fixed
+- Replaced hardcoded Russian strings in `EventsPanel` with localized keys (`eventsTitle`, `eventsEmptyHint`).
+- Aligned UI design tokens and badge styles (`.dgt-badgeOk`, `.dgt-badgeWarn`, `.dgt-badgeBad`, `.dgt-badgesRow`) with DSH styling standards.
+
 ## 0.6.1 — 2026-09-10
 
 - Client Stability, Safe Locale & Full Settings Card Suite (#192):

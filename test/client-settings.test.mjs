@@ -151,3 +151,13 @@ test('settings card CSS matches shared PluginCard tokens', () => {
   assert.match(src, /className: 'dgt-foot'/)
   assert.doesNotMatch(src, /#0000/)
 })
+
+
+
+
+test('client.js includes ErrorBoundary definition and Chevron icon component', () => {
+  const code = readFileSync(srcPath, 'utf8')
+  assert.equal(code.includes('class ErrorBoundary'), true)
+  assert.equal(code.includes('FallbackChevron'), true)
+  assert.equal(code.includes('eventsEmptyHint'), true)
+})

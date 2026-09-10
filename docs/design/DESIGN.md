@@ -85,3 +85,10 @@
   - Не смешивать функционал задач и досок — канбан живет в `dsh-kanban`.
   - Не внедрять тяжелые рантайм-зависимости.
   - Не делать жестко зашитых URL или стилей без поддержки темы.
+
+## UI Standards Alignment (v0.6.2)
+- Aligned card design with `dsh-clinebot` pattern.
+- Wrapped user settings form inside `ErrorBoundary` to ensure graceful degradation.
+- Interactive SVG `Chevron` indicator with smooth CSS rotation.
+- Status badges: token configuration status (`.dgt-badgeOk`, `.dgt-badgeBad`), host availability status.
+- Strict localization enforcement: zero hardcoded Russian strings in components.
