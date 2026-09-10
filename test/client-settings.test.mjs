@@ -71,10 +71,52 @@ test('client uses settings.plugin.item only (no settings.section)', () => {
   assert.doesNotMatch(src, /name: 'settings\.section'/)
 })
 
-test('client registers en/ru locale dictionaries', () => {
-  assert.match(src, /ctx\.locale\.register\(NS, \{ en, ru \}\)/)
+test('client registers en locale dictionary safely', () => {
+  assert.match(src, /localeSvc\.register\(NS, \{ en \}\)/)
   assert.match(src, /title: 'Gitea'/)
-  assert.match(src, /tokenEnv: 'Имя учётных данных'/)
+})
+
+test('client handles duplicate locale registration error safely without crashing slots', () => {
+  const exported = loadClient()
+  const names = []
+  assert.doesNotThrow(() => {
+    exported.apply({
+      get(name) { return this[name] },
+      effect(fn) { fn(); return () => {} },
+      locale: {
+        register() { throw new Error('already has locale: dsh-gitea') },
+        subscribe() { return () => {} },
+        getSnapshot() { return { active: 'en' } },
+      },
+      slots: {
+        inject(name, factory) {
+          names.push(name)
+          factory()
+        },
+        register() { return () => {} },
+      },
+      settingsScope: {
+        bind() { return { subscribe() { return () => {} }, getSnapshot() { return { status: 'ready' } } } },
+      },
+    })
+  })
+  assert.deepEqual(names, ['settings.plugin.item', 'conversation.session.header.utilities'])
+})
+
+test('settings form provides fields for all configurable schema options', () => {
+  assert.match(src, /defaultOwner/)
+  assert.match(src, /defaultRepo/)
+  assert.match(src, /gitWrapper/)
+  assert.match(src, /dodReminder/)
+  assert.match(src, /forceHttpsUrls/)
+  assert.match(src, /timeoutMs/)
+  assert.match(src, /webhookSecretEnv/)
+  assert.match(src, /notifyWebhook/)
+  assert.match(src, /bgSchedulerEnabled/)
+  assert.match(src, /bgSchedulerIntervalMin/)
+  assert.match(src, /bgSchedulerOwner/)
+  assert.match(src, /bgSchedulerRepo/)
+  assert.match(src, /bgSchedulerWebhook/)
 })
 
 test('apply registers plugin card and skips sidebar section', () => {
