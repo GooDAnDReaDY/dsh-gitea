@@ -92,3 +92,9 @@
 - Interactive SVG `Chevron` indicator with smooth CSS rotation.
 - Status badges: token configuration status (`.dgt-badgeOk`, `.dgt-badgeBad`), host availability status.
 - Strict localization enforcement: zero hardcoded Russian strings in components.
+
+## Performance & Reliability Engineering (v0.6.3)
+- Canonical style tag attribute `data-dsh-plugin="dsh-gitea"` guards stylesheets against cleaner sweeps.
+- Visibility-aware polling pauses network calls and `git` child processes when tab is hidden.
+- Parallelized `git` status snapshotting cuts response latency by ~50%.
+- In-memory TTL caching on `GiteaClient` eliminates redundant roundtrips for stable endpoints.

@@ -161,3 +161,10 @@ test('client.js includes ErrorBoundary definition and Chevron icon component', (
   assert.equal(code.includes('FallbackChevron'), true)
   assert.equal(code.includes('eventsEmptyHint'), true)
 })
+
+test('client.js registers style tag with canonical data-dsh-plugin attribute', () => {
+  const code = readFileSync(srcPath, 'utf8')
+  assert.equal(code.includes('tag.dataset.dshPlugin = NS'), true)
+  assert.equal(code.includes('visibilitychange'), true)
+  assert.equal(code.includes('document.hidden'), true)
+})
