@@ -850,3 +850,45 @@ test('getContents handles Windows backslashes and encoded path segments', async 
   assert.equal(capturedUrl, 'https://gitea.example.com/api/v1/repos/acme/app/contents/src/nested/index.js')
   assert.equal(result.ok, true)
 })
+
+test('GiteaClient caches GET responses and invalidates on mutations', async () => {
+  let fetchCount = 0
+  const fakeFetch = async (url, init) => {
+    fetchCount++
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ id: 1, count: fetchCount }),
+      headers: new Map(),
+    }
+  }
+
+  const client = new GiteaClient({
+    baseUrl: 'https://gitea.example.com',
+    token: 'test-token',
+    fetchImpl: fakeFetch,
+    cacheTtlMs: 5000,
+  })
+
+  // First GET calls fetch
+  const res1 = await client.request('GET', '/repos/acme/app')
+  assert.equal(res1.ok, true)
+  assert.equal(res1.data.count, 1)
+  assert.equal(fetchCount, 1)
+
+  // Second GET hits cache without calling fetch
+  const res2 = await client.request('GET', '/repos/acme/app')
+  assert.equal(res2.ok, true)
+  assert.equal(res2.data.count, 1)
+  assert.equal(fetchCount, 1)
+
+  // POST mutation invalidates cache
+  await client.request('POST', '/repos/acme/app/issues', { body: { title: 'New' } })
+  assert.equal(fetchCount, 2)
+
+  // Subsequent GET fetches fresh data
+  const res3 = await client.request('GET', '/repos/acme/app')
+  assert.equal(res3.ok, true)
+  assert.equal(res3.data.count, 3)
+  assert.equal(fetchCount, 3)
+})

@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.6.3] - 2026-09-12
+
+### Added
+- In-memory TTL cache (`cacheTtlMs: 15_000`) in `GiteaClient` with automatic cache invalidation on mutating requests (POST/PATCH/DELETE/PUT).
+- Parallelized independent git inspection commands (`status`, `rev-parse`, `log`, `remote`) via `Promise.allSettled` in `buildGitSnapshot`.
+- Visibility-aware polling via Page Visibility API in `useCrossTabGitStatus` and `EventsPanel`: pauses redundant background polling when tab is hidden, immediate sync on tab focus.
+- Canonical style tag isolation using `data-dsh-plugin="dsh-gitea"` compliant with `dsh-plugin-authoring` standard.
+- Tests covering TTL cache behavior, style tag attribute, and visibility-aware polling.
+
 ## [0.6.2] - 2026-09-10
 
 ### Added
