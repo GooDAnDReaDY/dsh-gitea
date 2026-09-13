@@ -48,6 +48,41 @@ function mockClient() {
       calls.push({ method: 'deleteIssueComment', args })
       return Promise.resolve({ ok: true, data: {} })
     },
+    getPullDiff: (...args) => {
+      calls.push({ method: 'getPullDiff', args })
+      return Promise.resolve({
+        ok: true,
+        data: 'diff --git a/foo.js b/foo.js\n--- a/foo.js\n+++ b/foo.js\n@@ -1 +1 @@\n-old\n+new\n',
+      })
+    },
+    listIssueReactions: (...args) => {
+      calls.push({ method: 'listIssueReactions', args })
+      return Promise.resolve({ ok: true, data: [{ content: 'rocket', user: { login: 'alice' } }] })
+    },
+    addIssueReaction: (...args) => {
+      calls.push({ method: 'addIssueReaction', args })
+      return Promise.resolve({ ok: true, data: { content: 'heart' } })
+    },
+    deleteIssueReaction: (...args) => {
+      calls.push({ method: 'deleteIssueReaction', args })
+      return Promise.resolve({ ok: true, data: {} })
+    },
+    listCommentReactions: (...args) => {
+      calls.push({ method: 'listCommentReactions', args })
+      return Promise.resolve({ ok: true, data: [{ content: '+1', user: { login: 'bob' } }] })
+    },
+    addCommentReaction: (...args) => {
+      calls.push({ method: 'addCommentReaction', args })
+      return Promise.resolve({ ok: true, data: { content: '+1' } })
+    },
+    deleteCommentReaction: (...args) => {
+      calls.push({ method: 'deleteCommentReaction', args })
+      return Promise.resolve({ ok: true, data: {} })
+    },
+    getIssueTimeline: (...args) => {
+      calls.push({ method: 'getIssueTimeline', args })
+      return Promise.resolve({ ok: true, data: [{ type: 'comment', user: { login: 'alice' }, body: 'hello timeline' }] })
+    },
     closeIssue: (...args) => {
       calls.push({ method: 'closeIssue', args })
       return Promise.resolve({ ok: true, data: { number: 2, state: 'closed' } })
@@ -1623,4 +1658,54 @@ test('formatToolResult formats gitea_issue_comments list', () => {
   })
   assert.equal(rendered.length, 1)
   assert.match(rendered[0].text, /\*\*alice\*\* \(2026-09-13\):\s+First comment text\./)
+})
+
+test('gitea_pr_diff returns unified diff and parsed stat', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const resRaw = await runHandler('gitea_pr_diff', { number: 10, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(resRaw.ok, true)
+  assert.match(resRaw.data.diff, /diff --git a\/foo\.js/)
+  assert.equal(client.calls.some(c => c.method === 'getPullDiff'), true)
+
+  const resStat = await runHandler('gitea_pr_diff', { number: 10, stat: true, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(resStat.ok, true)
+  assert.equal(resStat.data.filesCount, 1)
+  assert.equal(resStat.data.additions, 1)
+  assert.equal(resStat.data.deletions, 1)
+  assert.deepEqual(resStat.data.files, ['foo.js'])
+
+  const formatted = formatToolResult('gitea_pr_diff', resStat)
+  assert.match(formatted[0].text, /PR #10: 1 files changed \(\+1, -1\)/)
+})
+
+test('gitea_reactions handles issue and comment reactions', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+
+  // Issue reaction list & add
+  const resList = await runHandler('gitea_reactions', { action: 'list', number: 5, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(resList.ok, true)
+  assert.equal(client.calls.some(c => c.method === 'listIssueReactions'), true)
+  const fmtList = formatToolResult('gitea_reactions', resList)
+  assert.match(fmtList[0].text, /rocket: 1/)
+
+  const resAdd = await runHandler('gitea_reactions', { action: 'add', number: 5, content: 'heart', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(resAdd.ok, true)
+  assert.equal(client.calls.some(c => c.method === 'addIssueReaction'), true)
+
+  // Comment reaction list & add
+  const resCommentAdd = await runHandler('gitea_reactions', { action: 'add', target: 'comment', comment_id: 99, content: '+1', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(resCommentAdd.ok, true)
+  assert.equal(client.calls.some(c => c.method === 'addCommentReaction'), true)
+})
+
+test('gitea_issue_timeline dispatches correctly and formats', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const res = await runHandler('gitea_issue_timeline', { number: 5, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(res.ok, true)
+  assert.equal(client.calls.some(c => c.method === 'getIssueTimeline'), true)
+  const fmt = formatToolResult('gitea_issue_timeline', res)
+  assert.match(fmt[0].text, /\[comment\] by alice: hello timeline/)
 })

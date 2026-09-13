@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.7.1] - 2026-09-13
+
+### Added
+- **New Agent Tools (Phase 2)**:
+  - `gitea_pr_diff`: Fetch raw pull request unified diff or parsed file-level change statistics (`stat: true`, additions, deletions, changed files list).
+  - `gitea_reactions`: Manage emoji reactions on issues and comments (`list`, `add`, `delete` for `+1`, `-1`, `laugh`, `confused`, `heart`, `hooray`, `rocket`, `eyes`).
+  - `gitea_issue_timeline`: Chronological timeline of events, state transitions, and comments on issues.
+- **Client Methods**: `getPullDiff`, `listIssueReactions`, `addIssueReaction`, `deleteIssueReaction`, `listCommentReactions`, `addCommentReaction`, `deleteCommentReaction`, `getIssueTimeline`.
+- Rich CLI and chat formatting for PR diff stats, reaction counts, and event timelines.
+- Unit tests covering all Phase 2 agent tools and output formatters.
+
 ## [0.7.0] - 2026-09-13
 
 ### Added

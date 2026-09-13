@@ -105,3 +105,8 @@
 - 2026-09-13 — Переход от всплывающего модального окна графа к выдвижному Sidebar Drawer; причина: модальное окно прерывало диалог с агентом и блокировало экран; выдвижная боковая панель справа позволяет одновременно работать в чате и инспектировать статус репозитория, diff и CI.
 - Интегрированы 3 вкладки (Status, Graph & CI, Events & PRs) в единую выдвижную панель `GitSidebarDrawer` с плавной CSS-анимацией выезда.
 - Поддержка закрытия по `Esc`, доступности (`aria-modal`, `role="dialog"`), токенов темы DSH и кнопки принудительного обновления статуса.
+
+### 4.8 Phase 2: Agent Tools Extension (v0.7.1)
+- `gitea_pr_diff`: Exposes raw Git unified diff (`application/vnd.gitea.diff`) or structured summary statistics (`filesCount`, `additions`, `deletions`, `files`).
+- `gitea_reactions`: Full support for Gitea Issue and Comment reaction management (`+1`, `-1`, `laugh`, `confused`, `heart`, `hooray`, `rocket`, `eyes`).
+- `gitea_issue_timeline`: Complete audit trail of issue events and discussions.
