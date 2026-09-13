@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.6.4] - 2026-09-13
+
+### Added
+- Issue comments inspection: `listIssueComments`, `getIssueComment`, `updateIssueComment`, and `deleteIssueComment` in `GiteaClient` with in-memory TTL cache support and automatic invalidation.
+- New tool `gitea_issue_comments` for retrieving issue discussions with pagination (`limit`, `page`).
+- Support for `include_comments` parameter in `gitea_issue_get` to retrieve issue details and comments in a single query.
+- Slim comment projection in `RECORD_KEYS` / `slimRecord` (`id`, `user`, `body`, `created_at`, `updated_at`).
+- Rich text formatting in `formatToolResult` for `gitea_issue_get` (rendering title, state, description, and comments) and `gitea_issue_comments`.
+- Handlers for `gitea_issue_comment_update` and `gitea_issue_comment_delete`.
+- 7 new unit tests covering comment methods, TTL cache invalidation, and tool result formatting (total: 394 tests).
+- Acknowledged community contribution and proposal from GitHub PR #1 by @madalee-com.
+
 ## [0.6.3] - 2026-09-12
 
 ### Added
