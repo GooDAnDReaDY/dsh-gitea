@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.7.2] - 2026-09-13
+
+### Added
+- **HTTP 304 Conditional Request Caching (Phase 3)**:
+  - `GiteaClient` now captures upstream `ETag` headers on successful GET responses.
+  - Subsequent requests to the same endpoint send `If-None-Match: <etag>`.
+  - On receiving `304 Not Modified`, `GiteaClient` refreshes cache TTL and serves cached data directly, saving bandwidth and serialization time.
+- Unit tests verifying ETag header transmission and 304 response recovery (total: 399 tests).
+
 ## [0.7.1] - 2026-09-13
 
 ### Added

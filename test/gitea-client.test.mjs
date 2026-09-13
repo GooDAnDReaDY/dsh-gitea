@@ -951,3 +951,51 @@ test('listIssueComments, getIssueComment, updateIssueComment, deleteIssueComment
   assert.equal(history[4].method, 'DELETE')
   assert.equal(fetchCount, 5)
 })
+
+test('GiteaClient supports conditional GET with ETag and HTTP 304 Not Modified', async () => {
+  let fetchCount = 0
+  const history = []
+  const fakeFetch = async (url, init = {}) => {
+    fetchCount++
+    history.push({ url, headers: { ...init.headers } })
+    const ifNoneMatch = init.headers && (init.headers['If-None-Match'] || init.headers['if-none-match'])
+    if (ifNoneMatch === '"etag-v1"') {
+      return {
+        ok: false,
+        status: 304,
+        headers: { get: (name) => (name.toLowerCase() === 'etag' ? '"etag-v1"' : null) },
+      }
+    }
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ id: 100, name: 'cached-payload', version: 1 }),
+      headers: { get: (name) => (name.toLowerCase() === 'etag' ? '"etag-v1"' : null) },
+    }
+  }
+
+  const client = new GiteaClient({
+    baseUrl: 'https://gitea.example.com',
+    token: 'test-token',
+    fetchImpl: fakeFetch,
+    cacheTtlMs: 50, // short TTL to trigger conditional refresh
+  })
+
+  // 1. Initial request -> 200 OK with ETag
+  const res1 = await client.request('GET', '/repos/acme/app')
+  assert.equal(res1.ok, true)
+  assert.equal(res1.status, 200)
+  assert.equal(res1.data.name, 'cached-payload')
+  assert.equal(fetchCount, 1)
+
+  // 2. Wait for TTL to expire
+  await new Promise((r) => setTimeout(r, 60))
+
+  // 3. Second request after TTL expiration sends If-None-Match: "etag-v1" and gets 304 -> returns cached res
+  const res2 = await client.request('GET', '/repos/acme/app')
+  assert.equal(res2.ok, true)
+  assert.equal(res2.status, 200)
+  assert.equal(res2.data.name, 'cached-payload')
+  assert.equal(fetchCount, 2)
+  assert.equal(history[1].headers['If-None-Match'], '"etag-v1"')
+})

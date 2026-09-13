@@ -110,3 +110,8 @@
 - `gitea_pr_diff`: Exposes raw Git unified diff (`application/vnd.gitea.diff`) or structured summary statistics (`filesCount`, `additions`, `deletions`, `files`).
 - `gitea_reactions`: Full support for Gitea Issue and Comment reaction management (`+1`, `-1`, `laugh`, `confused`, `heart`, `hooray`, `rocket`, `eyes`).
 - `gitea_issue_timeline`: Complete audit trail of issue events and discussions.
+
+### 4.9 Phase 3: HTTP 304 ETag Caching (v0.7.2)
+- Stores `etag` in client cache entries.
+- Emits `If-None-Match` on revalidation.
+- Transparently handles HTTP 304 with instant TTL renewal.
