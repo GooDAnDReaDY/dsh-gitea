@@ -9,9 +9,11 @@
 
 ## User Surfaces
 - **Web/UI**:
-  - Чат-чип Git-статуса (`dgt-git-chip`) в hero-строке ввода чата (название ветки, индикаторы `dirty`, опережение/отставание `ahead/behind`).
-  - Выпадающая панель быстрого статуса текущего репозитория.
-  - Модальное окно топологического графа коммитов (`Commit Graph Modal`) с моноширинными дорожками ветвления и статусами CI Gitea Actions.
+  - Чат-чип Git-статуса (`dgt-git-chip`) в hero-строке ввода чата (название ветки, индикаторы `dirty`, опережение/отставание `ahead/behind`, номер активного PR).
+  - Выдвижной нативный **Sidebar Drawer** (`GitSidebarDrawer` / Git Inspector) с правого края экрана:
+    - Вкладка **Status**: ветка, remote-синхронизация (`ahead/behind`), список измененных/неотслеживаемых файлов, быстрый manual refresh.
+    - Вкладка **Graph & CI**: топологический моноширинный граф коммитов, OID-ссылки в веб-интерфейс Gitea, живые бейджи CI Gitea Actions (`success`, `failure`, `running`).
+    - Вкладка **Events & PRs**: лента входящих вебхук-событий репозитория и активный PR.
 - **DSH UI / settings / slots**:
   - Карточка настроек плагина `settings.plugin.item`: полная поддержка всех 17 параметров схемы `Config`. Основные параметры (`baseUrl`, `tokenEnv` credential-ref, `defaultOwner`, `defaultRepo`) выведены на первый экран; расширенные параметры (`gitWrapper`, `dodReminder`, `forceHttpsUrls`, `timeoutMs`, `webhookSecretEnv`, `notifyWebhook`, `bgScheduler*`, `instances`) сгруппированы в раскрывающейся секции. Поддержка `settingsScope` с проверкой состояний (`loading`, `unavailable`, `ready`), изолированная регистрация словарей с защитой от повторного вызова и безопасное чтение сервисов через `ctx.get`.
 - **API / Agent Tools**:
@@ -98,3 +100,8 @@
 - Visibility-aware polling pauses network calls and `git` child processes when tab is hidden.
 - Parallelized `git` status snapshotting cuts response latency by ~50%.
 - In-memory TTL caching on `GiteaClient` eliminates redundant roundtrips for stable endpoints.
+
+## Sidebar Drawer Architecture (v0.7.0 / Phase 1)
+- 2026-09-13 — Переход от всплывающего модального окна графа к выдвижному Sidebar Drawer; причина: модальное окно прерывало диалог с агентом и блокировало экран; выдвижная боковая панель справа позволяет одновременно работать в чате и инспектировать статус репозитория, diff и CI.
+- Интегрированы 3 вкладки (Status, Graph & CI, Events & PRs) в единую выдвижную панель `GitSidebarDrawer` с плавной CSS-анимацией выезда.
+- Поддержка закрытия по `Esc`, доступности (`aria-modal`, `role="dialog"`), токенов темы DSH и кнопки принудительного обновления статуса.

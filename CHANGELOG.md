@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.7.0] - 2026-09-13
+
+### Added
+- **Native DSH Sidebar Drawer (Phase 1)**: Replaced popup panel and modal commit graph with a smooth, collapsible `GitSidebarDrawer` docked to the right edge.
+- **3 Tabbed Inspector Sections**:
+  - **Status**: Live branch info, upstream sync indicators (ahead/behind), active PR badge, formatted working tree changes, clean/dirty indicator, and one-click manual refresh button.
+  - **Graph & CI**: Topological commit graph with lane characters, commit author, relative timestamp, direct OID links to Gitea, and live Actions CI status badges (`CI ✓`, `CI ✗`, `CI ●`).
+  - **Events & PRs**: Real-time webhook events stream and PR tracking.
+- **Enhanced Keyboard & Accessibility**: Full `Esc` key navigation, `aria-modal`, `role="dialog"`, smooth cubic-bezier drawer transition, and backdrop blur.
+- Tests covering `GitSidebarDrawer` tabs and accessibility attributes.
+
 ## [0.6.4] - 2026-09-13
 
 ### Added

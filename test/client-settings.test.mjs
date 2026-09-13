@@ -168,3 +168,17 @@ test('client.js registers style tag with canonical data-dsh-plugin attribute', (
   assert.equal(code.includes('visibilitychange'), true)
   assert.equal(code.includes('document.hidden'), true)
 })
+
+test('client.js implements GitSidebarDrawer with 3 tabs and accessibility attributes', () => {
+  const code = readFileSync(srcPath, 'utf8')
+  assert.equal(code.includes('function GitSidebarDrawer'), true)
+  assert.equal(code.includes('dgt-drawer'), true)
+  assert.equal(code.includes('dgt-drawer-tabs'), true)
+  assert.equal(code.includes('tabStatus'), true)
+  assert.equal(code.includes('tabGraph'), true)
+  assert.equal(code.includes('tabEvents'), true)
+  assert.equal(code.includes('dgt-drawer-btn-close'), true)
+  assert.equal(code.includes('Escape'), true)
+  assert.equal(code.includes('role: \'dialog\''), true)
+  assert.equal(code.includes('\'aria-modal\': true'), true)
+})
