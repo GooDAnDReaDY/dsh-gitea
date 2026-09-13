@@ -892,3 +892,62 @@ test('GiteaClient caches GET responses and invalidates on mutations', async () =
   assert.equal(res3.data.count, 3)
   assert.equal(fetchCount, 3)
 })
+
+test('listIssueComments, getIssueComment, updateIssueComment, deleteIssueComment and cache invalidation', async () => {
+  let fetchCount = 0
+  const history = []
+  const fakeFetch = async (url, init = {}) => {
+    fetchCount++
+    history.push({ url, method: init.method || 'GET' })
+    if (init.method === 'DELETE') {
+      return { ok: true, status: 204, json: async () => ({}), headers: new Map() }
+    }
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ id: 42, count: fetchCount }),
+      headers: new Map(),
+    }
+  }
+
+  const client = new GiteaClient({
+    baseUrl: 'https://gitea.example.com',
+    token: 'test-token',
+    fetchImpl: fakeFetch,
+    cacheTtlMs: 5000,
+  })
+
+  // 1. listIssueComments GET
+  const res1 = await client.listIssueComments('acme', 'app', 10)
+  assert.equal(res1.ok, true)
+  assert.match(history[0].url, /\/repos\/acme\/app\/issues\/10\/comments/)
+  assert.equal(fetchCount, 1)
+
+  // 2. listIssueComments GET hits cache
+  const res2 = await client.listIssueComments('acme', 'app', 10)
+  assert.equal(res2.ok, true)
+  assert.equal(fetchCount, 1)
+
+  // 3. getIssueComment GET
+  const res3 = await client.getIssueComment('acme', 'app', 42)
+  assert.equal(res3.ok, true)
+  assert.match(history[1].url, /\/repos\/acme\/app\/issues\/comments\/42/)
+  assert.equal(fetchCount, 2)
+
+  // 4. updateIssueComment PATCH invalidates cache
+  const res4 = await client.updateIssueComment('acme', 'app', 42, 'Updated comment')
+  assert.equal(res4.ok, true)
+  assert.equal(history[2].method, 'PATCH')
+  assert.equal(fetchCount, 3)
+
+  // 5. listIssueComments after PATCH queries network again
+  const res5 = await client.listIssueComments('acme', 'app', 10)
+  assert.equal(res5.ok, true)
+  assert.equal(fetchCount, 4)
+
+  // 6. deleteIssueComment DELETE invalidates cache
+  const res6 = await client.deleteIssueComment('acme', 'app', 42)
+  assert.equal(res6.ok, true)
+  assert.equal(history[4].method, 'DELETE')
+  assert.equal(fetchCount, 5)
+})

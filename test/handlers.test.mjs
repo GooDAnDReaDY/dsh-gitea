@@ -30,6 +30,24 @@ function mockClient() {
       calls.push({ method: 'commentIssue', args })
       return Promise.resolve({ ok: true, data: { id: 1 } })
     },
+    listIssueComments: (...args) => {
+      calls.push({ method: 'listIssueComments', args })
+      return Promise.resolve({
+        ok: true,
+        data: [
+          { id: 101, user: { login: 'alice' }, body: 'First comment', created_at: '2026-09-13T10:00:00Z' },
+          { id: 102, user: { login: 'bob' }, body: 'Second comment', created_at: '2026-09-13T10:05:00Z' },
+        ],
+      })
+    },
+    updateIssueComment: (...args) => {
+      calls.push({ method: 'updateIssueComment', args })
+      return Promise.resolve({ ok: true, data: { id: 101, body: args[3] } })
+    },
+    deleteIssueComment: (...args) => {
+      calls.push({ method: 'deleteIssueComment', args })
+      return Promise.resolve({ ok: true, data: {} })
+    },
     closeIssue: (...args) => {
       calls.push({ method: 'closeIssue', args })
       return Promise.resolve({ ok: true, data: { number: 2, state: 'closed' } })
@@ -1528,4 +1546,81 @@ test('gitea_ci: action logs calls getJobLogs on client', async () => {
   }, deps)
   assert.equal(res.ok, true)
   assert.equal(client.calls[client.calls.length - 1].method, 'getJobLogs')
+})
+
+test('gitea_issue_get without include_comments does not fetch comments', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_issue_get', { number: 3, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(result.data.comments, undefined)
+  assert.equal(client.calls.some(c => c.method === 'listIssueComments'), false)
+})
+
+test('gitea_issue_get with include_comments: true merges slim comments', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_issue_get', { number: 3, owner: 'acme', repo: 'app', include_comments: true }, deps)
+  assert.equal(result.ok, true)
+  assert.equal(client.calls.some(c => c.method === 'listIssueComments'), true)
+  assert.ok(Array.isArray(result.data.comments))
+  assert.equal(result.data.comments.length, 2)
+  assert.equal(result.data.comments[0].user, 'alice')
+  assert.equal(result.data.comments[0].body, 'First comment')
+  assert.equal(result.data.comments[1].user, 'bob')
+})
+
+test('gitea_issue_comments lists issue comments directly', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const result = await runHandler('gitea_issue_comments', { number: 3, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(result.ok, true)
+  assert.ok(Array.isArray(result.data))
+  assert.equal(result.data.length, 2)
+  assert.equal(result.data[0].id, 101)
+})
+
+test('gitea_issue_comment_update and gitea_issue_comment_delete dispatch correctly', async () => {
+  const client = mockClient()
+  const deps = baseDeps(client)
+  const resUpdate = await runHandler('gitea_issue_comment_update', { id: 101, body: 'Edited', owner: 'acme', repo: 'app' }, deps)
+  assert.equal(resUpdate.ok, true)
+  assert.equal(client.calls.some(c => c.method === 'updateIssueComment'), true)
+
+  const resDelete = await runHandler('gitea_issue_comment_delete', { id: 101, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(resDelete.ok, true)
+  assert.equal(client.calls.some(c => c.method === 'deleteIssueComment'), true)
+})
+
+test('formatToolResult formats gitea_issue_get with description and comments', () => {
+  const rendered = formatToolResult('gitea_issue_get', {
+    ok: true,
+    data: {
+      number: 42,
+      title: 'Bug in parsing',
+      state: 'open',
+      body: 'Here is the bug description.',
+      comments: [
+        { user: 'alice', body: 'Investigating this now.' },
+        { user: 'bob', body: 'Found the root cause.' },
+      ],
+    },
+  })
+  assert.equal(rendered.length, 1)
+  assert.match(rendered[0].text, /#42 "Bug in parsing" \[open\]/)
+  assert.match(rendered[0].text, /\*\*Description:\*\*\s+Here is the bug description\./)
+  assert.match(rendered[0].text, /\*\*Comments \(2\):\*\*/)
+  assert.match(rendered[0].text, /\*\*alice:\*\* Investigating this now\./)
+  assert.match(rendered[0].text, /\*\*bob:\*\* Found the root cause\./)
+})
+
+test('formatToolResult formats gitea_issue_comments list', () => {
+  const rendered = formatToolResult('gitea_issue_comments', {
+    ok: true,
+    data: [
+      { user: 'alice', body: 'First comment text.', created_at: '2026-09-13' },
+    ],
+  })
+  assert.equal(rendered.length, 1)
+  assert.match(rendered[0].text, /\*\*alice\*\* \(2026-09-13\):\s+First comment text\./)
 })
