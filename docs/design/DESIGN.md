@@ -115,3 +115,8 @@
 - Stores `etag` in client cache entries.
 - Emits `If-None-Match` on revalidation.
 - Transparently handles HTTP 304 with instant TTL renewal.
+
+### 4.10 Phase 4: Inbound Webhook Gateway (v0.7.3)
+- `POST /dsh-gitea/webhook`: Ingests real-time events from Gitea webhooks.
+- Validates `X-Gitea-Signature` or `X-Hub-Signature-256` using HMAC-SHA256.
+- Supports `push`, `pull_request`, `issue_comment`, `release`, and `actions/workflow_run` events in `EventStore`.

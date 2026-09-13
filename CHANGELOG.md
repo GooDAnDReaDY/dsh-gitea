@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.3] - 2026-09-13
+
+### Added
+- **Inbound Webhook Gateway & Event Ingestion (Phase 4)**:
+  - Enhanced webhook event parser in `EventStore.fromWebhook` supporting `push` (branch, commits count, message), `issue_comment` (PR comments, issue discussions), and `release` events.
+  - Comprehensive unit test suite `test/webhook-route.test.mjs` verifying HMAC-SHA256 signature verification, event mapping, and event store ingestion (total: 403 tests).
+
 ## [0.7.2] - 2026-09-13
 
 ### Added
