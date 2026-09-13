@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.7.4] - 2026-09-13
+
+### Fixed
+- **Localization Compliance with DSH Plugin Standard**:
+  - Embedded first-class Chinese (`zh`) dictionary in client bundle covering all settings, drawer, git inspector, and commit graph strings.
+  - Removed embedded Russian (`ru`) dictionary from plugin codebase to strictly follow standard (Russian strings are provided exclusively via `dsh-russian-lang`).
+  - Registered both English and Chinese locales: `ctx.locale.register(NS, { en, zh })`.
+  - Added unit test to verify zero hardcoded Russian Cyrillic characters in client bundle and full `zh` dictionary coverage.
+
 ## [0.7.3] - 2026-09-13
 
 ### Added

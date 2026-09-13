@@ -120,3 +120,8 @@
 - `POST /dsh-gitea/webhook`: Ingests real-time events from Gitea webhooks.
 - Validates `X-Gitea-Signature` or `X-Hub-Signature-256` using HMAC-SHA256.
 - Supports `push`, `pull_request`, `issue_comment`, `release`, and `actions/workflow_run` events in `EventStore`.
+
+### 4.11 Localization Standard Compliance (v0.7.4)
+- Canonical base language: English (`en`).
+- Mandatory embedded user locale: Chinese (`zh`).
+- Russian (`ru`) localization delegated exclusively to the external `dsh-russian-lang` translation plugin.

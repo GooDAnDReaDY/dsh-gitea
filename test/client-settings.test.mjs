@@ -71,8 +71,8 @@ test('client uses settings.plugin.item only (no settings.section)', () => {
   assert.doesNotMatch(src, /name: 'settings\.section'/)
 })
 
-test('client registers en locale dictionary safely', () => {
-  assert.match(src, /localeSvc\.register\(NS, \{ en \}\)/)
+test('client registers en and zh locale dictionaries safely', () => {
+  assert.match(src, /localeSvc\.register\(NS, \{ en, zh \}\)/)
   assert.match(src, /title: 'Gitea'/)
 })
 
@@ -181,4 +181,17 @@ test('client.js implements GitSidebarDrawer with 3 tabs and accessibility attrib
   assert.equal(code.includes('Escape'), true)
   assert.equal(code.includes('role: \'dialog\''), true)
   assert.equal(code.includes('\'aria-modal\': true'), true)
+})
+
+test('client.js embeds en and zh dictionaries and does not embed hardcoded ru', () => {
+  const code = readFileSync(srcPath, 'utf8')
+  // Must have en and zh dictionaries
+  assert.equal(code.includes('const en = {'), true)
+  assert.equal(code.includes('const zh = {'), true)
+  // Must register both en and zh with DSH locale service
+  assert.equal(code.includes('localeSvc.register(NS, { en, zh })'), true)
+  // Must NOT have embedded const ru = { in plugin code
+  assert.equal(code.includes('const ru = {'), false)
+  // Must not contain hardcoded Russian Cyrillic characters in client bundle
+  assert.equal(/[\u0400-\u04FF]/.test(code), false, 'client.js must not contain hardcoded Cyrillic characters')
 })
