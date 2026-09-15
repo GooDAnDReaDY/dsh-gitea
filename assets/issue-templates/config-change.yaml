@@ -1,0 +1,14 @@
+name: Configuration change
+about: Environment variable, credential, or settings change
+labels:
+  - type/feature
+  - status/ready
+
+body:
+  - type: textarea
+    id: changes
+    attributes:
+      label: Config Change Details
+      description: What settings, credentials, or flags are changing?
+    validations:
+      required: true

@@ -125,3 +125,8 @@
 - Canonical base language: English (`en`).
 - Mandatory embedded user locale: Chinese (`zh`).
 - Russian (`ru`) localization delegated exclusively to the external `dsh-russian-lang` translation plugin.
+
+### 4.12 Strict Server Compliance & Package Boundaries (v0.7.5)
+- **Canonical English Server Half**: Zero Cyrillic characters across all modules in `lib/`. All tool output contracts, validation error messages, planning notes, and internal JSDoc comments are strictly canonical English. Multilingual aliases preserved in input regex matchers for issue and PR body parsing.
+- **Clean Package Boundaries**: Standalone issue form templates moved to `assets/issue-templates/`. `package.json.files` strictly excludes `.gitea/` and internal `docs/superpowers` from published npm packages. All files remain strictly under 256 KiB.
+- **Automated Quality Gate**: Continuous test suite enforces zero Cyrillic characters in `lib/` and clean npm packaging allowlist.

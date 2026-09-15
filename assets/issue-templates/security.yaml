@@ -1,0 +1,22 @@
+name: Security finding
+about: Vulnerability, secret leak, or permission audit
+labels:
+  - type/security
+  - priority/high
+  - status/ready
+
+body:
+  - type: textarea
+    id: finding
+    attributes:
+      label: Vulnerability Details
+      description: Description of the security risk or vulnerability
+    validations:
+      required: true
+  - type: textarea
+    id: remediation
+    attributes:
+      label: Remediation Steps
+      description: Recommended actions to mitigate or fix
+    validations:
+      required: true

@@ -1,0 +1,21 @@
+name: Technical debt
+about: Refactoring, cleanup, or architectural modernization
+labels:
+  - type/tech-debt
+  - status/ready
+
+body:
+  - type: textarea
+    id: debt
+    attributes:
+      label: Technical Debt Description
+      description: What needs cleanup or refactoring?
+    validations:
+      required: true
+  - type: textarea
+    id: plan
+    attributes:
+      label: Refactoring Plan
+      description: Steps to safely pay down the debt
+    validations:
+      required: true
