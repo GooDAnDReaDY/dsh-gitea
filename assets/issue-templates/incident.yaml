@@ -1,0 +1,22 @@
+name: Incident report
+about: Production failure or critical service outage
+labels:
+  - type/incident
+  - priority/critical
+  - status/ready
+
+body:
+  - type: textarea
+    id: incident
+    attributes:
+      label: Incident Description
+      description: Detailed account of the failure and timeline
+    validations:
+      required: true
+  - type: textarea
+    id: mitigation
+    attributes:
+      label: Mitigation & Resolution
+      description: Immediate containment actions and long-term fix
+    validations:
+      required: true

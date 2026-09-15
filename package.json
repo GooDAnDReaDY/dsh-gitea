@@ -12,11 +12,12 @@
   },
   "files": [
     "lib/",
+    "assets/",
     "cordis.patch.yml",
     "README.md",
-    "docs/",
-    "LICENSE",
-    ".gitea/"
+    "README.ru.md",
+    "README.zh.md",
+    "LICENSE"
   ],
   "scripts": {
     "test": "node --test test/*.test.mjs"

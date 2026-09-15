@@ -1,0 +1,44 @@
+name: Bug report
+about: Report a software defect or unexpected behavior
+labels:
+  - type/bug
+  - status/ready
+
+body:
+  - type: markdown
+    attributes:
+      value: "## Observed Behavior"
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed Result
+      description: What actually happened (error message, log output, screenshots)
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Result
+      description: What you expected to happen instead
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Minimal step-by-step instructions to trigger the bug
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Node version, OS, browser, plugin version
+    validations:
+      required: true
+  - type: checkboxes
+    id: impact
+    attributes:
+      label: Impact
+      options:
+        - label: Blocks development or production workflow

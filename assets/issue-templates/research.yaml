@@ -1,0 +1,21 @@
+name: Research spike
+about: Investigation, spike, or architecture decision
+labels:
+  - type/research
+  - status/ready
+
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Research Goal
+      description: What question or technology are we evaluating?
+    validations:
+      required: true
+  - type: textarea
+    id: findings
+    attributes:
+      label: Hypotheses & Methodology
+      description: How will the evaluation be carried out?
+    validations:
+      required: true

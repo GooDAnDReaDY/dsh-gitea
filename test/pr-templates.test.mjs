@@ -3,9 +3,9 @@ import assert from 'node:assert/strict'
 import { checkPrTemplate, needsRiskChecklist, REQUIRED_SECTIONS } from '../lib/pr-templates.js'
 
 test('REQUIRED_SECTIONS covers template sections', () => {
-  assert.ok(REQUIRED_SECTIONS.includes('Что изменено'))
-  assert.ok(REQUIRED_SECTIONS.includes('Связанная задача'))
-  assert.ok(REQUIRED_SECTIONS.includes('Проверки'))
+  assert.ok(REQUIRED_SECTIONS.includes('Summary'))
+  assert.ok(REQUIRED_SECTIONS.includes('Related Issue'))
+  assert.ok(REQUIRED_SECTIONS.includes('Verification'))
 })
 
 test('checkPrTemplate passes when body covers sections', () => {
@@ -35,7 +35,7 @@ y
 test('checkPrTemplate reports missing sections', () => {
   const r = checkPrTemplate('## Что изменено\nx')
   assert.ok(r.missing.length > 0)
-  assert.ok(r.missing.includes('Проверки'))
+  assert.ok(r.missing.includes('Verification'))
 })
 
 test('needsRiskChecklist true for risk labels', () => {

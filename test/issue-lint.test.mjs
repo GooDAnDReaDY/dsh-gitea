@@ -10,7 +10,7 @@ test('PRESETS define bug, feature, and chore presets', () => {
 })
 
 test('REQUIRED_SECTIONS lists canonical checkable sections', () => {
-  for (const s of ['Проблема/Цель', 'Факты', 'Влияние', 'Приоритет', 'DoD']) {
+  for (const s of ['Problem/Goal', 'Facts', 'Impact', 'Priority', 'DoD']) {
     assert.ok(REQUIRED_SECTIONS.includes(s), `missing ${s}`)
   }
 })
