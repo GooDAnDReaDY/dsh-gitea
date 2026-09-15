@@ -35,6 +35,11 @@
 
 ---
 
+### 🌟 What's New in v0.7.5
+- **Canonical English Server & Agent Tool Outputs**: All tool responses, verification details, and error messages conform strictly to `dsh-plugin-authoring` canonical English standard.
+- **Clean Package Boundaries**: Standalone issue form templates are safely organized in `assets/issue-templates/`; internal development specs (`docs/superpowers/`, `.gitea/`) are strictly excluded from npm packages.
+- **Automated Compliance Quality Gate**: Permanent test coverage enforcing 0 Cyrillic characters across `lib/` and strict package file boundary audits.
+
 ## ⚡ Overview & Problem Solved
 
 When autonomous AI coding agents perform complex multi-step development in DeepSeek Harness, they require seamless access to issue trackers, pull request review workflows, branch creation, and isolated workspace worktrees without risking repository corruption or leaking credentials into chat logs.
