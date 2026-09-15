@@ -237,3 +237,14 @@ npm test
 ## 📄 开源许可证
 
 MIT © [GooDAnDReaDY](https://github.com/GooDAnDReaDY)
+
+## 公共组合服务
+
+服务器端在主机支持 Cordis 服务提供者时暴露可选的 dshGitea 组合服务。
+createIssue({ owner, repo, title, body, labels, externalRef }) 会复用已配置的
+Gitea 地址和凭据，校验仓库名称，并返回包含 ok、number 和 url 的规范化 issue
+对象。它不会启动任何代理会话。
+
+externalRef 会写入隐藏的正文标记，便于合作插件追踪请求来源。缺少配置或
+API 失败时返回结构化错误，调用方必须安全失败。任务供应的规范消费者契约是
+dsh-drives.task-provision.v1。

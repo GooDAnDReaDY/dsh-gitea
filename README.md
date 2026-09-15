@@ -260,3 +260,17 @@ npm test
 ## 📄 License
 
 MIT © [GooDAnDReaDY](https://github.com/GooDAnDReaDY)
+
+## Public composition service
+
+The server half exposes an optional dshGitea composition service when the host
+supports Cordis service providers. Its createIssue({ owner, repo, title, body,
+labels, externalRef }) method reuses the configured Gitea URL and credential,
+validates repository segments, and returns a normalized issue object with
+ok, number, and url. It never starts an agent session.
+
+externalRef is copied into a hidden body marker so cooperating plugins can
+trace the issue they requested. Missing configuration and API failures are
+returned as structured errors; consumers must fail closed. The canonical
+consumer contract for task provisioning is
+dsh-drives.task-provision.v1.
