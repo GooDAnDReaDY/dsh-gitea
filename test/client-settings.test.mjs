@@ -195,3 +195,11 @@ test('client.js embeds en and zh dictionaries and does not embed hardcoded ru', 
   // Must not contain hardcoded Russian Cyrillic characters in client bundle
   assert.equal(/[\u0400-\u04FF]/.test(code), false, 'client.js must not contain hardcoded Cyrillic characters')
 })
+
+test("settings card reports status unavailable and writable false when settingsScope is missing", () => {
+  assert.match(src, /status: 'unavailable'/)
+  assert.doesNotMatch(src, /\(scope \? scope\.getSnapshot\(\) : \{ status: 'ready' \}\)/)
+  assert.doesNotMatch(src, /const status = \(snapshot && snapshot\.status\) \|\| 'ready'/)
+  assert.match(src, /const status = \(snapshot && snapshot\.status\) \|\| 'unavailable'/)
+  assert.match(src, /const writable = status === 'ready' &&/)
+})
