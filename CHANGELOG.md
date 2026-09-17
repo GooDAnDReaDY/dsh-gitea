@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.9] - 2026-09-18
+
+### Fixed
+- **Robust Comment Ownership Annotation (`annotateCommentsWithMine`)**:
+  - Replaced empty `catch {}` block with diagnostic warning logging (`console.warn`) and explicit intent annotation (`/* bestEffort: mine is not critical for reading comments */`).
+  - Added non-ok response handling when `getUser()` returns an error payload.
+  - Guarded ownership annotation: when `getUser()` fails or is unreachable, comments retain `mine: undefined` rather than falsely marking own comments as foreign (`mine: false`).
+
 ## [0.7.8] - 2026-09-17
 
 ### Added
