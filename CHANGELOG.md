@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.7.6] - 2026-09-17
+
+### Added
+- **One-Click Plugin Auto-Updater**:
+  - Implemented `/api/dsh-gitea/update` endpoint (`lib/plugin-updater.js`) with background CLI updater and loopback origin validation.
+  - Added native auto-updater section to settings card (`lib/client.js`) using DSH theme CSS variables.
+  - Safe dependencies: respects pnpm release quarantine rules and handles prerelease progression.
+- **Public Composition Services**:
+  - `dshGitea` task provisioning service supporting idempotent issue creation (`lib/task-service.js`, contract `dsh-drives.task-provision.v1`).
+  - `giteaEvents` producer-owned telemetry composition service for `@goodandready/dsh-pulse` with complete redaction and subscriber error isolation (`lib/gitea-events.js`).
+- **Sanitized Release Export Pipeline**:
+  - Added `.gitattributes` (`export-ignore`) and sanitized release export script (`publish.sh`) to exclude internal metadata from GitHub mirrors.
+
+### Changed
+- **Entrypoint Modularization**:
+  - Extracted 70 tool schema definitions into `lib/tool-defs.js`, reducing `lib/index.js` to 587 lines while keeping client bundle single-file per DSH runtime.
+
+### Fixed
+- **Git Mutation Invalidation & Dead Code Pruning**:
+  - Connected `clearSnapshotCache()` to local git write operations and PR rebases, with `refresh=1` cache-busting on `/dsh-gitea/git-snapshot`.
+  - Pruned unused internal exports and dead functions.
+- **Security & Origin Validation**:
+  - Hardened POST `/dsh-gitea/config` using `lib/http-guard.js` loopback verification and strict origin/host validation.
+- **UI & Settings Robustness**:
+  - Fallback status to `unavailable` and `writable = false` when `settingsScope` is missing.
+  - Replaced all hardcoded colors with DSH theme CSS tokens in Git panel and commit graph.
+  - Resolved `IconChevronDownOutline14` from `@deepseek-ai/dsh-client-ui-primitives` with fallback.
+  - Declared missing client inject dependencies `@deepseek-ai/dsh-client-locale` and `@deepseek-ai/dsh-client-ui-settings` in `package.json`.
+- **Repository Hygiene**:
+  - Added `.worktrees/` to `.gitignore`.
+
 ## [0.7.4] - 2026-09-13
 
 ### Fixed

@@ -35,6 +35,12 @@
 
 ---
 
+### 🌟 v0.7.6 更新内容
+- **一键在线更新**: 直接在 DSH 设置卡片中检查并就地升级插件。
+- **组合服务**: 提供 `dshGitea`（任务创建与管理）和 `giteaEvents`（为 `@goodandready/dsh-pulse` 提供安全事件流）。
+- **安全与环境**: 本地回环与来源严格校验 (`lib/http-guard.js`)，导出过滤规则 (`publish.sh`)。
+- **性能与解耦**: Git 变动实时刷新缓存，工具定义解耦至 `lib/tool-defs.js`。
+
 ### 🌟 v0.7.5 更新内容
 - **规范的服务端与智能体工具输出语言**：所有工具响应、验证详情和错误提示均严格遵循 `dsh-plugin-authoring` 规范英文标准。
 - **清晰的 npm 包边界**：标准化 Issue 表单模板迁移至 `assets/issue-templates/`，内部开发文档 (`docs/superpowers/`, `.gitea/`) 已完全从 npm 包中排除。
@@ -237,3 +243,29 @@ npm test
 ## 📄 开源许可证
 
 MIT © [GooDAnDReaDY](https://github.com/GooDAnDReaDY)
+
+## 公共组合服务
+
+服务器端在主机支持 Cordis 服务提供者时暴露可选的 dshGitea 组合服务。
+createIssue({ owner, repo, title, body, labels, externalRef }) 会复用已配置的
+Gitea 地址和凭据，校验仓库名称，并返回包含 ok、number 和 url 的规范化 issue
+对象。它不会启动任何代理会话。
+
+externalRef 会写入隐藏的正文标记，便于合作插件追踪请求来源。缺少配置或
+API 失败时返回结构化错误，调用方必须安全失败。任务供应的规范消费者契约是
+dsh-drives.task-provision.v1。
+
+### Gitea 事件组合服务 (`giteaEvents`)
+
+dsh-gitea 提供 `giteaEvents` 服务，向外部遥测组件（如 `@goodandready/dsh-pulse`）安全分发 Webhook 事件：
+- 支持 `subscribe(listener)` 与 `on("event", listener)` 退订。
+- 仅提供白名单元数据字段（`id`, `event`, `action`, `at`, `owner`, `repo`, `issue`, `pull`, `ref`）。
+- 绝不泄露凭据、密钥、请求头、原始 payload 或评论正文。
+- 订阅者异常严格隔离，不影响 Webhook HTTP 响应。
+
+### 插件自动更新
+
+设置卡片集成了基于 `/api/dsh-gitea/update` 的一键在线更新：
+- 在线检查 npm 仓库最新版本并显示更新状态。
+- 安全防护：仅接受本地回环来源（loopback）、origin/host 匹配及 `x-dsh-plugin-update: 1` 标头的更新请求。
+- 完整遵循 pnpm 包隔离策略，支持预发布版本比较。
