@@ -35,6 +35,12 @@
 
 ---
 
+### 🌟 v0.7.6 更新内容
+- **一键在线更新**: 直接在 DSH 设置卡片中检查并就地升级插件。
+- **组合服务**: 提供 `dshGitea`（任务创建与管理）和 `giteaEvents`（为 `@goodandready/dsh-pulse` 提供安全事件流）。
+- **安全与环境**: 本地回环与来源严格校验 (`lib/http-guard.js`)，导出过滤规则 (`publish.sh`)。
+- **性能与解耦**: Git 变动实时刷新缓存，工具定义解耦至 `lib/tool-defs.js`。
+
 ### 🌟 v0.7.5 更新内容
 - **规范的服务端与智能体工具输出语言**：所有工具响应、验证详情和错误提示均严格遵循 `dsh-plugin-authoring` 规范英文标准。
 - **清晰的 npm 包边界**：标准化 Issue 表单模板迁移至 `assets/issue-templates/`，内部开发文档 (`docs/superpowers/`, `.gitea/`) 已完全从 npm 包中排除。

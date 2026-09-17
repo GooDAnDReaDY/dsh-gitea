@@ -35,6 +35,12 @@
 
 ---
 
+### 🌟 What's New in v0.7.6
+- **One-Click Auto-Updater**: Check npm and upgrade directly in the DSH settings card.
+- **Composition Services**: Exposes `dshGitea` (task provisioning) and `giteaEvents` (safe telemetry bridge for `@goodandready/dsh-pulse`).
+- **Security & Hygiene**: Loopback and origin-hardened HTTP write guards (`lib/http-guard.js`), sanitized GitHub release export pipeline (`publish.sh`).
+- **Performance & Caching**: Cache invalidation on git mutations and modularized `lib/tool-defs.js`.
+
 ### 🌟 What's New in v0.7.5
 - **Canonical English Server & Agent Tool Outputs**: All tool responses, verification details, and error messages conform strictly to `dsh-plugin-authoring` canonical English standard.
 - **Clean Package Boundaries**: Standalone issue form templates are safely organized in `assets/issue-templates/`; internal development specs (`docs/superpowers/`, `.gitea/`) are strictly excluded from npm packages.

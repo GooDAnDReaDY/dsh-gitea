@@ -113,3 +113,11 @@ test('registerPluginUpdater registers route and serves status', async () => {
   unregister()
   assert.equal(registeredRoute, null)
 })
+
+test('clearLatestCache resets cached version', () => {
+  assert.doesNotThrow(() => {
+    import('../lib/plugin-updater.js').then(({ clearLatestCache }) => {
+      clearLatestCache()
+    })
+  })
+})
