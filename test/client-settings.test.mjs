@@ -215,3 +215,10 @@ test("client.js resolves IconChevronDownOutline14 with fallback to FallbackChevr
   assert.match(src, /IconChevronDownOutline14/)
   assert.match(src, /const Chevron = ChevronIcon \|\| FallbackChevron/)
 })
+
+test("package.json declares client inject dependencies for locale and ui-settings", () => {
+  const pkg = JSON.parse(readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "../package.json"), "utf8"))
+  const inject = pkg.dsh?.client?.inject || []
+  assert.ok(inject.includes("@deepseek-ai/dsh-client-locale"), "must inject @deepseek-ai/dsh-client-locale")
+  assert.ok(inject.includes("@deepseek-ai/dsh-client-ui-settings"), "must inject @deepseek-ai/dsh-client-ui-settings")
+})
