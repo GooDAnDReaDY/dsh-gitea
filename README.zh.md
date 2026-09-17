@@ -107,6 +107,8 @@ graph LR
 | `gitea_issue_list` | Issue 管理 | 获取 Issue 列表（支持状态、里程碑与标签过滤） | - |
 | `gitea_issue_get` | Issue 管理 | 根据编号获取 Issue 详细内容与上下文 | - |
 | `gitea_issue_comment`| Issue 管理 | 在指定 Issue 下发表评论与进度报告 | - |
+| `gitea_issue_comments`| Issue 管理 | 获取 Issue 评论列表（附带 `mine: true/false` 标记） | - |
+| `gitea_issue_comment_delete`| Issue 管理 | 删除自己的 Issue 评论（默认 dry-run 预览；仅可删除当前 Token 用户的评论） | ⚠️ 需要 `confirm: true` |
 | `gitea_issue_update` | Issue 管理 | 修改 Issue 标题、正文描述或状态 | - |
 | `gitea_issue_close`  | Issue 管理 | 关闭已完成的 Issue | - |
 | `gitea_issue_search` | 搜索检索 | 在整个仓库或实例范围内全文检索 Issue | - |
