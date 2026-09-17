@@ -203,3 +203,9 @@ test("settings card reports status unavailable and writable false when settingsS
   assert.match(src, /const status = \(snapshot && snapshot\.status\) \|\| 'unavailable'/)
   assert.match(src, /const writable = status === 'ready' &&/)
 })
+
+test("client.js contains zero hardcoded hex or rgba colors in styling rules", () => {
+  const code = readFileSync(srcPath, "utf8")
+  const hardcoded = code.match(/#[0-9a-fA-F]{3,6}|rgba\(/g)
+  assert.equal(hardcoded, null, `Found hardcoded colors: ${hardcoded}`)
+})
