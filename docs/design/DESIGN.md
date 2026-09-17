@@ -206,3 +206,22 @@
 3. **`lib/gitea-client.js` (~611 строк)**:
    - Является типизированным HTTP-клиентом для REST API Gitea и Forgejo, реализующим методы работы с Issues, Pull Requests, Reviews, Commits, Statuses, Reactions, Releases и Webhooks.
    - Размер файла находится на границе порога (611 строк, расхождение менее 2% от 600 строк), монолитность клиента обеспечивает целостность работы с ETag-кэшем, повторными попытками (retry) и сериализацией запросов.
+
+## 13. Safe Issue Comment Lifecycle (Issue Comment Deletion & Ownership Recognition)
+
+### 13.1 Context & Problem
+Autonomous agents frequently publish verdicts, reviews, and progress reports into Gitea issue threads. Due to network retries, tool misunderstandings, or racing subagents, comments were occasionally posted multiple times (e.g. duplicate verdict reports in `dsh-goal#59`). Previously:
+1. `gitea_issue_comments` returned raw comment objects without authorship classification, forcing agents to make redundant verification calls.
+2. No comment deletion tool was available to agents, leaving duplicate comments in the public issue tracker until human intervention.
+
+### 13.2 Architecture & Safety Invariants
+To maintain tracker hygiene without introducing destructive risks:
+- **Authorship Annotation (`mine: true/false`)**:
+  - `gitea_issue_comments` and `gitea_issue_get` automatically query the authenticated user via `getUser()` (cached) and attach `mine: true` or `mine: false` to each comment entry.
+  - Formatted text output renders `**<user>** (you)` for easy visual distinction by LLM agents.
+- **Mandatory Confirmation & Dry-Run Preview**:
+  - `gitea_issue_comment_delete` requires `confirm: true`.
+  - When `confirm` is omitted or false, the tool performs a dry-run returning the target comment ID, repository, author login, creation timestamp, and first 80 characters of the comment body without calling the DELETE API.
+- **Strict Authorization Guard**:
+  - Only comments authored by the current token's authenticated user (`getUser()`) can be deleted.
+  - Attempting to delete a comment authored by another user fails immediately with a descriptive rejection message (`Refusing to delete comment #... by '...': only comments authored by the authenticated user ('...') can be deleted.`), preventing accidental or malicious deletion of third-party comments.

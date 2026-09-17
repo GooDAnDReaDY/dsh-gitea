@@ -107,6 +107,8 @@ All tools infer `owner` and `repo` automatically from the active workspace's `gi
 | `gitea_issue_list` | Issues | Lists issues with state (`open`/`closed`), milestone, and label filters | - |
 | `gitea_issue_get` | Issues | Fetches detailed issue data by issue index | - |
 | `gitea_issue_comment`| Issues | Posts comments, progress updates, and code reviews | - |
+| `gitea_issue_comments`| Issues | Lists comments for an issue (annotated with `mine: true/false`) | - |
+| `gitea_issue_comment_delete`| Issues | Deletes own issue comment (safe dry-run preview by default; only current token user comments can be deleted) | ⚠️ Requires `confirm: true` |
 | `gitea_issue_update` | Issues | Updates issue title, body, or status | - |
 | `gitea_issue_close`  | Issues | Closes an issue | - |
 | `gitea_issue_search` | Issues | Full-text issue query across the repository/instance | - |
