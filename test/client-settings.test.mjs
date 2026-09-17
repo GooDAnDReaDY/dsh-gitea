@@ -195,3 +195,30 @@ test('client.js embeds en and zh dictionaries and does not embed hardcoded ru', 
   // Must not contain hardcoded Russian Cyrillic characters in client bundle
   assert.equal(/[\u0400-\u04FF]/.test(code), false, 'client.js must not contain hardcoded Cyrillic characters')
 })
+
+test("settings card reports status unavailable and writable false when settingsScope is missing", () => {
+  assert.match(src, /status: 'unavailable'/)
+  assert.doesNotMatch(src, /\(scope \? scope\.getSnapshot\(\) : \{ status: 'ready' \}\)/)
+  assert.doesNotMatch(src, /const status = \(snapshot && snapshot\.status\) \|\| 'ready'/)
+  assert.match(src, /const status = \(snapshot && snapshot\.status\) \|\| 'unavailable'/)
+  assert.match(src, /const writable = status === 'ready' &&/)
+})
+
+test("client.js contains zero hardcoded hex or rgba colors in styling rules", () => {
+  const code = readFileSync(srcPath, "utf8")
+  const hardcoded = code.match(/#[0-9a-fA-F]{3,6}|rgba\(/g)
+  assert.equal(hardcoded, null, `Found hardcoded colors: ${hardcoded}`)
+})
+
+test("client.js resolves IconChevronDownOutline14 with fallback to FallbackChevron", () => {
+  assert.match(src, /@deepseek-ai\/dsh-client-ui-primitives/)
+  assert.match(src, /IconChevronDownOutline14/)
+  assert.match(src, /const Chevron = ChevronIcon \|\| FallbackChevron/)
+})
+
+test("package.json declares client inject dependencies for locale and ui-settings", () => {
+  const pkg = JSON.parse(readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "../package.json"), "utf8"))
+  const inject = pkg.dsh?.client?.inject || []
+  assert.ok(inject.includes("@deepseek-ai/dsh-client-locale"), "must inject @deepseek-ai/dsh-client-locale")
+  assert.ok(inject.includes("@deepseek-ai/dsh-client-ui-settings"), "must inject @deepseek-ai/dsh-client-ui-settings")
+})

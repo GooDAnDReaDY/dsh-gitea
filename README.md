@@ -35,6 +35,12 @@
 
 ---
 
+### 🌟 What's New in v0.7.6
+- **One-Click Auto-Updater**: Check npm and upgrade directly in the DSH settings card.
+- **Composition Services**: Exposes `dshGitea` (task provisioning) and `giteaEvents` (safe telemetry bridge for `@goodandready/dsh-pulse`).
+- **Security & Hygiene**: Loopback and origin-hardened HTTP write guards (`lib/http-guard.js`), sanitized GitHub release export pipeline (`publish.sh`).
+- **Performance & Caching**: Cache invalidation on git mutations and modularized `lib/tool-defs.js`.
+
 ### 🌟 What's New in v0.7.5
 - **Canonical English Server & Agent Tool Outputs**: All tool responses, verification details, and error messages conform strictly to `dsh-plugin-authoring` canonical English standard.
 - **Clean Package Boundaries**: Standalone issue form templates are safely organized in `assets/issue-templates/`; internal development specs (`docs/superpowers/`, `.gitea/`) are strictly excluded from npm packages.
@@ -260,3 +266,38 @@ npm test
 ## 📄 License
 
 MIT © [GooDAnDReaDY](https://github.com/GooDAnDReaDY)
+
+## Public composition service
+
+The server half exposes an optional dshGitea composition service when the host
+supports Cordis service providers. Its createIssue({ owner, repo, title, body,
+labels, externalRef }) method reuses the configured Gitea URL and credential,
+validates repository segments, and returns a normalized issue object with
+ok, number, and url. It never starts an agent session.
+
+externalRef is copied into a hidden body marker so cooperating plugins can
+trace the issue they requested. Missing configuration and API failures are
+returned as structured errors; consumers must fail closed. The canonical
+consumer contract for task provisioning is
+dsh-drives.task-provision.v1.
+
+### Gitea Events Service (`giteaEvents`)
+
+dsh-gitea exposes a producer-owned `giteaEvents` composition service for telemetry consumers (such as `@goodandready/dsh-pulse`):
+
+```js
+const stop = ctx.giteaEvents.subscribe((event) => {
+  // event: { id, event, action, at, giteaContext: { owner, repo, issue, pull, project, ref } }
+})
+```
+
+- **Allowlisted safe metadata**: Only public identifier fields (`id`, `event`, `action`, `at`, `owner`, `repo`, `issue`, `pull`, `ref`) are emitted.
+- **Zero secrets**: Tokens, webhook secrets, request headers, raw payloads, and issue/PR comment bodies are never exposed.
+- **Fault isolation**: Subscriber errors are completely isolated and never impact the webhook HTTP response or other subscribers.
+
+### Plugin Auto-Updater
+
+The settings card provides a one-click auto-updater powered by `/api/dsh-gitea/update`:
+- **Status check**: Checks npm registry for updates without SSH or command-line access.
+- **Secure installation**: Accepts write requests only from local loopback origins with `x-dsh-plugin-update: 1`.
+- **Safe dependencies**: Honors npm release quarantine rules.

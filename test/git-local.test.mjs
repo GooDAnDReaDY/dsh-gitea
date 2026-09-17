@@ -1,6 +1,8 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  clearSnapshotCache,
+  SNAPSHOT_CACHE_TTL_MS,
   parseWorktreePorcelain,
   resolveRepoDir,
   buildGitSnapshot,
@@ -135,4 +137,39 @@ test('displayRepoName prefers origin repo, then parent of a worktree folder', ()
   assert.equal(displayRepoName({ remoteUrl: 'https://git.example.com/acme/photographer-onepage.git' }), 'photographer-onepage')
   assert.equal(displayRepoName({ worktree: '/tmp/photographer-onepage/.worktrees/1-single-page' }), 'photographer-onepage')
   assert.equal(displayRepoName({ worktree: '/tmp/photographer-onepage' }), 'photographer-onepage')
+})
+
+test("buildGitSnapshot uses snapshotCache and clearSnapshotCache invalidates it", async () => {
+  let logCallCount = 0
+  const execFile = async (bin, args) => {
+    const joined = args.join(" ")
+    if (joined === "rev-parse --abbrev-ref HEAD") return { stdout: "main\n", stderr: "" }
+    if (joined === "rev-parse HEAD") return { stdout: "abc123\n", stderr: "" }
+    if (joined === "rev-parse --show-toplevel") return { stdout: "/tmp/example/cache-test\n", stderr: "" }
+    if (joined === "status --porcelain") return { stdout: "", stderr: "" }
+    if (args[0] === "log") {
+      logCallCount++
+      return { stdout: `abc commit-${logCallCount}\n`, stderr: "" }
+    }
+    if (args[0] === "remote") return { stdout: "git@example.com:acme/cache-test.git\n", stderr: "" }
+    if (args[0] === "diff") return { stdout: "", stderr: "" }
+    throw new Error("unexpected " + joined)
+  }
+
+  clearSnapshotCache("/tmp/example/cache-test")
+  assert.equal(SNAPSHOT_CACHE_TTL_MS, 2500)
+
+  const snap1 = await buildGitSnapshot({ repoDir: "/tmp/example/cache-test", execFile, maxAgeMs: SNAPSHOT_CACHE_TTL_MS })
+  assert.equal(logCallCount, 1)
+  assert.match(snap1.graph, /commit-1/)
+
+  const snap2 = await buildGitSnapshot({ repoDir: "/tmp/example/cache-test", execFile, maxAgeMs: SNAPSHOT_CACHE_TTL_MS })
+  assert.equal(logCallCount, 1)
+  assert.match(snap2.graph, /commit-1/)
+
+  clearSnapshotCache("/tmp/example/cache-test")
+
+  const snap3 = await buildGitSnapshot({ repoDir: "/tmp/example/cache-test", execFile, maxAgeMs: SNAPSHOT_CACHE_TTL_MS })
+  assert.equal(logCallCount, 2)
+  assert.match(snap3.graph, /commit-2/)
 })

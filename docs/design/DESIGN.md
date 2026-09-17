@@ -130,3 +130,41 @@
 - **Canonical English Server Half**: Zero Cyrillic characters across all modules in `lib/`. All tool output contracts, validation error messages, planning notes, and internal JSDoc comments are strictly canonical English. Multilingual aliases preserved in input regex matchers for issue and PR body parsing.
 - **Clean Package Boundaries**: Standalone issue form templates moved to `assets/issue-templates/`. `package.json.files` strictly excludes `.gitea/` and internal `docs/superpowers` from published npm packages. All files remain strictly under 256 KiB.
 - **Automated Quality Gate**: Continuous test suite enforces zero Cyrillic characters in `lib/` and clean npm packaging allowlist.
+
+### 4.13 Hardened HTTP Guard for Write Endpoints (#217)
+- **Strict Write Route Protection**: All mutating HTTP endpoints (such as `POST /dsh-gitea/config`) are guarded by `lib/http-guard.js`.
+- **Origin & Host Verification**: Verifies `Origin` and `Referer` headers to ensure the requesting host matches the `Host` header. Rejects `origin: "null"` and cross-site/same-site `Sec-Fetch-Site`.
+- **Loopback Enforcement**: Requests lacking `Sec-Fetch-Site` or `Origin` (curl, scripts, local tooling) are allowed only from loopback IP addresses (`127.0.0.1`, `::1`). Remote/cross-network callers without verified origin credentials receive HTTP 403 Forbidden (`Forbidden: same-origin or local loopback only`).
+
+### 4.6 Telemetry & Events Composition Service (`giteaEvents`)
+
+- **Provider**: `dsh-gitea` exports `ctx.provide(giteaEvents, giteaEventsService)` and `ctx.giteaEvents`.
+- **Consumer**: `@goodandready/dsh-pulse` injects `[giteaEvents]` and registers `subscribe(listener)`.
+- **Data safety**: Redacts all credentials, auth headers, webhook secrets, raw bodies, and comments. Only emits stable metadata:
+  ```json
+  {
+    "id": "event-uuid-or-type-ts",
+    "event": "pull_request",
+    "action": "opened",
+    "at": "2026-09-17T14:00:00.000Z",
+    "giteaContext": {
+      "owner": "goodandready",
+      "repo": "app",
+      "issue": null,
+      "pull": 42,
+      "project": null,
+      "ref": "feat/login"
+    }
+  }
+  ```
+- **Subscriber isolation**: Any error thrown by a listener is safely caught.
+
+### 4.7 One-Click Plugin Auto-Updater
+
+- **Endpoint**: `/api/dsh-gitea/update`
+- **Methods**:
+  - `GET`: Returns JSON `{ packageName, currentVersion, latestVersion, updateAvailable, canAutoUpdate, profileName }`.
+  - `POST`: Installs exact version via DSH CLI in background. Requires `x-dsh-plugin-update: 1`, loopback IP (`127.0.0.1` / `::1`), and matching origin/host.
+- **Quarantine**: Retains official pnpm release age policy (does not disable with minimumReleaseAge=0).
+- **Semver**: Handles prerelease transitions (`-rc.1`, `-beta.2`) accurately.
+- **UI**: Integrated directly into GiteaPluginCard with checking/updating states and restart banner.
