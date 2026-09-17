@@ -288,3 +288,10 @@ const stop = ctx.giteaEvents.subscribe((event) => {
 - **Allowlisted safe metadata**: Only public identifier fields (`id`, `event`, `action`, `at`, `owner`, `repo`, `issue`, `pull`, `ref`) are emitted.
 - **Zero secrets**: Tokens, webhook secrets, request headers, raw payloads, and issue/PR comment bodies are never exposed.
 - **Fault isolation**: Subscriber errors are completely isolated and never impact the webhook HTTP response or other subscribers.
+
+### Plugin Auto-Updater
+
+The settings card provides a one-click auto-updater powered by `/api/dsh-gitea/update`:
+- **Status check**: Checks npm registry for updates without SSH or command-line access.
+- **Secure installation**: Accepts write requests only from local loopback origins with `x-dsh-plugin-update: 1`.
+- **Safe dependencies**: Honors npm release quarantine rules.

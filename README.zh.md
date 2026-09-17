@@ -256,3 +256,10 @@ dsh-gitea 提供 `giteaEvents` 服务，向外部遥测组件（如 `@goodandrea
 - 仅提供白名单元数据字段（`id`, `event`, `action`, `at`, `owner`, `repo`, `issue`, `pull`, `ref`）。
 - 绝不泄露凭据、密钥、请求头、原始 payload 或评论正文。
 - 订阅者异常严格隔离，不影响 Webhook HTTP 响应。
+
+### 插件自动更新
+
+设置卡片集成了基于 `/api/dsh-gitea/update` 的一键在线更新：
+- 在线检查 npm 仓库最新版本并显示更新状态。
+- 安全防护：仅接受本地回环来源（loopback）、origin/host 匹配及 `x-dsh-plugin-update: 1` 标头的更新请求。
+- 完整遵循 pnpm 包隔离策略，支持预发布版本比较。

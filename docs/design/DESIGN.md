@@ -158,3 +158,13 @@
   }
   ```
 - **Subscriber isolation**: Any error thrown by a listener is safely caught.
+
+### 4.7 One-Click Plugin Auto-Updater
+
+- **Endpoint**: `/api/dsh-gitea/update`
+- **Methods**:
+  - `GET`: Returns JSON `{ packageName, currentVersion, latestVersion, updateAvailable, canAutoUpdate, profileName }`.
+  - `POST`: Installs exact version via DSH CLI in background. Requires `x-dsh-plugin-update: 1`, loopback IP (`127.0.0.1` / `::1`), and matching origin/host.
+- **Quarantine**: Retains official pnpm release age policy (does not disable with minimumReleaseAge=0).
+- **Semver**: Handles prerelease transitions (`-rc.1`, `-beta.2`) accurately.
+- **UI**: Integrated directly into GiteaPluginCard with checking/updating states and restart banner.
