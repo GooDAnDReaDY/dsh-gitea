@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.7.7] - 2026-09-17
+
+### Changed
+- **Server Entrypoint Decomposition**:
+  - Extracted all HTTP route handlers (`/dsh-gitea/config`, `/webhook`, `/events`, `/git-status`, `/git-graph`) and transport helpers (`writeJson`, `readBody`) into a dedicated `lib/routes.js` module.
+  - Reduced `lib/index.js` from 611 lines to 380 lines (comfortably below the 600-line guideline).
+  - Decoupled `lib/routes.js` from DSH harness peer dependencies via dependency injection (`tokenConfigured`, `resolveToken`, `execFile`), allowing independent unit testing in pure Node.js.
+
+### Added
+- **Client Bundle Architecture Documentation**:
+  - Added Section 12 to `docs/design/DESIGN.md` establishing the architectural rationale for retaining `lib/client.js` as a unified runtime bundle without external bundlers per Ponytail / YAGNI and DSH `window.__ModuleLoader__.load` contracts (following the precedent of `dsh-context-lens` #69).
+  - Documented line count justifications for specialized modules `lib/handlers.js`, `lib/tool-defs.js`, and `lib/gitea-client.js`.
+- **Route Unit Test Suite**:
+  - Added `test/routes.test.mjs` covering route registration, streaming body parser limits, and status responses.
+
 ## [0.7.6] - 2026-09-17
 
 ### Added
