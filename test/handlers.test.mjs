@@ -40,6 +40,18 @@ function mockClient() {
         ],
       })
     },
+    getIssueComment: (...args) => {
+      calls.push({ method: 'getIssueComment', args })
+      return Promise.resolve({
+        ok: true,
+        data: {
+          id: args[2],
+          user: { login: 'alice' },
+          body: 'First comment text.',
+          created_at: '2026-09-13T10:00:00Z',
+        },
+      })
+    },
     updateIssueComment: (...args) => {
       calls.push({ method: 'updateIssueComment', args })
       return Promise.resolve({ ok: true, data: { id: 101, body: args[3] } })
@@ -1613,6 +1625,9 @@ test('gitea_issue_comments lists issue comments directly', async () => {
   assert.ok(Array.isArray(result.data))
   assert.equal(result.data.length, 2)
   assert.equal(result.data[0].id, 101)
+  assert.equal(result.data[0].mine, true)
+  assert.equal(result.data[1].id, 102)
+  assert.equal(result.data[1].mine, false)
 })
 
 test('gitea_issue_comment_update and gitea_issue_comment_delete dispatch correctly', async () => {
@@ -1622,8 +1637,14 @@ test('gitea_issue_comment_update and gitea_issue_comment_delete dispatch correct
   assert.equal(resUpdate.ok, true)
   assert.equal(client.calls.some(c => c.method === 'updateIssueComment'), true)
 
-  const resDelete = await runHandler('gitea_issue_comment_delete', { id: 101, owner: 'acme', repo: 'app' }, deps)
+  const resDry = await runHandler('gitea_issue_comment_delete', { id: 101, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(resDry.ok, true)
+  assert.equal(resDry.data.dryRun, true)
+  assert.equal(client.calls.some(c => c.method === 'deleteIssueComment'), false)
+
+  const resDelete = await runHandler('gitea_issue_comment_delete', { id: 101, confirm: true, owner: 'acme', repo: 'app' }, deps)
   assert.equal(resDelete.ok, true)
+  assert.equal(resDelete.data.deleted, true)
   assert.equal(client.calls.some(c => c.method === 'deleteIssueComment'), true)
 })
 

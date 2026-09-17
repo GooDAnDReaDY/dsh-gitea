@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.7.8] - 2026-09-17
+
+### Added
+- **Safe Issue Comment Deletion (`gitea_issue_comment_delete`)**:
+  - Implemented safe comment deletion tool requiring explicit `confirm: true` (`lib/handlers.js`, `lib/tool-defs.js`).
+  - Without `confirm: true`, returns a safe dry-run preview with comment ID, owner/repo, author, creation timestamp, and first 80 characters of body.
+  - Strict author protection: enforces that only comments authored by the current token user (`getUser()`) can be deleted; foreign comments are rejected with an explicit error.
+- **Comment Ownership Annotation (`mine: true/false`)**:
+  - Annotated comments in `gitea_issue_comments` and `gitea_issue_get` with `mine: true` or `false` based on authenticated user comparison.
+  - Updated result formatter to render `**<author>** (you)` for rapid distinction by LLM agents.
+- **Dedicated Comment Deletion Test Suite**:
+  - Added `test/comment-delete.test.mjs` with 8 comprehensive test cases covering dry-run previews, cross-author deletion rejection, confirmed deletion, 404s, and `mine` flags.
+- **Documentation**:
+  - Updated `README.md`, `README.ru.md`, `README.zh.md`, and added Section 13 to `docs/design/DESIGN.md`.
+
 ## [0.7.7] - 2026-09-17
 
 ### Changed
