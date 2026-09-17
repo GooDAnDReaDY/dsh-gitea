@@ -231,3 +231,63 @@ test('formatToolResult formats dry-run and deleted results properly', () => {
   assert.match(commentsRes[0].text, /\*\*bob\*\* \(2026-09-17\):\nOther comment/)
 })
 
+test('gitea_issue_comments handles getUser failure gracefully without marking mine: false', async () => {
+  const comments = [
+    { id: 1, user: { login: 'alice' }, body: 'My comment', created_at: '2026-09-17T18:00:00Z' },
+    { id: 2, user: { login: 'bob' }, body: 'Bob comment', created_at: '2026-09-17T18:05:00Z' },
+  ]
+  const client = createMockClient({ currentUser: 'alice', comments })
+  client.getUser = () => Promise.reject(new Error('Network offline or rate limit'))
+  const deps = createDeps(client)
+
+  const warnings = []
+  const origWarn = console.warn
+  console.warn = (...args) => {
+    warnings.push(args.join(' '))
+  }
+
+  try {
+    const res = await runHandler('gitea_issue_comments', {
+      number: 10,
+      owner: 'acme',
+      repo: 'app',
+    }, deps)
+
+    assert.equal(res.ok, true)
+    assert.equal(res.data.length, 2)
+    assert.equal(res.data[0].mine, undefined)
+    assert.equal(res.data[1].mine, undefined)
+    assert.ok(warnings.some(w => w.includes('[dsh-gitea] getUser failed')))
+  } finally {
+    console.warn = origWarn
+  }
+})
+
+test('gitea_issue_comments handles non-ok getUser response gracefully', async () => {
+  const comments = [
+    { id: 1, user: { login: 'alice' }, body: 'My comment', created_at: '2026-09-17T18:00:00Z' },
+  ]
+  const client = createMockClient({ currentUser: 'alice', comments })
+  client.getUser = () => Promise.resolve({ ok: false, status: 500, error: 'Internal Server Error' })
+  const deps = createDeps(client)
+
+  const warnings = []
+  const origWarn = console.warn
+  console.warn = (...args) => {
+    warnings.push(args.join(' '))
+  }
+
+  try {
+    const res = await runHandler('gitea_issue_comments', {
+      number: 10,
+      owner: 'acme',
+      repo: 'app',
+    }, deps)
+
+    assert.equal(res.ok, true)
+    assert.equal(res.data[0].mine, undefined)
+    assert.ok(warnings.some(w => w.includes('[dsh-gitea] getUser returned non-ok response')))
+  } finally {
+    console.warn = origWarn
+  }
+})
