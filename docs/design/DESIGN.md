@@ -130,3 +130,8 @@
 - **Canonical English Server Half**: Zero Cyrillic characters across all modules in `lib/`. All tool output contracts, validation error messages, planning notes, and internal JSDoc comments are strictly canonical English. Multilingual aliases preserved in input regex matchers for issue and PR body parsing.
 - **Clean Package Boundaries**: Standalone issue form templates moved to `assets/issue-templates/`. `package.json.files` strictly excludes `.gitea/` and internal `docs/superpowers` from published npm packages. All files remain strictly under 256 KiB.
 - **Automated Quality Gate**: Continuous test suite enforces zero Cyrillic characters in `lib/` and clean npm packaging allowlist.
+
+### 4.13 Hardened HTTP Guard for Write Endpoints (#217)
+- **Strict Write Route Protection**: All mutating HTTP endpoints (such as `POST /dsh-gitea/config`) are guarded by `lib/http-guard.js`.
+- **Origin & Host Verification**: Verifies `Origin` and `Referer` headers to ensure the requesting host matches the `Host` header. Rejects `origin: "null"` and cross-site/same-site `Sec-Fetch-Site`.
+- **Loopback Enforcement**: Requests lacking `Sec-Fetch-Site` or `Origin` (curl, scripts, local tooling) are allowed only from loopback IP addresses (`127.0.0.1`, `::1`). Remote/cross-network callers without verified origin credentials receive HTTP 403 Forbidden (`Forbidden: same-origin or local loopback only`).
