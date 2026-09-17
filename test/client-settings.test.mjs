@@ -209,3 +209,9 @@ test("client.js contains zero hardcoded hex or rgba colors in styling rules", ()
   const hardcoded = code.match(/#[0-9a-fA-F]{3,6}|rgba\(/g)
   assert.equal(hardcoded, null, `Found hardcoded colors: ${hardcoded}`)
 })
+
+test("client.js resolves IconChevronDownOutline14 with fallback to FallbackChevron", () => {
+  assert.match(src, /@deepseek-ai\/dsh-client-ui-primitives/)
+  assert.match(src, /IconChevronDownOutline14/)
+  assert.match(src, /const Chevron = ChevronIcon \|\| FallbackChevron/)
+})
