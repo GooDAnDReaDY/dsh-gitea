@@ -274,3 +274,17 @@ trace the issue they requested. Missing configuration and API failures are
 returned as structured errors; consumers must fail closed. The canonical
 consumer contract for task provisioning is
 dsh-drives.task-provision.v1.
+
+### Gitea Events Service (`giteaEvents`)
+
+dsh-gitea exposes a producer-owned `giteaEvents` composition service for telemetry consumers (such as `@goodandready/dsh-pulse`):
+
+```js
+const stop = ctx.giteaEvents.subscribe((event) => {
+  // event: { id, event, action, at, giteaContext: { owner, repo, issue, pull, project, ref } }
+})
+```
+
+- **Allowlisted safe metadata**: Only public identifier fields (`id`, `event`, `action`, `at`, `owner`, `repo`, `issue`, `pull`, `ref`) are emitted.
+- **Zero secrets**: Tokens, webhook secrets, request headers, raw payloads, and issue/PR comment bodies are never exposed.
+- **Fault isolation**: Subscriber errors are completely isolated and never impact the webhook HTTP response or other subscribers.

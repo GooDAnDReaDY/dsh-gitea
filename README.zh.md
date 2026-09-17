@@ -248,3 +248,11 @@ Gitea 地址和凭据，校验仓库名称，并返回包含 ok、number 和 url
 externalRef 会写入隐藏的正文标记，便于合作插件追踪请求来源。缺少配置或
 API 失败时返回结构化错误，调用方必须安全失败。任务供应的规范消费者契约是
 dsh-drives.task-provision.v1。
+
+### Gitea 事件组合服务 (`giteaEvents`)
+
+dsh-gitea 提供 `giteaEvents` 服务，向外部遥测组件（如 `@goodandready/dsh-pulse`）安全分发 Webhook 事件：
+- 支持 `subscribe(listener)` 与 `on("event", listener)` 退订。
+- 仅提供白名单元数据字段（`id`, `event`, `action`, `at`, `owner`, `repo`, `issue`, `pull`, `ref`）。
+- 绝不泄露凭据、密钥、请求头、原始 payload 或评论正文。
+- 订阅者异常严格隔离，不影响 Webhook HTTP 响应。

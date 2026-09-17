@@ -135,3 +135,26 @@
 - **Strict Write Route Protection**: All mutating HTTP endpoints (such as `POST /dsh-gitea/config`) are guarded by `lib/http-guard.js`.
 - **Origin & Host Verification**: Verifies `Origin` and `Referer` headers to ensure the requesting host matches the `Host` header. Rejects `origin: "null"` and cross-site/same-site `Sec-Fetch-Site`.
 - **Loopback Enforcement**: Requests lacking `Sec-Fetch-Site` or `Origin` (curl, scripts, local tooling) are allowed only from loopback IP addresses (`127.0.0.1`, `::1`). Remote/cross-network callers without verified origin credentials receive HTTP 403 Forbidden (`Forbidden: same-origin or local loopback only`).
+
+### 4.6 Telemetry & Events Composition Service (`giteaEvents`)
+
+- **Provider**: `dsh-gitea` exports `ctx.provide(giteaEvents, giteaEventsService)` and `ctx.giteaEvents`.
+- **Consumer**: `@goodandready/dsh-pulse` injects `[giteaEvents]` and registers `subscribe(listener)`.
+- **Data safety**: Redacts all credentials, auth headers, webhook secrets, raw bodies, and comments. Only emits stable metadata:
+  ```json
+  {
+    "id": "event-uuid-or-type-ts",
+    "event": "pull_request",
+    "action": "opened",
+    "at": "2026-09-17T14:00:00.000Z",
+    "giteaContext": {
+      "owner": "goodandready",
+      "repo": "app",
+      "issue": null,
+      "pull": 42,
+      "project": null,
+      "ref": "feat/login"
+    }
+  }
+  ```
+- **Subscriber isolation**: Any error thrown by a listener is safely caught.
