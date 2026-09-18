@@ -100,7 +100,7 @@ test('client handles duplicate locale registration error safely without crashing
       },
     })
   })
-  assert.deepEqual(names, ['settings.plugin.item', 'conversation.session.header.utilities'])
+  assert.deepEqual(names, ['plugins.row.config', 'settings.plugin.item', 'conversation.session.header.utilities'])
 })
 
 test('settings form provides fields for all configurable schema options', () => {
@@ -121,10 +121,11 @@ test('settings form provides fields for all configurable schema options', () => 
 
 test('apply registers plugin card and skips sidebar section', () => {
   const { names, metas } = applyWith({ throwPluginItem: false })
-  assert.deepEqual(names, ['settings.plugin.item', 'conversation.session.header.utilities'])
-  assert.equal(metas[0].name, 'settings.plugin.item')
-  assert.equal(metas[0].key, 'dsh-gitea')
-  assert.notEqual(metas[0].key, '@goodandready/dsh-gitea')
+  assert.deepEqual(names, ['plugins.row.config', 'settings.plugin.item', 'conversation.session.header.utilities'])
+  assert.equal(metas[0].name, 'plugins.row.config')
+  assert.equal(metas[0].key, '@goodandready/dsh-gitea#dsh-gitea')
+  assert.equal(metas[1].name, 'settings.plugin.item')
+  assert.equal(metas[1].key, 'dsh-gitea')
 })
 
 test('client card is a PluginCard-shaped list item with discard/save footer', () => {

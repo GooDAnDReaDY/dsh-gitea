@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.7.10] - 2026-09-19
+
+### Fixed
+- **`gitea_pr_merge` no longer reports a false failure (#231)**: Gitea answers the
+  merge endpoint with an empty body, so `wrap()` returned `{ ok: true, data: undefined }`.
+  JSON drops an `undefined` key, and the harness rejects a tool result that does not
+  survive serialization — the call was reported as `invalid output: value is not
+  lossless JSON` **although the merge had succeeded**. `wrap()` now omits the field
+  when there is no payload, and `lib/gitea-client.js` handles empty bodies and
+  `204` explicitly instead of relying on a swallowed JSON parse error.
+- **Tool results are serializable by construction**: new `toLossless()` in
+  `lib/handlers.js` is applied to every tool result in `lib/index.js`; it drops
+  `undefined` keys, replaces non-finite numbers with `null`, converts `Date` to ISO
+  strings and `BigInt` to strings, and cuts cycles. Any endpoint that answers with
+  no payload can no longer produce a rejected tool result.
+
+### Added
+- **Settings open on the plugin's own page**: the client registers the settings
+  surface into the Plugins page row seat `plugins.row.config`, keyed
+  `@goodandready/dsh-gitea#dsh-gitea` (`rowConfigKey(package, rowId)`), rendering a
+  one-line description for `view: 'summary'` and the settings form without card
+  chrome for `view: 'page'`. The legacy `settings.plugin.item` seat is kept as a
+  fallback, newest first.
+- Guards: `test/lossless-output.test.mjs` (JSON round-trip for `undefined` keys,
+  `NaN`, dates, bigints, cycles; row-seat key and seat order) and updated client
+  tests that assert the row seat is registered first.
+
 ## [0.7.9] - 2026-09-18
 
 ### Fixed
