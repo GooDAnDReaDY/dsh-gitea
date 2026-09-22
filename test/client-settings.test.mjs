@@ -95,8 +95,7 @@ test('client handles duplicate locale registration error safely without crashing
         },
         register() { return () => {} },
       },
-      settingsScope: {
-        bind() { return { subscribe() { return () => {} }, getSnapshot() { return { status: 'ready' } } } },
+      configForms: { get() { return { subscribe() { return () => {} }, getSnapshot() { return { status: 'ready' } } } },
       },
     })
   })
@@ -202,7 +201,7 @@ test('client.js embeds en and zh dictionaries and does not embed hardcoded ru', 
   assert.equal(/[\u0400-\u04FF]/.test(code), false, 'client.js must not contain hardcoded Cyrillic characters')
 })
 
-test("settings card reports status unavailable and writable false when settingsScope is missing", () => {
+test("settings card reports status unavailable and writable false when configForms is missing", () => {
   assert.match(src, /status: 'unavailable'/)
   assert.doesNotMatch(src, /\(scope \? scope\.getSnapshot\(\) : \{ status: 'ready' \}\)/)
   assert.doesNotMatch(src, /const status = \(snapshot && snapshot\.status\) \|\| 'ready'/)
