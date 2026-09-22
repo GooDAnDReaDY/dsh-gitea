@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.12
+
+### Fixed
+- Settings no longer wait on the removed settingsScope service. The client uses configForms (#244).
+
 ## [0.7.11] - 2026-09-19
 
 ### Fixed
