@@ -16,6 +16,8 @@ import {
   candidateGitDirsFromExec,
   candidateGitDirsFromSessionJsonl,
   selectChipRepoDir,
+  pruneDirs,
+  MAX_SESSION_DIRS,
 } from '../lib/session-git.js'
 
 test('resolveSessionGitDir prefers explicit cwd over session memory', () => {
@@ -214,4 +216,25 @@ test('selectChipRepoDir recovers from the session log when cwd is not git', asyn
   )
   assert.equal(recovered, 'sess-1')
   assert.equal(dir, '/tmp/recovered')
+})
+
+test('rememberSessionGitDir dirty check keeps unchanged directory without re-saving', () => {
+  clearSessionGitDirs()
+  rememberSessionGitDir('sess-dirty', '/tmp/repo-1')
+  assert.equal(resolveSessionGitDir({ sessionId: 'sess-dirty' }), '/tmp/repo-1')
+  // Calling with exact same path is a no-op dirty-check pass
+  rememberSessionGitDir('sess-dirty', '/tmp/repo-1')
+  assert.equal(resolveSessionGitDir({ sessionId: 'sess-dirty' }), '/tmp/repo-1')
+})
+
+test('pruneDirs restricts maximum memory capacity to prevent unbounded growth', () => {
+  clearSessionGitDirs()
+  for (let i = 0; i < 50; i += 1) {
+    rememberSessionGitDir(`sess-${i}`, `/tmp/repo-${i}`)
+  }
+  pruneDirs(10)
+  // First 40 should be pruned, last 10 preserved
+  assert.equal(resolveSessionGitDir({ sessionId: 'sess-0' }), '')
+  assert.equal(resolveSessionGitDir({ sessionId: 'sess-39' }), '')
+  assert.equal(resolveSessionGitDir({ sessionId: 'sess-49' }), '/tmp/repo-49')
 })
