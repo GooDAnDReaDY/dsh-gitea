@@ -1731,3 +1731,17 @@ test('gitea_issue_timeline dispatches correctly and formats', async () => {
   const fmt = formatToolResult('gitea_issue_timeline', res)
   assert.match(fmt[0].text, /\[comment\] by alice: hello timeline/)
 })
+
+test('annotateCommentsWithMine routes warnings to deps.logger.warn instead of direct console', async () => {
+  const warnings = []
+  const logger = {
+    warn: (...args) => warnings.push(args.join(' ')),
+  }
+  const client = mockClient()
+  client.getUser = async () => ({ ok: false, status: 500, error: 'Internal Error' })
+  const deps = { ...baseDeps(client), logger }
+  const res = await runHandler('gitea_issue_comments', { number: 1, owner: 'acme', repo: 'app' }, deps)
+  assert.equal(res.ok, true)
+  assert.equal(warnings.length, 1)
+  assert.match(warnings[0], /\[dsh-gitea\] getUser returned non-ok response/)
+})
