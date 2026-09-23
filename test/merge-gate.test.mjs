@@ -71,3 +71,33 @@ test('autoMergeIfReady refuses without confirm', async () => {
   assert.equal(r.data.needConfirm, true)
   assert.deepEqual(merged, [])
 })
+
+test('checkMergeReadiness fails migrations check when sql file present without rollback plan', async () => {
+  const r = await checkMergeReadiness({ owner: 'acme', repo: 'app', number: 5 }, mkDeps({
+    listPullFiles: async () => ({ ok: true, data: [{ filename: 'migrations/001_init.sql' }, { filename: 'test/a.test.mjs' }] }),
+  }))
+  assert.equal(r.ok, true)
+  assert.equal(r.data.ready, false)
+  const migCheck = r.data.checks.find((c) => c.name === 'migrations')
+  assert.ok(migCheck)
+  assert.equal(migCheck.status, 'fail')
+})
+
+test('checkMergeReadiness passes migrations check when rollback plan is present in body or args', async () => {
+  const withBody = await checkMergeReadiness({ owner: 'acme', repo: 'app', number: 5 }, mkDeps({
+    getPull: async () => ({ ok: true, data: { number: 5, title: 'feat: x', body: 'full description with Rollback plan: revert migration', mergeable: true, merged: false } }),
+    listPullFiles: async () => ({ ok: true, data: [{ filename: 'migrations/001_init.sql' }, { filename: 'test/a.test.mjs' }] }),
+  }))
+  assert.equal(withBody.ok, true)
+  assert.equal(withBody.data.ready, true)
+  const migCheck1 = withBody.data.checks.find((c) => c.name === 'migrations')
+  assert.equal(migCheck1.status, 'pass')
+
+  const withArgs = await checkMergeReadiness({ owner: 'acme', repo: 'app', number: 5, allowMigrations: true }, mkDeps({
+    listPullFiles: async () => ({ ok: true, data: [{ filename: 'migrations/001_init.sql' }, { filename: 'test/a.test.mjs' }] }),
+  }))
+  assert.equal(withArgs.ok, true)
+  assert.equal(withArgs.data.ready, true)
+  const migCheck2 = withArgs.data.checks.find((c) => c.name === 'migrations')
+  assert.equal(migCheck2.status, 'pass')
+})
