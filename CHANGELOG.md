@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.7.15] - 2026-09-23
+
+### Fixed
+- **Client hook lifecycle and BroadcastChannel cleanup (#239)**: `useCrossTabGitStatus` in `lib/client.js` previously instantiated, posted to, and closed a new `BroadcastChannel` every 4 seconds. It now persists and reuses the open instance via `channelRef`. Additionally, `AbortError` thrown by `navigator.locks.request` when `abortController.abort()` runs on component unmount is now caught and ignored, preventing parasitic background fetch requests and state updates on unmounted React components (`aliveRef.current`).
+- **Standardized logging in comment annotation (#240)**: `annotateCommentsWithMine` in `lib/handlers.js` previously used direct `console.warn` calls when `client.getUser` returned non-ok or threw. It now routes warnings through `logger?.warn` (receiving `deps.logger` from `runHandler`), eliminating direct unmanaged console output from the server handlers while preserving a fallback when no logger is injected.
+
 ## [0.7.14] - 2026-09-23
 
 ### Performance
