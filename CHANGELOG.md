@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.13] - 2026-09-23
+
+### Fixed
+- **Merge readiness gate strictly blocks database migrations (#241)**: `checkMergeReadiness` in `lib/merge-gate.js` previously evaluated migration detection to `status: 'pass'` regardless of whether migrations were present. It now evaluates to `status: 'fail'` and `ready: false` unless a rollback plan is verified (via `args.allowMigrations`, `args.hasRollbackPlan`, or a rollback plan description in the PR body).
+- **Batch issue operations milestone reporting (#242)**: `applyBatch` in `lib/batch-ops.js` now updates milestones via `client.updateIssue` and only records `milestone` in `applied` upon actual success. Unapplied or failed milestone updates are excluded from `applied`, mark `perIssue.ok = false`, and report diagnostic details in `perIssue.errors`.
+- **Direct fetch for explicit issue numbers in batch ops (#243)**: `planBatch` and `applyBatch` in `lib/batch-ops.js` now fetch explicit issue numbers directly via `client.getIssue`, removing the 200 open-issue page limit and properly including closed issues. Missing issue numbers return an explicit error instead of an empty success.
+
 ## 0.7.12
 
 ### Fixed
