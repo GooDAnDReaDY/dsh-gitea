@@ -45,3 +45,29 @@ test('applyBatch records per-issue failures without stopping', async () => {
   assert.ok(r.data.results.every((x) => x.ok === false))
   assert.ok(r.data.results.every((x) => x.errors.some((e) => e.includes('boom'))))
 })
+
+test('applyBatch applies milestone via updateIssue and records in applied', async () => {
+  const client = mkClient()
+  const r = await applyBatch({ owner: 'acme', repo: 'app', milestone: 7, numbers: [1] }, { client })
+  assert.equal(r.ok, true)
+  assert.equal(r.data.results[0].ok, true)
+  assert.deepEqual(r.data.results[0].applied, ['milestone'])
+  assert.deepEqual(r.data.results[0].errors, [])
+  assert.ok(client.calls.some((c) => c[0] === 'updateIssue' && c[1][2] === 1 && c[1][3].milestone === 7))
+})
+
+test('applyBatch does not record unapplied milestone in applied on failure', async () => {
+  const client = mkClient({
+    updateIssue: async () => ({ ok: false, error: 'milestone not found' }),
+  })
+  const r = await applyBatch({ owner: 'acme', repo: 'app', milestone: 999, label: 'type/bug', numbers: [1] }, { client })
+  assert.equal(r.ok, true)
+  const res = r.data.results[0]
+  assert.equal(res.ok, false)
+  // label was applied
+  assert.ok(res.applied.includes('labels'))
+  // milestone was NOT applied and must NOT be in applied
+  assert.ok(!res.applied.includes('milestone'))
+  assert.ok(!res.applied.some((a) => a.startsWith('milestone:')))
+  assert.ok(res.errors.some((e) => e.includes('milestone')))
+})
