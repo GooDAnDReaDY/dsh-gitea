@@ -999,3 +999,78 @@ test('GiteaClient supports conditional GET with ETag and HTTP 304 Not Modified',
   assert.equal(fetchCount, 2)
   assert.equal(history[1].headers['If-None-Match'], '"etag-v1"')
 })
+
+test('GiteaClient evicts oldest entries when maxCacheEntries is reached (LRU)', async () => {
+  let fetchCount = 0
+  const fakeFetch = async (url) => {
+    fetchCount++
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ url }),
+      headers: { get: () => null },
+    }
+  }
+
+  const client = new GiteaClient({
+    baseUrl: 'https://gitea.example.com',
+    token: 'test-token',
+    fetchImpl: fakeFetch,
+    cacheTtlMs: 60_000,
+    maxCacheEntries: 3,
+  })
+
+  await client.request('GET', '/item/1')
+  await client.request('GET', '/item/2')
+  await client.request('GET', '/item/3')
+  assert.equal(client.cache.size, 3)
+  assert.equal(fetchCount, 3)
+
+  // Access item 1 again (cache hit -> moves to MRU in LRU)
+  const res1 = await client.request('GET', '/item/1')
+  assert.equal(res1.ok, true)
+  assert.equal(fetchCount, 3)
+
+  // Insert item 4 -> exceeds capacity 3. Oldest non-accessed is item 2, so item 2 is evicted
+  await client.request('GET', '/item/4')
+  assert.equal(client.cache.size, 3)
+  assert.equal(fetchCount, 4)
+  assert.equal(client.cache.has('/item/2?'), false, 'item 2 should have been evicted')
+  assert.equal(client.cache.has('/item/1?'), true, 'item 1 was accessed and should still be present')
+  assert.equal(client.cache.has('/item/3?'), true, 'item 3 should still be present')
+  assert.equal(client.cache.has('/item/4?'), true, 'item 4 should be present')
+})
+
+test('GiteaClient deletes expired entry without etag on access', async () => {
+  let fetchCount = 0
+  const fakeFetch = async (url) => {
+    fetchCount++
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ count: fetchCount }),
+      headers: { get: () => null }, // no etag
+    }
+  }
+
+  const client = new GiteaClient({
+    baseUrl: 'https://gitea.example.com',
+    token: 'test-token',
+    fetchImpl: fakeFetch,
+    cacheTtlMs: 30, // 30ms TTL
+    maxCacheEntries: 10,
+  })
+
+  await client.request('GET', '/expire-test')
+  assert.equal(client.cache.size, 1)
+  assert.equal(fetchCount, 1)
+
+  // Wait for TTL to expire
+  await new Promise((r) => setTimeout(r, 45))
+
+  // Accessing again should purge expired entry and fetch fresh
+  const res = await client.request('GET', '/expire-test')
+  assert.equal(res.ok, true)
+  assert.equal(res.data.count, 2)
+  assert.equal(fetchCount, 2)
+})

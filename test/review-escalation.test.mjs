@@ -35,3 +35,28 @@ test('escalate dry-runs without confirm', async () => {
   assert.equal(r.ok, true)
   assert.equal(r.data.applied, false)
 })
+
+test('findEscalations does not call getPull if labels already present in listPulls', async () => {
+  let getPullCalled = false
+  const client = {
+    listPulls: async () => ({
+      ok: true,
+      data: [{
+        number: 10,
+        title: 'urgent-with-labels',
+        state: 'open',
+        labels: [{ name: 'priority/high' }],
+        updated_at: new Date(Date.now() - 5 * DAY).toISOString(),
+      }],
+    }),
+    getPull: async () => {
+      getPullCalled = true
+      return { ok: true, data: { number: 10, labels: [{ name: 'priority/high' }] } }
+    },
+    listPullReviews: async () => ({ ok: true, data: [] }),
+  }
+  const r = await findEscalations({ owner: 'acme', repo: 'app', staleDays: 3 }, { client })
+  assert.equal(r.ok, true)
+  assert.equal(r.data.escalations.length, 1)
+  assert.equal(getPullCalled, false, 'client.getPull should not be called when labels are already present')
+})
