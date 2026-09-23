@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.14] - 2026-09-23
+
+### Performance
+- **Debounced disk persistence and memory capacity cap for session-git (#236)**: `rememberSessionGitDir` previously executed a blocking `fs.writeFileSync` on every invocation of any tool, and unbounded Map growth allowed `session-git.json` to grow indefinitely. It now includes dirty checking (`dirs.get(id) === dir`), an asynchronous debounced writer (`fs.promises.writeFile`), and a strict memory cap (`MAX_SESSION_DIRS = 300`) with FIFO eviction.
+- **Parallelized review lookups and elimination of redundant getPull calls (#237)**: Added `mapConcurrent` helper in `lib/retry.js` with bounded concurrency. `buildReviewInbox` and `buildTriageDigest` now query PR reviews concurrently with a pool limit of 8 instead of sequential loops. In `review-escalation.js`, existing `pr.labels` from `listPulls` are reused to eliminate redundant `client.getPull` HTTP calls per PR.
+- **Client response cache capacity cap, LRU eviction, and structuredClone (#238)**: `GiteaClient` now enforces `maxCacheEntries = 150` with LRU eviction to prevent unbounded memory growth during continuous read operations. Expired entries without ETags are purged immediately on access, and object cloning for cache hits and HTTP 304 revalidations has been updated from `JSON.parse(JSON.stringify(...))` to native `structuredClone`.
+
 ## [0.7.13] - 2026-09-23
 
 ### Fixed
