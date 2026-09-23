@@ -71,3 +71,45 @@ test('applyBatch does not record unapplied milestone in applied on failure', asy
   assert.ok(!res.applied.some((a) => a.startsWith('milestone:')))
   assert.ok(res.errors.some((e) => e.includes('milestone')))
 })
+
+test('planBatch fetches explicit issue numbers directly via getIssue, including closed or >200', async () => {
+  const client = mkClient({
+    getIssue: async (owner, repo, number) => {
+      if (number === 250) return { ok: true, data: { number: 250, title: 'far issue', state: 'closed' } }
+      if (number === 1) return { ok: true, data: { number: 1, title: 'issue 1', state: 'open' } }
+      return { ok: false, error: 'not found' }
+    },
+  })
+  const r = await planBatch({ owner: 'acme', repo: 'app', numbers: [1, 250], label: 'type/chore' }, { client })
+  assert.equal(r.ok, true)
+  assert.equal(r.data.preview.length, 2)
+  assert.equal(r.data.preview[0].number, 1)
+  assert.equal(r.data.preview[1].number, 250)
+})
+
+test('planBatch returns error when an explicit issue number does not exist', async () => {
+  const client = mkClient({
+    getIssue: async (owner, repo, number) => {
+      if (number === 1) return { ok: true, data: { number: 1, title: 'issue 1', state: 'open' } }
+      return { ok: false, error: 'not found' }
+    },
+  })
+  const r = await planBatch({ owner: 'acme', repo: 'app', numbers: [1, 999], label: 'type/chore' }, { client })
+  assert.equal(r.ok, false)
+  assert.ok(r.error.includes('issue #999 not found'))
+})
+
+test('planBatch passes query state to client.listIssues when no explicit numbers given', async () => {
+  let queriedState = null
+  const client = mkClient({
+    listIssues: async (owner, repo, query) => {
+      queriedState = query.state
+      return { ok: true, data: [{ number: 10, title: 'closed bug', state: 'closed' }] }
+    },
+  })
+  const r = await planBatch({ owner: 'acme', repo: 'app', state: 'closed', label: 'archived' }, { client })
+  assert.equal(r.ok, true)
+  assert.equal(queriedState, 'closed')
+  assert.equal(r.data.preview.length, 1)
+  assert.equal(r.data.preview[0].number, 10)
+})

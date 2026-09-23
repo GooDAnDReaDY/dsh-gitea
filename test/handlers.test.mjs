@@ -799,6 +799,7 @@ test('gitea_issue_duplicates returns candidates', async () => {
 test('gitea_batch_issue_ops dry-run returns preview without applying', async () => {
   const client = mockClient()
   client.listIssues = async () => ({ ok: true, data: [{ number: 1, title: 'a' }] })
+  client.getIssue = async (o, r, n) => ({ ok: true, data: { number: n, title: 'a' } })
   const deps = baseDeps(client)
   const result = await runHandler('gitea_batch_issue_ops', { numbers: [1], label: 'type/bug', owner: 'acme', repo: 'app' }, deps)
   assert.equal(result.ok, true)
