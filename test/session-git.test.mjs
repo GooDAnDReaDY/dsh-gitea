@@ -18,6 +18,7 @@ import {
   selectChipRepoDir,
   pruneDirs,
   MAX_SESSION_DIRS,
+  isForbiddenPath,
 } from '../lib/session-git.js'
 
 test('resolveSessionGitDir prefers explicit cwd over session memory', () => {
@@ -237,4 +238,31 @@ test('pruneDirs restricts maximum memory capacity to prevent unbounded growth', 
   assert.equal(resolveSessionGitDir({ sessionId: 'sess-0' }), '')
   assert.equal(resolveSessionGitDir({ sessionId: 'sess-39' }), '')
   assert.equal(resolveSessionGitDir({ sessionId: 'sess-49' }), '/tmp/repo-49')
+})
+
+
+test("isForbiddenPath identifies sensitive system paths and traversal attempts", () => {
+  assert.equal(isForbiddenPath("/etc"), true)
+  assert.equal(isForbiddenPath("/etc/passwd"), true)
+  assert.equal(isForbiddenPath("/root"), true)
+  assert.equal(isForbiddenPath("/sys"), true)
+  assert.equal(isForbiddenPath("/proc/1"), true)
+  assert.equal(isForbiddenPath("/dev/null"), true)
+  assert.equal(isForbiddenPath("/boot"), true)
+  assert.equal(isForbiddenPath("/"), true)
+  assert.equal(isForbiddenPath("c:/windows/system32"), true)
+  assert.equal(isForbiddenPath("c:/program files/app"), true)
+  assert.equal(isForbiddenPath("/var/run/docker.sock"), true)
+  assert.equal(isForbiddenPath("/tmp/foo/../bar"), false)
+  assert.equal(isForbiddenPath("/tmp/safe-repo"), false)
+})
+
+test("selectChipRepoDir ignores sensitive system paths even if git check passes", async () => {
+  clearSessionGitDirs()
+  rememberSessionGitDir("sess-sys", "/tmp/safe-pinned")
+  const dir = await selectChipRepoDir(
+    { cwd: "/etc", sessionId: "sess-sys" },
+    async () => true,
+  )
+  assert.equal(dir, "/tmp/safe-pinned")
 })
