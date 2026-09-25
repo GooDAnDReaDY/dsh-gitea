@@ -8,8 +8,8 @@
 # build sources, caches or infrastructure documents.
 #
 # Usage:
-#   ./scripts/publish-github.sh --check                # read-only: what would go
-#   ./scripts/publish-github.sh --push  <gitea-ref>    # publish a sanitized tree
+#   ./scripts/publish-github.sh --check [<gitea-ref>]               # read-only: what would go
+#   ./scripts/publish-github.sh --push <gitea-ref> [--tag <tag>]   # publish a sanitized tree and tag
 #
 # The allowlist is the package's own `files` field (i.e. exactly what npm ships)
 # plus the repository files a reader needs: .gitignore, LICENSE, README*.md,
@@ -20,7 +20,9 @@
 #   2. refuses to publish when a forbidden path or a required product file is missing;
 #   3. creates ONE commit on top of the mirror branch carrying the tree and pushes it
 #      as a normal fast-forward — never a force;
-#   4. prints the Gitea SHA -> mirror SHA correspondence for the release notes.
+#   4. if --tag <tag> is given, points the mirror tag to the sanitized commit and updates
+#      the GitHub Release (Latest);
+#   5. prints the Gitea SHA -> mirror SHA correspondence for the release notes.
 #
 # Rewriting mirror history is a destructive operation on a published channel and is
 # deliberately not implemented. Removing a file from *past* mirror history requires
@@ -62,21 +64,53 @@ FORBIDDEN=(
 
 mode=""
 gitea_ref=""
-for arg in "$@"; do
-  case "$arg" in
-    --check) mode="check" ;;
-    --push) mode="push" ;;
-    -*) echo "unknown option: $arg" >&2; exit 2 ;;
-    *) gitea_ref="$arg" ;;
+target_tag=""
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --check)
+      mode="check"
+      shift
+      ;;
+    --push)
+      mode="push"
+      gitea_ref="${2:-}"
+      if [ -z "$gitea_ref" ] || [ "${gitea_ref:0:1}" = "-" ]; then
+        echo "error: --push requires a gitea ref" >&2
+        exit 2
+      fi
+      shift 2
+      ;;
+    --tag)
+      target_tag="${2:-}"
+      if [ -z "$target_tag" ]; then
+        echo "error: --tag requires a tag name" >&2
+        exit 2
+      fi
+      shift 2
+      ;;
+    -*)
+      echo "unknown option: $1" >&2
+      exit 2
+      ;;
+    *)
+      if [ -z "$gitea_ref" ]; then
+        gitea_ref="$1"
+        shift
+      else
+        echo "unexpected argument: $1" >&2
+        exit 2
+      fi
+      ;;
   esac
 done
 
 if [ -z "$mode" ]; then
-  echo "usage: ./scripts/publish-github.sh --check | --push <gitea-ref>" >&2
+  echo "usage: ./scripts/publish-github.sh --check [<gitea-ref>] | --push <gitea-ref> [--tag <tag>]" >&2
   exit 2
 fi
 if [ "$mode" = "push" ] && [ -z "$gitea_ref" ]; then
-  echo "usage: ./scripts/publish-github.sh --push <gitea-ref>" >&2
+  echo "usage: ./scripts/publish-github.sh --push <gitea-ref> [--tag <tag>]" >&2
   exit 2
 fi
 
@@ -177,6 +211,34 @@ new_commit="$(git commit-tree "$new_tree" -p "$mirror_sha" -m "chore(publish): s
 echo "new mirror commit: $new_commit"
 
 git push "$MIRROR_REMOTE" "$new_commit:refs/heads/$MIRROR_BRANCH"
+
+if [ -n "$target_tag" ]; then
+  echo "pushing sanitized tag $target_tag to $MIRROR_REMOTE..."
+  git push "$MIRROR_REMOTE" "$new_commit:refs/tags/$target_tag" --force
+
+  if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
+    echo "creating/updating GitHub release for $target_tag..."
+    notes=""
+    clean_ver="${target_tag#v}"
+    if [ -f "$REPO_DIR/CHANGELOG.md" ]; then
+      notes="$(node -e '
+        const fs = require("fs");
+        const ver = process.argv[1];
+        const content = fs.readFileSync("CHANGELOG.md", "utf8");
+        const re = new RegExp("## \\[" + ver + "\\][^\\n]*\\n([\\s\\S]*?)(?=\\n## |$)");
+        const m = content.match(re);
+        if (m) process.stdout.write(m[1].trim());
+      ' "$clean_ver" 2>/dev/null || true)"
+    fi
+    [ -z "$notes" ] && notes="Release $target_tag"
+
+    if gh release view "$target_tag" --repo GooDAnDReaDY/dsh-gitea >/dev/null 2>&1; then
+      gh release edit "$target_tag" --repo GooDAnDReaDY/dsh-gitea --target "$new_commit" --latest --notes "$notes"
+    else
+      gh release create "$target_tag" --repo GooDAnDReaDY/dsh-gitea --target "$new_commit" --title "$target_tag" --notes "$notes" --latest
+    fi
+  fi
+fi
 
 echo
 echo "correspondence to record in the release notes:"
