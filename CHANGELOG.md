@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.7.17] - 2026-09-25
+
+### Fixed
+- **Schemastery 3.18.4 Volatile wrapper unwrapping on activation (#250)**: Fixed plugin startup crash `ValidationError: $.baseUrl expected string but got [object Object]` in DSH 0.1.7 environments. Added recursive `unwrapVolatile` in `lib/secrets.js` to extract underlying primitive values from Cosmokit / Schemastery `Volatile<T>` reference objects. Updated `parseConfig` to clean volatile wrappers before and after schema validation, and dynamically evaluate configuration in `apply()` to track live volatile updates without fiber restart.
+
 ## [0.7.16] - 2026-09-25
 
 ### Security
