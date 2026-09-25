@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.7.16] - 2026-09-25
+
+### Security
+- **HTTP read route protection and Host validation (#217)**: Added `isTrustedHost` in `lib/http-guard.js` enforcing DNS-rebinding protection by restricting allowed hosts to loopback (`127.0.0.1`, `localhost`, `::1`, `[::1]`), private RFC1918 networks (`10.*`, `192.168.*`, `172.16-31.*`), and `.local` hostnames. Added `isTrustedRequest` and `rejectUntrustedRequest` to guard read routes (`/dsh-gitea/config` GET, `/dsh-gitea/events` GET, `/dsh-gitea/git-status` GET, `/dsh-gitea/git-graph` GET) against `sec-fetch-site: cross-site` attacks, missing Host headers, and unauthenticated remote access.
+- **Filesystem boundary validation for session-git (#217)**: Added `isForbiddenPath` in `lib/session-git.js` blocking root `/`, system paths (`/etc`, `/root`, `/sys`, `/proc`, `/dev`, `/boot`, `/var/run`, `/run`, `/bin`, `/sbin`, `/usr/bin`, `/var/log`), Windows system directories, and directory traversal sequences (`/../`). `selectChipRepoDir` and `resolveSessionGitDir` strictly reject forbidden paths.
+
+### Fixed
+- **DSH 0.1.7 settingsForms compatibility and volatile Config schema (#230)**: Guarded `settings.register` against `TypeError` in environments where modern DSH cores omit the legacy registration method. Implemented an in-memory `fallbackScope` with `get()` and `update(patch)` so POST `/dsh-gitea/config` continues to update settings cleanly without 503 errors. Subscribed to `loader/volatile-update`, `config`, and `settings/document-updated` events. Marked all live configurable fields in `Config` schema with `.volatile()` for full exposure in DSH SettingsForms UI.
+- **GitHub mirror tag and release synchronization (#215)**: Enhanced `scripts/publish-github.sh` with `--tag <tag>` argument to force-point mirror tags to sanitized commits and automatically publish GitHub Releases marked as `--latest`. Synchronized tags and releases on `GooDAnDReaDY/dsh-gitea`.
+
 ## [0.7.15] - 2026-09-23
 
 ### Fixed
