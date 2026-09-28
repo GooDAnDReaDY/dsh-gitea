@@ -3,7 +3,7 @@
 ## Product / Purpose
 - **Назначение**: Полноценная интеграция DeepSeek Harness с Git-кузницами Gitea и Forgejo — управление репозиториями, задачами, пул-реквестами, ревью, проверками безопасности и визуальным статусом репозитория в чате.
 - **Аудитория**: Разработчики и автономные агенты, работающие в среде DeepSeek Harness.
-- **Статус**: В активной разработке. Текущая базовая версия — 0.5.2.
+- **Статус**: В активной разработке. Текущая базовая версия — 0.7.17.
 
 ---
 
@@ -17,11 +17,11 @@
 - **DSH UI / settings / slots**:
   - Карточка настроек плагина `settings.plugin.item`: полная поддержка всех 17 параметров схемы `Config`. Основные параметры (`baseUrl`, `tokenEnv` credential-ref, `defaultOwner`, `defaultRepo`) выведены на первый экран; расширенные параметры (`gitWrapper`, `dodReminder`, `forceHttpsUrls`, `timeoutMs`, `webhookSecretEnv`, `notifyWebhook`, `bgScheduler*`, `instances`) сгруппированы в раскрывающейся секции. Поддержка `settingsScope` с проверкой состояний (`loading`, `unavailable`, `ready`), изолированная регистрация словарей с защитой от повторного вызова и безопасное чтение сервисов через `ctx.get`.
 - **API / Agent Tools**:
-  - 57 специализированных инструментов `gitea_*` для агентов (PR, issues, reviews, releases, policies, analytics, git-snapshot, git-graph).
+  - 70+ специализированных инструментов `gitea_*` для агентов (PR, issues, reviews, releases, policies, analytics, git-snapshot, git-graph).
 - **CLI**:
   - Управление через CLI-интерфейс `dsh plugin --profile web <add|remove|list>`.
 - **Документация**:
-  - Трёхъязычная документация: `README.md` (EN), `docs/README.ru.md` (RU), `docs/README.zh.md` (ZH), changelog и планы разработки.
+  - Трёхъязычная документация: `README.md` (EN), `README.ru.md` (RU), `README.zh.md` (ZH), changelog и планы разработки.
 
 ---
 
