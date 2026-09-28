@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.7.18] - 2026-09-28
+
+### Security & Reliability
+- **AbortSignal.timeout for external webhook and scheduler fetch requests (#256)**: Added 5,000ms `AbortSignal.timeout` to `pushNotify` in `lib/push-notify.js` to prevent unresponsive external notification endpoints from blocking the `/dsh-gitea/webhook` route. Added 10,000ms `AbortSignal.timeout` to `bgScheduler` digest delivery in `lib/index.js` to ensure background scheduler ticks never hang indefinitely with an unreleased `running` lock.
+
+### Tech Debt & Hygiene
+- **Dead code removal and export scope narrowing (#257)**: Removed uncalled export `flushPersistedDirsSync` and scoped internal helpers (`scheduleSavePersistedDirs`, `gitDashCPath`, `absoluteUnixPaths`, `execsFromSessionJsonl`) as local module functions in `lib/session-git.js`.
+- **Documentation cleanup (#257)**: Removed stale duplicates `docs/README.ru.md` and `docs/README.zh.md` (root multi-lingual READMEs serve as canonical sources). Updated `docs/design/DESIGN.md` version and tool count specifications.
+- **Worktree repository hygiene (#258)**: Cleaned up 6 merged/abandoned worktrees in `.worktrees/` and pruned obsolete remote branches.
+
 ## [0.7.17] - 2026-09-25
 
 ### Fixed
