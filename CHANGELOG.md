@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.7.23] - 2026-10-06
+
+### Tools, Data Integrity & Resource Lifecycle (Package 3)
+- **Logger routing & host stderr protection (#263)**: Passed `logger: ctx.logger` in `makeDeps` (`lib/index.js`); `getLoggerWarn` in `lib/handlers.js` routes warnings to `logger.warn`, preventing stderr pollution in the host DSH process.
+- **Restore timeline query parameters (#264)**: Removed duplicate `parameters` block in `gitea_issue_timeline` (`lib/tool-defs.js`), restoring pagination and time filter fields (`since`, `before`, `limit`, `page`).
+- **Safe PR rebase execution & refspec validation (#267, #268)**: `runRebase` in `lib/pr-rebase.js` checks exit codes for `fetch`, `rebase`, and `push`, returning detailed error diagnostics on failure; enforces configured `gitWrapper` and sanitizes branch names against refspec injection.
+- **Repository template bootstrap file creation (#269)**: Added `createFile` and `updateFile` to `GiteaClient` (`lib/gitea-client.js`); `applyBootstrap` in `lib/repo-bootstrap.js` actually creates and updates all generated template files (`README.md`, `.gitignore`, workflows, issue/PR templates).
+- **Mutating tool confirm safety gates (#272)**: Added `confirm: true` requirement (with dry-run plan by default) to `gitea_batch_issue_ops`, `gitea_label_bootstrap`, and `gitea_org create_repo`.
+- **Eliminate dead formatters (#273)**: Removed unreachable duplicate formatting blocks in `formatToolResult` (`lib/handlers.js`) for `gitea_pr_diff`, `gitea_reactions`, and `gitea_issue_timeline`.
+- **Lifecycle-managed middleware registration (#274)**: Registered `ctx.on('tools/execute', ...)` in `lib/index.js` via `ctx.effect(...)` so tool interception listeners are cleanly unbound on plugin reload or dispose.
+- **Bounded snapshot cache & LRU eviction (#275)**: Capped `snapshotCache` in `lib/git-local.js` to `MAX_SNAPSHOT_ENTRIES = 50` with LRU eviction to prevent memory leaks from arbitrary `?cwd=` requests.
+- **Worktree verification & session pinning (#276)**: `runWorktreeAction('use')` verifies target directory validity with `isGitDir` and pins it to the agent session via `pinGitFromExec`.
+- **Accurate file list truncation (#277)**: Sliced `files` array to 50 in `buildImpactMap` (`lib/impact-map.js`) when `truncated: true` is reported.
+- **Code cleanliness & formatting polish (#278)**: Flexible client resolution in `detectFlavor`, aggregated review errors in `review-inbox`, static constant sets in `isForbiddenPath`, directory containment in `issue-templates`, and entity numbers in `formatToolResult`.
+
 ## [0.7.22] - 2026-10-06
 
 ### Network, Resilience & Settings (Package 2)
