@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.7.21] - 2026-10-06
+
+### Security & Reliability (Package 1)
+- **Path traversal prevention in getContents (#265)**: Strictly validates `filePath` in `lib/gitea-client.js`. Rejects any traversal sequences containing `..`, `.`, or `\0` segments with status 0 before making any network requests.
+- **Safe RegExp compilation and recursive glob matching in PR policies (#270)**: Implemented safe `globToRegex` compiler in `lib/policy-code.js` escaping regex metacharacters and using collision-free placeholders for `**` and `*`. Protects against SyntaxError and ReDoS attacks.
+- **Developer privacy and generic sanitisation for public mirroring (#262, #271)**: Cleaned hardcoded developer username (`vadim`), private mount paths (`/mnt/external`), and commit SHA literal from `lib/mirror-public.js`. Replaced with generic pattern redaction (`/home/user`, `/path/to`, `127.0.0.1`).
+- **Guarded immutable release tag publishing (#310)**: Removed `--force` flag from `scripts/publish-github.sh`. Added remote tag existence check (`git ls-remote`): identical target SHA is an immutable no-op, while differing remote SHA aborts with exit code 5.
+- **Fail-closed repository leak scanner in CI (#311)**: Replaced external `rg` invocation in `.gitea/workflows/ci.yml` with dedicated Node.js scanner `scripts/leak-scan.mjs` (`npm run test:leaks`). Guarantees fail-closed execution on any CI runner.
+
+## 0.7.20
+
+### Fixed
+- **Peer gate on DSH 0.2.0-rc.1** (#58): DSH skips a profile bundle whose `peerDependencies` exclude the running version, so this plugin was absent from the profile with no error in the UI. Every `@deepseek-ai/dsh-*` peer now names both the 0.1.7-rc.2 and 0.2.0-rc.1 lines, because semver does not admit a prerelease of the next minor into a range that does not name it.
+
+## 0.7.19
+
+### Fixed
+- **Peer gate on DSH 0.2.0-rc.1** (#58): DSH skips a profile bundle whose `peerDependencies` exclude the running version, so this plugin was absent from the profile with no error in the UI. Every `@deepseek-ai/dsh-*` peer now names both the 0.1.7-rc.2 and 0.2.0-rc.1 lines, because semver does not admit a prerelease of the next minor into a range that does not name it.
+
 ## [0.7.18] - 2026-09-28
 
 ### Security & Reliability
