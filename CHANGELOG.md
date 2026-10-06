@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.7.22] - 2026-10-06
+
+### Network, Resilience & Settings (Package 2)
+- **Transactional settings updates (#301)**: `servedScope.update` in `lib/index.js` now awaits `settingsSvc.update(...)` persistence before mutating in-memory `dynamicConfig` and invalidating client cache. Retains pristine previous configuration if persistence fails.
+- **Preserve webhook secrets on UI form submit (#314)**: Removed `delete merged.webhookSecret` in `POST /dsh-gitea/config` (`lib/routes.js`) so that saving settings from the DSH UI preserves the existing webhook secret.
+- **Remove redundant Schemastery prototype monkeypatch (#315)**: Removed `schemaProto.volatile` patch in `lib/index.js`; relies natively on `@deepseek-ai/schemastery` v3.18.4 `.volatile()`.
+- **Fresh AbortSignal on HTTP retries (#266)**: `GiteaClient.prototype.request` in `lib/gitea-client.js` now dynamically instantiates a new `AbortSignal.timeout(this.timeoutMs)` inside `attempt()` on each retry, preventing aborted signals from terminating subsequent attempts early.
+- **Idempotent HTTP retry policy (#282)**: Restricted automatic retries in `GiteaClient` to idempotent methods (`GET`, `HEAD`, `OPTIONS`, `PUT`, `DELETE`). Mutations via `POST` default to `retries: 0` unless `allowNonIdempotentRetry: true` is explicitly provided.
+- **Reusable GiteaClient instance cache (#287)**: Implemented `getCachedClient` in `lib/index.js` keyed by `baseUrl#token#timeoutMs` to preserve HTTP ETag and TTL caches across tool calls; automatically cleared on configuration updates.
+- **Resilient web client timeouts (#316)**: Added `clientFetch(url, options, timeoutMs = 15000)` helper in `lib/client.js` and wrapped all 8 frontend fetch operations to prevent UI hangs.
+
 ## [0.7.21] - 2026-10-06
 
 ### Security & Reliability (Package 1)
