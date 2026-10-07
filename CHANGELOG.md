@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.24] - 2026-10-07
+
+### API Routes & Network Contracts (Package 4)
+- **Real Issue search route & scope filtering (#290)**: Switched `searchIssues` in `lib/gitea-client.js` from non-existent `/search/issues` to Gitea Swagger v1 endpoint `/repos/issues/search`, with client-side filtering by `query.repo`.
+- **PR review line comment submission protocol (#291)**: Replaced unsupported `POST /repos/{owner}/{repo}/pulls/{number}/comments` (HTTP 405) with Gitea review creation protocol `POST /repos/{owner}/{repo}/pulls/{number}/reviews` (`event: 'COMMENT'`), mapping line numbers to `new_position`.
+- **Local git grep search capability gate (#292)**: Added local `git grep` execution in `gitea_code_search` (`lib/handlers.js`) when `cwd` and `execFile` are present; returns structured matches `{ path, line, text }` and informative capability error when remote search is requested without local workspace. Updated tool description in `lib/tool-defs.js`.
+- **Notification read state route & HTTP 205 handling (#293)**: Switched `markNotificationsRead` in `lib/gitea-client.js` to `PUT /notifications` and handled HTTP 205 Reset Content responses without serialization errors.
+- **Actions workflow run and job rerun routes (#294)**: Fixed job rerun endpoint to `/repos/{owner}/{repo}/actions/runs/{run}/jobs/{job_id}/rerun` in `lib/gitea-client.js`; added automatic `run_id` lookup for backward compatibility and implemented `rerunActionsRun`. Added `run_id` parameter to `gitea_ci` in `lib/tool-defs.js`.
+- **Branch creation option mapping (#295)**: Aligned `createBranch` payload with Gitea `CreateBranchRepoOption` schema (`{ new_branch_name, old_ref_name }`) in `lib/gitea-client.js` and `lib/handlers.js`, accepting both standard and legacy field names.
+- **Merge state vs mergeability distinction (#296)**: Clarified `getPullMergeStatus` (204 = merged, 404 = not merged); combined with `getPull` in `gitea_pr_merge_status` to report both `merged` and `mergeable`. Extended `RECORD_KEYS` to preserve `mergeable`, `has_issues`, and `has_conflicts` in `slimRecord`. Updated human-readable messages in `formatToolResult`.
+- **Plaintext logs & strict JSON parser integrity (#297)**: Enhanced `request` response parser in `lib/gitea-client.js` to return raw plaintext for job logs (`getJobLogs`), diffs, and octet streams. Flagged malformed JSON on HTTP 200 as structured parsing errors instead of masking them into `undefined`.
+
 ## [0.7.23] - 2026-10-06
 
 ### Tools, Data Integrity & Resource Lifecycle (Package 3)
