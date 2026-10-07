@@ -1,0 +1,229 @@
+import { test } from 'node:test'
+import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import { createContext, runInNewContext } from 'node:vm'
+import { fileURLToPath } from 'node:url'
+import path from 'node:path'
+
+const srcPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '../lib/client.js')
+const src = readFileSync(srcPath, 'utf8')
+
+function loadClient() {
+  let captured
+  const window = {
+    __ModuleLoader__: {
+      load(entry) { captured = entry },
+    },
+  }
+  runInNewContext(src, createContext({
+    window,
+    document: {
+      querySelector() { return null },
+      createElement() { return { setAttribute() {}, dataset: {} } },
+      head: { appendChild() {} },
+    },
+  }))
+  const fakeReact = {
+    createElement() { return null },
+    useState(v) { return [v, () => {}] },
+    useReducer(fn, init) { return [init, () => {}] },
+    useEffect() {},
+  }
+  return captured.factory((name) => {
+    if (name === 'react') return fakeReact
+    throw new Error('unexpected require ' + name)
+  })
+}
+
+function applyWith({ throwPluginItem }) {
+  const names = []
+  const metas = []
+  const exported = loadClient()
+  exported.apply({
+    effect(fn) { fn(); return () => {} },
+    locale: {
+      register() {},
+      bind() { return (key) => key },
+    },
+    slots: {
+      inject(name, factory) {
+        if (throwPluginItem && name === 'settings.plugin.item') throw new Error('missing slot')
+        names.push(name)
+        factory()
+      },
+      register(meta) {
+        metas.push(meta)
+        return () => {}
+      },
+    },
+  })
+  return { names, metas }
+}
+
+test('client registers settings.plugin.item with settings namespace key', () => {
+  assert.match(src, /const NS = 'dsh-gitea'/)
+  assert.match(src, /name: 'settings\.plugin\.item'/)
+  assert.match(src, /key: NS/)
+  assert.match(src, /locale: NS/)
+})
+
+test('client uses settings.plugin.item only (no settings.section)', () => {
+  assert.doesNotMatch(src, /name: 'settings\.section'/)
+})
+
+test('client registers en and zh locale dictionaries safely', () => {
+  assert.match(src, /localeSvc\.register\(NS, \{ en, zh \}\)/)
+  assert.match(src, /title: 'Gitea'/)
+})
+
+test('client handles duplicate locale registration error safely without crashing slots', () => {
+  const exported = loadClient()
+  const names = []
+  assert.doesNotThrow(() => {
+    exported.apply({
+      get(name) { return this[name] },
+      effect(fn) { fn(); return () => {} },
+      locale: {
+        register() { throw new Error('already has locale: dsh-gitea') },
+        subscribe() { return () => {} },
+        getSnapshot() { return { active: 'en' } },
+      },
+      slots: {
+        inject(name, factory) {
+          names.push(name)
+          factory()
+        },
+        register() { return () => {} },
+      },
+      configForms: { get() { return { subscribe() { return () => {} }, getSnapshot() { return { status: 'ready' } } } },
+      },
+    })
+  })
+  assert.deepEqual(names, ['plugins.item', 'plugins.row.config', 'settings.plugin.item', 'conversation.session.header.utilities'])
+})
+
+test('settings form provides fields for all configurable schema options', () => {
+  assert.match(src, /defaultOwner/)
+  assert.match(src, /defaultRepo/)
+  assert.match(src, /gitWrapper/)
+  assert.match(src, /dodReminder/)
+  assert.match(src, /forceHttpsUrls/)
+  assert.match(src, /timeoutMs/)
+  assert.match(src, /webhookSecretEnv/)
+  assert.match(src, /notifyWebhook/)
+  assert.match(src, /bgSchedulerEnabled/)
+  assert.match(src, /bgSchedulerIntervalMin/)
+  assert.match(src, /bgSchedulerOwner/)
+  assert.match(src, /bgSchedulerRepo/)
+  assert.match(src, /bgSchedulerWebhook/)
+})
+
+test('apply registers plugin card and skips sidebar section', () => {
+  const { names, metas } = applyWith({ throwPluginItem: false })
+  // Three seats: the plugin-list seat the current core renders as the plugin's own
+  // page (plugins.item), the row seat and the legacy card.
+  assert.deepEqual(names, ['plugins.item', 'plugins.row.config', 'settings.plugin.item', 'conversation.session.header.utilities'])
+  assert.equal(metas[0].name, 'plugins.item')
+  assert.equal(metas[0].id, 'dsh-gitea')
+  assert.equal(metas[0].label(), 'Gitea', 'the label is a static string')
+  assert.equal(metas[1].name, 'plugins.row.config')
+  assert.equal(metas[1].key, '@goodandready/dsh-gitea#dsh-gitea')
+  assert.equal(metas[2].name, 'settings.plugin.item')
+  assert.equal(metas[2].key, 'dsh-gitea')
+})
+
+test('client card is a PluginCard-shaped list item with discard/save footer', () => {
+  assert.match(src, /createElement\('li'/)
+  assert.match(src, /dgt-card/)
+  assert.match(src, /dgt-cardOpen/)
+  assert.match(src, /dgt-head/)
+  assert.match(src, /dgt-discard/)
+  assert.match(src, /dgt-pending/)
+  assert.match(src, /unsaved/)
+  assert.doesNotMatch(src, /dgt-wrap/)
+  assert.doesNotMatch(src, /dgt-card-head/)
+})
+
+test('settings card CSS matches shared PluginCard tokens', () => {
+  assert.match(src, /\.dgt-card\{[^}]*border-radius:12px/)
+  assert.match(src, /\.dgt-head\{[^}]*padding:14px 16px/)
+  assert.match(src, /\.dgt-title\{[^}]*font-size:15px/)
+  assert.match(src, /\.dgt-sub\{[^}]*label-secondary/)
+  assert.match(src, /\.dgt-body\{[^}]*margin:0 16px/)
+  assert.match(src, /\.dgt-foot\{/)
+  assert.match(src, /className: 'dgt-title'/)
+  assert.match(src, /className: 'dgt-sub'/)
+  assert.match(src, /className: 'dgt-foot'/)
+  assert.doesNotMatch(src, /#0000/)
+})
+
+
+
+
+test('client.js includes ErrorBoundary definition and Chevron icon component', () => {
+  const code = readFileSync(srcPath, 'utf8')
+  assert.equal(code.includes('class ErrorBoundary'), true)
+  assert.equal(code.includes('FallbackChevron'), true)
+  assert.equal(code.includes('eventsEmptyHint'), true)
+})
+
+test('client.js registers style tag with canonical data-dsh-plugin attribute', () => {
+  const code = readFileSync(srcPath, 'utf8')
+  assert.equal(code.includes('tag.dataset.dshPlugin = NS'), true)
+  assert.equal(code.includes('visibilitychange'), true)
+  assert.equal(code.includes('document.hidden'), true)
+})
+
+test('client.js implements GitSidebarDrawer with 3 tabs and accessibility attributes', () => {
+  const code = readFileSync(srcPath, 'utf8')
+  assert.equal(code.includes('function GitSidebarDrawer'), true)
+  assert.equal(code.includes('dgt-drawer'), true)
+  assert.equal(code.includes('dgt-drawer-tabs'), true)
+  assert.equal(code.includes('tabStatus'), true)
+  assert.equal(code.includes('tabGraph'), true)
+  assert.equal(code.includes('tabEvents'), true)
+  assert.equal(code.includes('dgt-drawer-btn-close'), true)
+  assert.equal(code.includes('Escape'), true)
+  assert.equal(code.includes('role: \'dialog\''), true)
+  assert.equal(code.includes('\'aria-modal\': true'), true)
+})
+
+test('client.js embeds en and zh dictionaries and does not embed hardcoded ru', () => {
+  const code = readFileSync(srcPath, 'utf8')
+  // Must have en and zh dictionaries
+  assert.equal(code.includes('const en = {'), true)
+  assert.equal(code.includes('const zh = {'), true)
+  // Must register both en and zh with DSH locale service
+  assert.equal(code.includes('localeSvc.register(NS, { en, zh })'), true)
+  // Must NOT have embedded const ru = { in plugin code
+  assert.equal(code.includes('const ru = {'), false)
+  // Must not contain hardcoded Russian Cyrillic characters in client bundle
+  assert.equal(/[\u0400-\u04FF]/.test(code), false, 'client.js must not contain hardcoded Cyrillic characters')
+})
+
+test("settings card reports status unavailable and writable false when configForms is missing", () => {
+  assert.match(src, /status: 'unavailable'/)
+  assert.doesNotMatch(src, /\(scope \? scope\.getSnapshot\(\) : \{ status: 'ready' \}\)/)
+  assert.doesNotMatch(src, /const status = \(snapshot && snapshot\.status\) \|\| 'ready'/)
+  assert.match(src, /const status = \(snapshot && snapshot\.status\) \|\| 'unavailable'/)
+  assert.match(src, /const writable = status === 'ready' &&/)
+})
+
+test("client.js contains zero hardcoded hex or rgba colors in styling rules", () => {
+  const code = readFileSync(srcPath, "utf8")
+  const hardcoded = code.match(/#[0-9a-fA-F]{3,6}|rgba\(/g)
+  assert.equal(hardcoded, null, `Found hardcoded colors: ${hardcoded}`)
+})
+
+test("client.js resolves IconChevronDownOutline14 with fallback to FallbackChevron", () => {
+  assert.match(src, /@deepseek-ai\/dsh-client-ui-primitives/)
+  assert.match(src, /IconChevronDownOutline14/)
+  assert.match(src, /const Chevron = ChevronIcon \|\| FallbackChevron/)
+})
+
+test("package.json declares client inject dependencies for locale and ui-settings", () => {
+  const pkg = JSON.parse(readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "../package.json"), "utf8"))
+  const inject = pkg.dsh?.client?.inject || []
+  assert.ok(inject.includes("@deepseek-ai/dsh-client-locale"), "must inject @deepseek-ai/dsh-client-locale")
+  assert.ok(inject.includes("@deepseek-ai/dsh-client-ui-settings"), "must inject @deepseek-ai/dsh-client-ui-settings")
+})
