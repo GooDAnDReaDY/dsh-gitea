@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.7.26] - 2026-10-07
+
+### Test Infrastructure, Ecosystem & Agent Lifecycles (Package 6)
+- **Task service numeric label IDs resolution (#298)**: Allowed both numeric label IDs (`int64`) and string label names in `normalizePayload` (`lib/task-service.js`). Resolved string label names to numeric IDs via `client.listLabels(owner, repo)` before API submission, failing closed with `labels-not-found` on unknown labels.
+- **ExternalRef cross-repository identity isolation (#299)**: Scoped issue searches by `repo` and `owner` in `lib/task-service.js` and strictly verified repository identity (`issue.repository.name === payload.repo` and matching owner), preventing cross-repository task collision and leakage.
+- **Interactive action cards and Gitea Hub view (#252)**: Added Gitea Hub tab in drawer backed by `/dsh-gitea/hub` route to display assigned issues and open PRs with one-click actions. Enriched tool output formatting (`formatToolResult`).
+- **Autonomous agent lifecycle & worktree GC (#253)**: Implemented `gitea_worktree_gc` (`lib/worktree-gc.js`) with safe detection of merged worktrees via `merge-base --is-ancestor` and protections for main, current, and dirty trees. Added `gitea_issue_to_pr` (`lib/issue-to-pr.js`) and automated `gitea_ai_review` (`lib/ai-review.js`) with secret leak and path traversal checks.
+- **Ecosystem sync & incident automation (#254)**: Implemented bidirectional Task Tracker kanban sync bridge `gitea_task_tracker_sync` (`lib/task-tracker-sync.js`) conforming to `dsh-drives.task-provision.v1`. Added Memory Brain long-term facts indexing `gitea_memory_brain_sync` (`lib/memory-brain-sync.js`) and sanitized incident ticket generator `gitea_incident_report` (`lib/incident-report.js`).
+- **One-Click Release Assistant & SSE streaming (#255)**: Added `gitea_release_assistant` (`lib/release-assistant.js`) with SemVer bump validation, multilingual changelog generator, and preflight runner. Implemented `/dsh-gitea/sse` real-time event streaming route with keepalive ping and tab deduplication in `lib/client.js`.
+
 ## [0.7.25] - 2026-10-07
 
 ### Routing, UI/UX, Git Status Chip & Data Serialization (Package 5)
