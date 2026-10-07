@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.7.25] - 2026-10-07
+
+### Routing, UI/UX, Git Status Chip & Data Serialization (Package 5)
+- **Response field retention (#280)**: Expanded `RECORD_KEYS` and `slimRecord` in `lib/handlers.js` to preserve `labels`, `milestone`, `assignees`, `diff`, `stat`, `filesCount`, `sha`, `download_url`, `encoding`, `target`, `commit`, `author`, `committer`, `parents`, `stats`, `files`, `tag_name`, `metrics`, `summary`, `healthScore`, `issues`, `pulls`, `runs`, `truncated`, `sampleSize`, `inspectedCount`, `reactions`, etc.
+- **Lossless non-circular object reuse (#281)**: Replaced global `WeakSet` in `toLossless` with a recursion-stack `Set`, preserving shared non-circular objects across sibling fields without dropping data while safely breaking circular references.
+- **Auto-merge CI status verification (#283)**: Integrated commit status and actions runs checks for head SHA in `checkMergeReadiness` (`lib/merge-gate.js`); blocks auto-merge when CI is pending or failing.
+- **Review order and changes requested gate (#284)**: Evaluates latest chronological review per reviewer in `checkMergeReadiness`; `REQUEST_CHANGES` blocks approval, `DISMISSED` revokes prior decision.
+- **Target PR state and branch verification (#285)**: Added PR status and local branch validation in `runRebase` (`lib/pr-rebase.js`); rebases onto actual target base branch.
+- **Multi-instance routing & parameter declaration (#286)**: Declared `instance` parameter across all 71 tools in `TOOL_DEFS`; rejects unknown instance with explicit error in `makeDeps` and `runHandler`.
+- **Fail-closed label resolution in batch ops (#288)**: Validates label names against repository catalog in `applyBatch` (`lib/batch-ops.js`), returning an error on missing labels instead of wiping all issue labels.
+- **Milestone parameter in batch issue ops (#289)**: Exposed `milestone` parameter in `gitea_batch_issue_ops` (`lib/tool-defs.js`) and wired to `planBatch` / `applyBatch` dispatch in `lib/handlers.js`.
+- **Release notes tag timestamp filtering (#300)**: Resolved tag and release dates in `buildReleaseNotes` (`lib/release-notes.js`), strictly filtering PRs within the `(fromTagDate, toTagDate]` range.
+- **Scoped BroadcastChannel and Web Lock (#302)**: Scoped cross-tab Git status broadcasts and leader Web Lock in `lib/client.js` by `cwd` and `sessionId` to prevent cross-workspace state leakage.
+- **Referentially stable fallback snapshots (#303)**: Replaced inline object literals in `useSyncExternalStore` fallback callbacks with frozen static constants (`UNAVAILABLE_SNAPSHOT`, `LOADING_SNAPSHOT`) in `lib/client.js`.
+- **Robust git repository detection (#304)**: Returns error in `buildGitSnapshot` (`lib/git-local.js`) when git commands fail instead of reporting a clean repository on `main`.
+- **Legacy tool aliases registration (#305)**: Exported `LEGACY_MAP` and registered all 36 legacy aliases in `ctx.tools.register` (`lib/index.js`).
+- **PR template generator section compliance (#306)**: Updated `templateForBranch` (`lib/pr-templates-branch.js`) so that all branch types satisfy all 6 mandatory sections required by `checkPrTemplate`.
+- **Rich human-readable tool result formatting (#307)**: Added structured output formatters in `formatToolResult` (`lib/handlers.js`) for merge readiness, health, triage, inbox, analytics, impact, and labels.
+- **Commit graph pagination via skip/offset (#308)**: Supported `skip` / `offset` in `fetchCommitGraph` (`lib/graph.js`) and `/dsh-gitea/git-graph` route (`lib/routes.js`), allowing "Load more" to fetch subsequent commits past the 500 limit clamp.
+- **Events drawer timestamp resolution (#309)**: Updated event timestamp parsing in `lib/client.js` to prefer `ev.at` over `ev.timestamp`.
+- **Explicit truncation metadata in reports (#312)**: Added `truncated: true`, `sampleLimit`, and `inspectedCount` in `lib/analytics.js`, `lib/project-health.js`, and `lib/triage-digest.js` when reaching sample caps.
+- **Header utilities slot localization and UI strings (#313)**: Registered header slot with `locale: NS` in `lib/client.js`; localized "CI Failed", "Active", and "changed" in both `en` and `zh` dictionaries.
+
 ## [0.7.24] - 2026-10-07
 
 ### API Routes & Network Contracts (Package 4)
