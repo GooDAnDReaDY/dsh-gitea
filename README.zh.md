@@ -126,6 +126,13 @@ graph LR
 | `gitea_git_graph`    | Git 图谱 | 可视化拓扑提交图谱、等宽轨道分支、分支/标签及 CI 状态 | - |
 | `gitea_repo_search`  | 发现探索 | 检索 Gitea 实例内的公开与私有代码仓库 | - |
 | `gitea_whoami`       | 认证信息 | 返回当前鉴权 Token 对应的用户信息与权限范围 | - |
+| `gitea_release_assistant` | 版本发布 | 一键 SemVer 校验、多语言变更日志生成与发布前就绪检查 | - |
+| `gitea_worktree_gc` | Worktrees | 安全清理已合并的工作树（GC），受保护分支与未暂存变更拦截 | ⚠️ 需要 `confirm: true` |
+| `gitea_issue_to_pr` | Pull Requests | 将关联 Issue 及其特性分支自动转为带模板的 Pull Request | - |
+| `gitea_ai_review` | Pull Requests | 自动化 PR 审查，支持行级内联评论、凭证泄漏筛查与路径合规 | - |
+| `gitea_task_tracker_sync` | 生态集成 | 双向 Task Tracker 看板桥接，严格遵循 `dsh-drives.task-provision.v1` 协议 | - |
+| `gitea_memory_brain_sync` | 生态集成 | 将核心事实、Issue 与 PR 上下文自动同步并持久化至 Memory Brain | - |
+| `gitea_incident_report` | 故障协同 | 自动生成标准化故障工单，支持 API 凭证与私钥块严格脱敏 | - |
 
 *(说明：所有历史旧工具名如 `gitea_label_list`、`gitea_release_now`、`gitea_ci_explain` 等均通过无缝兼容映射保持 100% 可用)。*
 
@@ -166,6 +173,30 @@ graph LR
 | `config-change.yaml` | 基础设施与配置变更 | `type/refactor`, `scope/settings`, `status/ready` |
 
 ---
+
+### 5. Gitea Hub 协作中心与交互式工作树管理
+
+抽屉栏提供由 `/dsh-gitea/hub` 驱动的专属 **Gitea Hub** 视图：
+- **指派任务与 PR 列表**：实时展示当前开发者/智能体承接的任务，支持一键批准、合并、关闭 PR 与关闭 Issue。
+- **工作树快速切换与清理**：在活跃工作树间无缝切换，一键安全清理已合并分支。
+- **Runner 状态监控**：实时查看 Gitea Actions 执行节点的可用状态。
+
+### 6. 智能体自主生命周期与安全围栏
+
+- **工作树自动 GC (`gitea_worktree_gc`)**：基于 `git merge-base --is-ancestor` 安全清理已合并分支，严防误删主分支、当前分支与未暂存工作区。
+- **自动化 AI 代码审查 (`gitea_ai_review`)**：提交正式 Pull Request Review 及行级内联 Diff 评论，拦截密钥泄漏与路径穿越风险。
+- **任务转 PR 流转 (`gitea_issue_to_pr`)**：将 Issue 自动转为结构化分支及 Pull Request。
+
+### 7. 生态协同集成与故障工单报告
+
+- **Task Tracker 看板同步 (`gitea_task_tracker_sync`)**：遵循 `dsh-drives.task-provision.v1` 规范实现双向同步。
+- **Memory Brain 长期记忆沉淀 (`gitea_memory_brain_sync`)**：将核心决策、已解决缺陷与上下文自动沉淀至 Memory Brain。
+- **敏感信息脱敏工单 (`gitea_incident_report`)**：生成标准化故障工单，严格脱敏 OpenSSH/EC/RSA 私钥与各类 API 凭证。
+
+### 8. 版本发布助手与实时 SSE 事件流
+
+- **版本发布助手 (`gitea_release_assistant`)**：严格执行 SemVer 版本步进检查、多语言更新日志生成与环境就绪检查。
+- **实时 SSE 事件流 (`/dsh-gitea/sse`)**：提供低延迟 Server-Sent Events 推送，内置心跳保活、断线重连与多标签页去重。
 
 ## 📦 快速安装
 

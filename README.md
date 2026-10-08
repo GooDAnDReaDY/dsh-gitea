@@ -129,6 +129,13 @@ All tools infer `owner` and `repo` automatically from the active workspace's `gi
 | `gitea_repo_search`  | Discovery | Searches repositories across the Gitea instance | - |
 | `gitea_flavor` | Discovery | Detect gitea/forgejo flavor + feature notes | - |
 | `gitea_whoami`       | Auth | Returns authenticated user details and permissions | - |
+| `gitea_release_assistant` | Releases | One-click SemVer validation, multilingual changelogs, test suites, and release readiness | - |
+| `gitea_worktree_gc` | Worktrees | Safe background & explicit pruning of merged agent worktrees | ⚠️ Requires `confirm: true` |
+| `gitea_issue_to_pr` | Pull Requests | Converts an issue and branch into an enriched Pull Request | - |
+| `gitea_ai_review` | Pull Requests | Automated PR review with line comments, secret leak checks, and safety rails | - |
+| `gitea_task_tracker_sync` | Ecosystem | Bidirectional Task Tracker kanban bridge adhering to `dsh-drives.task-provision.v1` | - |
+| `gitea_memory_brain_sync` | Ecosystem | Synchronizes and indexes long-term facts, issues, and PRs into Memory Brain | - |
+| `gitea_incident_report` | Incident | Generates sanitized incident tickets with automatic secret & private key masking | - |
 
 *(Note: Legacy individual tool names such as `gitea_label_list`, `gitea_release_now`, `gitea_ci_explain`, etc. remain 100% supported via automatic backward compatibility mapping).*
 
@@ -174,6 +181,30 @@ Includes standardized Gitea YAML issue templates under `.gitea/ISSUE_TEMPLATE/`:
 | `config-change.yaml` | Infrastructure & config change | `type/refactor`, `scope/settings`, `status/ready` |
 
 ---
+
+### 5. Gitea Hub & Interactive Worktree Management
+
+The drawer interface includes a dedicated **Gitea Hub** backed by `/dsh-gitea/hub`:
+- **Assigned Issues & PRs**: Live overview of assigned work items, status badges, and direct review/merge/close actions.
+- **Worktree Management**: Instant switching between active worktree directories and safe cleaning of merged worktrees.
+- **Actions Runners Inspection**: Real-time monitoring of available Gitea Actions runners and execution state.
+
+### 6. Autonomous Agent Lifecycle & Safety Rails
+
+- **Automated Worktree GC (`gitea_worktree_gc`)**: Background and on-demand pruning of merged branches using `git merge-base --is-ancestor`, fail-safe protections for default branch, current tree, and dirty uncommitted changes.
+- **Automated AI Code Review (`gitea_ai_review`)**: Submits formal pull request reviews with inline diff line comments, detects secrets and path traversal hazards.
+- **Issue to PR Flow (`gitea_issue_to_pr`)**: Converts issue tasks into PR branches with structured branch templates.
+
+### 7. Ecosystem Integration & Incident Reporting
+
+- **Task Tracker Kanban Sync (`gitea_task_tracker_sync`)**: Bidirectional synchronization with Task Tracker adhering strictly to `dsh-drives.task-provision.v1`.
+- **Memory Brain Sync (`gitea_memory_brain_sync`)**: Long-term indexing of issues, PR solutions, and decisions into Memory Brain.
+- **Sanitized Incident Reports (`gitea_incident_report`)**: Creates structured incident tickets with automatic sanitization of private keys (OpenSSH, EC, RSA), tokens, and sensitive headers.
+
+### 8. Release Assistant & Real-Time Event Streaming
+
+- **Release Assistant (`gitea_release_assistant`)**: SemVer increment validation, multi-language changelog generation, test suite verification, and preflight checks.
+- **Real-Time SSE Streaming (`/dsh-gitea/sse`)**: Server-Sent Events stream with heartbeat keepalive, auto-reconnect resilience, and multi-tab broadcast deduplication.
 
 ## 📦 Installation
 

@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.7.27] - 2026-10-08
+
+### Audit Remediation, Safety Contracts & Lifecycle Hardening
+- **Incident Reporting Secret Masking (#323)**: Strengthened regex sanitization in `gitea_incident_report` (`lib/incident-report.js`) to support quotes in JSON field keys (e.g. `"apiKey": "..."`, `"api_key": "..."`) and strictly mask OpenSSH, EC, and RSA private key header blocks, certificates, and auth credentials.
+- **PR Rebase Target & Origin Validation (#285)**: Added upstream PR state validation in `runRebase` (`lib/pr-rebase.js`) to reject closed or merged PRs fail-closed, verified `remote.origin.url` against target `owner/repo`, and blocked rebasing on detached `HEAD`.
+- **API Search & Slim Record Field Preservation (#280, #292)**: Handled dual promise/callback execution in `deps.execFile` within `gitea_code_search` (`lib/handlers.js`). Preserved `filename`, `changes`, and `patch` in `slimRecord` across diff payloads. Formatted health API error messages cleanly as `'unknown (API error)'`.
+- **Project Health Metrics & Truncation (#307, #312)**: Preserved numeric metric counters in `lib/project-health.js` while recording API failures in `data.errors`. Added explicit truncation indicators (`truncated: true`, `sampleLimit`, `inspectedCount`) in analytics and triage digests.
+- **Release Notes Multi-Page Pagination (#300)**: Paginated tags and pull requests up to 5 pages in `buildReleaseNotes` (`lib/release-notes.js`). Fail closed when tags are queried on tag-capable clients but missing; graceful fallback for minimal clients lacking `listTags`.
+- **Release Assistant SemVer & Preflight (#325, #255)**: Integrated `semver` library for strict SemVer comparison in `lib/release-assistant.js`. Dynamically resolved current version from `package.json`. Added test-suite and mirror-pipeline readiness preflight checks. Handled error in `readPackageVersion` catch block.
+- **Interactive Gitea Hub & Drawer Actions (#252, #255)**: Implemented action dispatcher in `POST /dsh-gitea/hub` (`lib/routes.js`) for approving, merging, and closing PRs, closing issues, switching worktrees, and cleaning merged worktrees. Added runner inspection and assignee filtering to `GET /dsh-gitea/hub`. Localized action controls in `lib/client.js`.
+- **Real-Time SSE Lifecycle & Tab Deduplication (#324)**: Wired SSE client cleanup on tab unload and reconnection to prevent event listener leakage in `lib/client.js`. Integrated SSE broadcast with `giteaEventsService` in `lib/routes.js`.
+- **Autonomous AI PR Review Submissions (#253)**: Extended `gitea_ai_review` (`lib/ai-review.js`) to submit formal PR reviews with inline line diff comments via `client.createPullReview` and `client.submitPullReview`. Wired background worktree GC inspection into `BgScheduler.onTick`.
+- **Ecosystem Sync Bridges (#254)**: Implemented `action: 'remember'` / `sync: true` in `gitea_memory_brain_sync` (`lib/memory-brain-sync.js`) dispatching to `deps.memoryBrain.remember`. Implemented `action: 'sync_card'` in `gitea_task_tracker_sync` (`lib/task-tracker-sync.js`) adhering to `dsh-drives.task-provision.v1`.
+- **Extended Gitea Client Endpoints**: Added `createPullReview`, `submitPullReview`, `editPull`, `listRunners`, and `editIssue` alias to `GiteaClient` (`lib/gitea-client.js`).
+
 ## [0.7.26] - 2026-10-07
 
 ### Test Infrastructure, Ecosystem & Agent Lifecycles (Package 6)
