@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.7.28] - 2026-10-08
+
+### Audit Round 2 Remediation & Security Hardening (#279)
+- **Hub Write Authorization Guard (#327)**: Enforced `rejectUntrustedWrite` fail-closed guard on POST `/dsh-gitea/hub` endpoint (`lib/routes.js`) to block unauthorized cross-site and non-loopback write requests.
+- **Incident Logs Secret Sanitization (#323)**: Sanitized JSON-quoted `"password": "..."` and `"api_key": "..."` in incident report logs and metadata (`lib/incident-report.js`).
+- **Merge Gate CI Fail-Closed (#283)**: Guaranteed fail-closed behavior in `checkMergeReadiness` (`lib/merge-gate.js`) when either commit statuses or workflow runs endpoints encounter API errors.
+- **PR Rebase Remote & Commit Divergence Guard (#285)**: Added git origin hostname verification against configured Gitea host, origin repository path matching, and verified local branch commit SHA matches PR head SHA before rebasing (`lib/pr-rebase.js`).
+- **Task Service ExternalRef Pagination (#299)**: Paginated external reference issue search up to 10 pages when `hasMore` or total count exceeds page capacity (`lib/task-service.js`).
+- **Review Event APPROVED Enum (#328)**: Corrected review event submission in `lib/ai-review.js` and `/dsh-gitea/hub` to standard Gitea `APPROVED` enum.
+- **Issue-to-PR Draft Verification & Parameter (#329, #306)**: Left draft checklist items unchecked when isolated worktrees are pending creation, and exposed `create_pr` parameter in `gitea_issue_to_pr` tool definition (`lib/issue-to-pr.js`, `lib/tool-defs.js`).
+- **Release Notes Multi-Page Fail-Closed & Target Base Branch (#300)**: Fails closed on page 2+ API failures during release notes compilation and filters merged PRs strictly by target `base` branch (`lib/release-notes.js`).
+- **Legacy Tool Aliases Parameter Cleanliness (#305)**: Stripped `action.required: true` parameter from registered legacy alias schemas (`lib/index.js`).
+- **Truncation Metadata Evaluation (#307, #312)**: Evaluated `truncated: true` and inspection metrics in triage digest and project health when results reach sample limit or response headers indicate `hasMore` (`lib/triage-digest.js`, `lib/project-health.js`).
+- **Commit Graph Pagination Race Prevention (#308)**: Sequenced graph request global sequence IDs (`_graphGlobalSeq`) in `lib/client.js` to prevent late responses from overwriting newer offsets.
+- **Hub Worktrees Workspace Wiring (#252)**: Passed workspace `cwd` and `sessionId` into worktree action dispatchers in `/dsh-gitea/hub` (`lib/routes.js`).
+- **AI Review Diff Hunk Line Tracking (#253)**: Accurately tracked diff hunk line numbers for inline review comments and handled inaccessible diffs gracefully (`lib/ai-review.js`).
+- **Ecosystem Service Dispatch Contracts (#254)**: Added `sync_card` and `remember` action enums in tool definitions, with fail-closed error handling when services fail (`lib/memory-brain-sync.js`, `lib/task-tracker-sync.js`, `lib/tool-defs.js`).
+- **Release Preflight Patch Version Derivation (#255)**: Auto-derives patch version when target version is omitted, and enforces GitHub mirror remote requirement (`lib/release-assistant.js`).
+
 ## [0.7.27] - 2026-10-08
 
 ### Audit Remediation, Safety Contracts & Lifecycle Hardening
