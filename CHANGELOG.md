@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.7.29] - 2026-10-11
+
+### Event Timestamp Resolution & Webhook Secret Persistence (#309, #331)
+- **Events Drawer Timestamp Contract (#309)**: Updated event age resolution in `lib/client.js` (`resolveEventEpochSeconds`) to adhere strictly to the canonical `EventStore` contract field `ev.at`. Normalizes ISO-8601 strings, millisecond timestamps, and second timestamps. Falls back gracefully to `ev.timestamp` when `ev.at` is omitted, and safely defaults to `Date.now()` on missing or malformed inputs without producing `NaN` or invalid relative age labels.
+- **Webhook Secret Credential Reference Exclusivity & Persistence (#331)**:
+  - Eliminated deprecated inline `webhookSecret` declaration from `Config` schema in `lib/index.js` in favor of `webhookSecretEnv` (`role: 'credential-ref'`).
+  - Updated `/dsh-gitea/webhook` route in `lib/routes.js` to validate HMAC signatures exclusively via `webhookSecretEnv` resolved from DSH credentials; returns HTTP 401 (`webhook secret not configured`) when `webhookSecretEnv` is unconfigured.
+  - Updated `POST /dsh-gitea/config` in `lib/routes.js` and `servedScope.update` in `lib/index.js` to preserve existing `webhookSecret` in settings documents if present when UI forms submit without it, preventing silent document corruption.
+
 ## [0.7.28] - 2026-10-08
 
 ### Audit Round 2 Remediation & Security Hardening (#279)
