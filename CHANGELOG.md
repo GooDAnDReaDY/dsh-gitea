@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.7.30] - 2026-10-15
+
+### Security Hardening & Settings Deserialization (#333)
+- **Hub Actions Write Guard (#333)**: Enforced `rejectUntrustedWrite` fail-closed guard on POST `/dsh-gitea/hub` endpoint (`lib/routes.js`) for PR approval, merging, closing, and worktree garbage collection actions, preventing cross-site request forgery and same-site cross-origin traversal.
+- **Settings Describe Row Status Resilience (#333)**: Treated `row.status` as optional in `readServedConfig` (`lib/index.js`), ensuring valid configuration documents returned by `settingsSvc.describe()` on DSH host startup are successfully restored and applied to `dynamicConfig`.
+
 ## [0.7.29] - 2026-10-11
 
 ### Event Timestamp Resolution & Webhook Secret Persistence (#309, #331)
