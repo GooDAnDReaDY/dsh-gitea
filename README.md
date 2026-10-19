@@ -136,6 +136,7 @@ All tools infer `owner` and `repo` automatically from the active workspace's `gi
 | `gitea_task_tracker_sync` | Ecosystem | Bidirectional Task Tracker kanban bridge adhering to `dsh-drives.task-provision.v1` | - |
 | `gitea_memory_brain_sync` | Ecosystem | Synchronizes and indexes long-term facts, issues, and PRs into Memory Brain | - |
 | `gitea_incident_report` | Incident | Generates sanitized incident tickets with automatic secret & private key masking | - |
+| `gitea_ci_logs_analyze` | CI & Actions | Root Cause Analysis (RCA) on failed Actions logs: step localization, error classification, and fix recommendations | - |
 
 *(Note: Legacy individual tool names such as `gitea_label_list`, `gitea_release_now`, `gitea_ci_explain`, etc. remain 100% supported via automatic backward compatibility mapping).*
 
@@ -182,7 +183,10 @@ Includes standardized Gitea YAML issue templates under `.gitea/ISSUE_TEMPLATE/`:
 
 ---
 
-### 5. Gitea Hub & Interactive Worktree Management
+### 5. Gitea Hub, CI RCA & Interactive Worktree Management
+
+- **CI Root Cause Analysis (RCA)**: When a Gitea Actions build fails, the Hub PR card shows an **"Explain CI"** button. Clicking it runs deep semantic log parsing: identifying the exact failing step, extracting a sanitized code snippet, classifying the defect (tests, dependency, linter, syntax, build), and generating actionable remediation advice without navigating away from the workspace.
+- **Autonomous Agent Worktrees**: Direct review approval, merge, close, and worktree switching buttons directly embedded in the DSH drawer.
 
 The drawer interface includes a dedicated **Gitea Hub** backed by `/dsh-gitea/hub`:
 - **Assigned Issues & PRs**: Live overview of assigned work items, status badges, and direct review/merge/close actions.
