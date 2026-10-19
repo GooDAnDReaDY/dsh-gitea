@@ -260,6 +260,18 @@ The plugin settings card in **Settings -> Plugins -> Gitea** organizes all 17 sc
 
 ---
 
+
+---
+
+## 🛡️ Route Authentication & Security Model
+
+ exposes HTTP routes for web chip polling, commit visualization, configuration management, and interactive Hub actions. To protect against unauthorized cross-network access, drive-by CSRF, and DNS rebinding:
+
+- **Host Connection Authentication**: All internal HTTP routes (`/dsh-gitea/config`, `/events`, `/git-status`, `/git-graph`, `/sse`, `/release-assistant`, `/hub`) delegate directly to DSH's Host Connection service (`ctx.connection.requestRejection`). External LAN/WAN requests without a valid authenticated DSH session are strictly rejected with HTTP 401 Unauthorized or 403 Forbidden.
+- **Fail-Closed Loopback Isolation**: When running in standalone or test environments without the Connection service, endpoints fall back to strict local loopback gating (`127.0.0.1`, `::1`). Unauthenticated non-loopback clients are denied access.
+- **Strict Write Verification**: Mutating operations (such as updating Gitea instances or hub actions) require valid same-origin headers and authenticated sessions, preventing unauthorized tampering with `baseUrl` or credential references.
+- **Webhook HMAC Authentication**: Inbound webhook events (`/dsh-gitea/webhook`) are cryptographically verified using HMAC-SHA256 signatures against `webhookSecretEnv`.
+
 ## 🔒 HTTPS and mixed content
 
 When DSH is served over HTTPS, embedded Gitea pages must also be HTTPS or the

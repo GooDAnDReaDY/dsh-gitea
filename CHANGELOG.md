@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.31] - 2026-10-19
+
+### DSH Connection Authentication & Route Security Boundary (#346, #347)
+- **Host Connection Authentication (#346, #347)**: Integrated DSH Host Connection Service (`ctx.connection.requestRejection(req)`) across all read and write routes (`/dsh-gitea/config`, `/events`, `/git-status`, `/git-graph`, `/sse`, `/release-assistant`, `/hub`), enforcing strict authentication for external LAN/WAN clients and rejecting unauthenticated requests with HTTP 401 Unauthorized or 403 Forbidden.
+- **Write Guard Bypass Remediation (#346)**: Eliminated reliance on spoofable client headers (`Host`, `Origin`, `Sec-Fetch-Site`) for write route authorization, preventing unauthenticated remote tampering with `baseUrl` and `tokenEnv` on `POST /dsh-gitea/config` and securing `GITEA_TOKEN` against exfiltration.
+- **Fail-Closed Socket Gating (#346, #347)**: Requests on active network sockets with missing or unknown `remoteAddress` strictly fail closed with HTTP 403.
+- **Loopback Fallback Isolation (#347)**: In test/standalone environments without the Connection service, endpoints fall back strictly to local loopback (`127.0.0.1`, `::1`), denying non-loopback network access.
+
 ## [0.7.30] - 2026-10-15
 
 ### Security Hardening & Settings Deserialization (#333)

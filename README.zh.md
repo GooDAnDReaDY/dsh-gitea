@@ -302,3 +302,14 @@ dsh-gitea 提供 `giteaEvents` 服务，向外部遥测组件（如 `@goodandrea
 - 在线检查 npm 仓库最新版本并显示更新状态。
 - 安全防护：仅接受本地回环来源（loopback）、origin/host 匹配及 `x-dsh-plugin-update: 1` 标头的更新请求。
 - 完整遵循 pnpm 包隔离策略，支持预发布版本比较。
+
+---
+
+## 🛡️ 路由认证与安全模型
+
+ 为 Web 状态徽章轮询、提交图谱可视化、配置管理以及 Hub 交互操作提供了 HTTP 接口。为防范未经授权的跨网段访问、跨站请求伪造 (CSRF) 及 DNS 重新绑定：
+
+- **宿主连接会话认证**: 所有内部 HTTP 路由（`/dsh-gitea/config`、`/events`、`/git-status`、`/git-graph`、`/sse`、`/release-assistant`、`/hub`）统一通过 DSH 宿主连接服务 (`ctx.connection.requestRejection`) 进行严格鉴权。未携带有效登录会话的外部局域网/公网请求均会被拒绝 (HTTP 401/403)。
+- **故障默认关闭 (Fail-Closed) 本地回环回退**: 在无 Connection 服务的单机或测试环境中，仅允许受信任的本地回环 (`127.0.0.1`, `::1`) 访问，远程客户端默认阻断。
+- **严格写入校验**: 修改 Gitea 实例或执行合并/关闭等写操作时，严格校验同源策略与会话凭证，杜绝恶意篡改 `baseUrl` 或外泄凭据。
+- **Webhook HMAC 验签**: 接收来自 Gitea 的事件推送 (`/dsh-gitea/webhook`) 时，使用配置在 `webhookSecretEnv` 中的密钥进行 HMAC-SHA256 签名比对验证。
