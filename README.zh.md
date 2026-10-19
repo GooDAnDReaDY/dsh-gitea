@@ -138,6 +138,8 @@ graph LR
 | `gitea_action_card` | Generative UI | 会话聊天中的生成式 UI 交互卡片，支持 Issue、PR 与分支的一键快捷操作与即时状态反馈 | - |
 | `gitea_pr_stack_status` | Pull Requests | 分析堆叠 PR (Stacked PRs) 依赖链、调用深度及变基就绪状态 | - |
 | `gitea_pr_stack_rebase` | Pull Requests | 级联变基子分支至最新基线分支，支持冲突自动回滚保护与租约强制推送 | - |
+| `gitea_conflict_analyze` | Git & Conflicts | 内存中三方合并冲突沙箱分析与代码块智能归类（导入、依赖包、排版与语义冲突） | - |
+| `gitea_pr_conflict_resolve` | Git & Conflicts | 自动化与交互式合并冲突解决工具，支持确认前统一 diff 预览 | ⚠️ 需要 `confirm: true` |
 
 *(说明：所有历史旧工具名如 `gitea_label_list`、`gitea_release_now`、`gitea_ci_explain` 等均通过无缝兼容映射保持 100% 可用)。*
 

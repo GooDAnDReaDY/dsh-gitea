@@ -138,6 +138,8 @@ graph LR
 | `gitea_action_card` | Generative UI | Интерактивные Generative UI Action Cards задач, PR и веток в чате с быстрыми действиями в один клик | - |
 | `gitea_pr_stack_status` | Pull Requests | Анализ цепочек зависимых PR (Stacked PRs), глубины стека и готовности к перебазированию | - |
 | `gitea_pr_stack_rebase` | Pull Requests | Автоматический каскадный rebase дочерней ветки на обновлённую базу с авто-откатом при конфликтах | - |
+| `gitea_conflict_analyze` | Git & Conflicts | Трёхсторонний in-memory анализ конфликтов слияния и категоризация секций (импорты, зависимости, семантика) | - |
+| `gitea_pr_conflict_resolve` | Git & Conflicts | Структурированное разрешение конфликтов PR с preview diff до фиксации | ⚠️ Требует `confirm: true` |
 
 *(Примечание: Все устаревшие индивидуальные имена инструментов, такие как `gitea_label_list`, `gitea_release_now` и т.д., на 100% поддерживаются через прозрачный маппинг обратной совместимости).*
 

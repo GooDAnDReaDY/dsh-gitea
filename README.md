@@ -141,6 +141,8 @@ All tools infer `owner` and `repo` automatically from the active workspace's `gi
 | `gitea_action_card` | Generative UI | Interactive Generative UI Action Cards in chat for issues, PRs, and git branches with instant one-click actions | - |
 | `gitea_pr_stack_status` | Pull Requests | Inspects stacked PR chains, dependency depth, and cascading rebase readiness | - |
 | `gitea_pr_stack_rebase` | Pull Requests | Cascading rebase of child PRs onto updated base branch with conflict abort safety | - |
+| `gitea_conflict_analyze` | Git & Conflicts | In-memory 3-way merge conflict analysis with hunk categorization (imports, packages, syntax, semantic) | - |
+| `gitea_pr_conflict_resolve` | Git & Conflicts | Automated & structured merge conflict resolution with unified diff preview | ⚠️ Requires `confirm: true` |
 
 *(Note: Legacy individual tool names such as `gitea_label_list`, `gitea_release_now`, `gitea_ci_explain`, etc. remain 100% supported via automatic backward compatibility mapping).*
 
