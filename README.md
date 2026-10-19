@@ -132,7 +132,8 @@ All tools infer `owner` and `repo` automatically from the active workspace's `gi
 | `gitea_release_assistant` | Releases | One-click SemVer validation, multilingual changelogs, test suites, and release readiness | - |
 | `gitea_worktree_gc` | Worktrees | Safe background & explicit pruning of merged agent worktrees | ⚠️ Requires `confirm: true` |
 | `gitea_issue_to_pr` | Pull Requests | Converts an issue and branch into an enriched Pull Request | - |
-| `gitea_ai_review` | Pull Requests | Automated PR review with line comments, secret leak checks, and safety rails | - |
+| `gitea_ai_review` | Pull Requests | Automated PR review with line comments, secret leak checks, and interactive ```suggestion blocks | - |
+| `gitea_pr_line_comment` | Pull Requests | Adds line comments and interactive ```suggestion blocks for one-click commit | - |
 | `gitea_task_tracker_sync` | Ecosystem | Bidirectional Task Tracker kanban bridge adhering to `dsh-drives.task-provision.v1` | - |
 | `gitea_memory_brain_sync` | Ecosystem | Synchronizes and indexes long-term facts, issues, and PRs into Memory Brain | - |
 | `gitea_incident_report` | Incident | Generates sanitized incident tickets with automatic secret & private key masking | - |
@@ -196,7 +197,7 @@ The drawer interface includes a dedicated **Gitea Hub** backed by `/dsh-gitea/hu
 ### 6. Autonomous Agent Lifecycle & Safety Rails
 
 - **Automated Worktree GC (`gitea_worktree_gc`)**: Background and on-demand pruning of merged branches using `git merge-base --is-ancestor`, fail-safe protections for default branch, current tree, and dirty uncommitted changes.
-- **Automated AI Code Review (`gitea_ai_review`)**: Submits formal pull request reviews with inline diff line comments, detects secrets and path traversal hazards.
+- **Automated AI Code Review (`gitea_ai_review`, `gitea_pr_line_comment`)**: Submits formal pull request reviews with inline diff line comments, detects secrets and path traversal hazards, and formats interactive ```suggestion blocks for one-click commit application in Gitea.
 - **Issue to PR Flow (`gitea_issue_to_pr`)**: Converts issue tasks into PR branches with structured branch templates.
 
 ### 7. Ecosystem Integration & Incident Reporting

@@ -129,7 +129,8 @@ graph LR
 | `gitea_release_assistant` | 版本发布 | 一键 SemVer 校验、多语言变更日志生成与发布前就绪检查 | - |
 | `gitea_worktree_gc` | Worktrees | 安全清理已合并的工作树（GC），受保护分支与未暂存变更拦截 | ⚠️ 需要 `confirm: true` |
 | `gitea_issue_to_pr` | Pull Requests | 将关联 Issue 及其特性分支自动转为带模板的 Pull Request | - |
-| `gitea_ai_review` | Pull Requests | 自动化 PR 审查，支持行级内联评论、凭证泄漏筛查与路径合规 | - |
+| `gitea_ai_review` | Pull Requests | 自动化 PR 审查，支持行级内联评论、凭证泄漏筛查与交互式 ```suggestion 建议块 | - |
+| `gitea_pr_line_comment` | Pull Requests | 添加行级代码评论与交互式 ```suggestion 建议块，支持在界面一键提交 | - |
 | `gitea_task_tracker_sync` | 生态集成 | 双向 Task Tracker 看板桥接，严格遵循 `dsh-drives.task-provision.v1` 协议 | - |
 | `gitea_memory_brain_sync` | 生态集成 | 将核心事实、Issue 与 PR 上下文自动同步并持久化至 Memory Brain | - |
 | `gitea_incident_report` | 故障协同 | 自动生成标准化故障工单，支持 API 凭证与私钥块严格脱敏 | - |
@@ -185,7 +186,7 @@ graph LR
 ### 6. 智能体自主生命周期与安全围栏
 
 - **工作树自动 GC (`gitea_worktree_gc`)**：基于 `git merge-base --is-ancestor` 安全清理已合并分支，严防误删主分支、当前分支与未暂存工作区。
-- **自动化 AI 代码审查 (`gitea_ai_review`)**：提交正式 Pull Request Review 及行级内联 Diff 评论，拦截密钥泄漏与路径穿越风险。
+- **自动化 AI 代码审查 (`gitea_ai_review`, `gitea_pr_line_comment`)**：提交正式 Pull Request Review 及行级内联 Diff 评论，拦截密钥泄漏与路径穿越风险，并生成交互式 ```suggestion 建议块，支持在 Gitea 界面一键提交应用。
 - **任务转 PR 流转 (`gitea_issue_to_pr`)**：将 Issue 自动转为结构化分支及 Pull Request。
 
 ### 7. 生态协同集成与故障工单报告
