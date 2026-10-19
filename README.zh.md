@@ -135,6 +135,7 @@ graph LR
 | `gitea_memory_brain_sync` | 生态集成 | 将核心事实、Issue 与 PR 上下文自动同步并持久化至 Memory Brain | - |
 | `gitea_incident_report` | 故障协同 | 自动生成标准化故障工单，支持 API 凭证与私钥块严格脱敏 | - |
 | `gitea_ci_logs_analyze` | CI/Actions | 深度根因分析 (RCA)：定位失败步骤、智能分类故障类型、提取脱敏日志片段并给出修复建议 | - |
+| `gitea_action_card` | Generative UI | 会话聊天中的生成式 UI 交互卡片，支持 Issue、PR 与分支的一键快捷操作与即时状态反馈 | - |
 
 *(说明：所有历史旧工具名如 `gitea_label_list`、`gitea_release_now`、`gitea_ci_explain` 等均通过无缝兼容映射保持 100% 可用)。*
 

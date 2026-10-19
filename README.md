@@ -138,6 +138,7 @@ All tools infer `owner` and `repo` automatically from the active workspace's `gi
 | `gitea_memory_brain_sync` | Ecosystem | Synchronizes and indexes long-term facts, issues, and PRs into Memory Brain | - |
 | `gitea_incident_report` | Incident | Generates sanitized incident tickets with automatic secret & private key masking | - |
 | `gitea_ci_logs_analyze` | CI & Actions | Root Cause Analysis (RCA) on failed Actions logs: step localization, error classification, and fix recommendations | - |
+| `gitea_action_card` | Generative UI | Interactive Generative UI Action Cards in chat for issues, PRs, and git branches with instant one-click actions | - |
 
 *(Note: Legacy individual tool names such as `gitea_label_list`, `gitea_release_now`, `gitea_ci_explain`, etc. remain 100% supported via automatic backward compatibility mapping).*
 
