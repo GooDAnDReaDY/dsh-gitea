@@ -150,6 +150,8 @@ graph LR
 | `gitea_branch_protection_set` | Security | 配置或删除分支保护规则（支持 dry-run 预览） | ⚠️ 需要 `confirm: true` |
 | `gitea_deploy_keys` | Security | 管理仓库 Deploy Keys（查看、添加、删除只读/读写密钥） | ⚠️ 删除需要 `confirm: true` |
 | `gitea_security_audit` | Security | 综合仓库安全合规审计（分支保护、部署密钥、推送策略） | - |
+| `gitea_mirror_sync_status` | Mirror | 检查公开镜像双向同步状态、提交延迟并触发同步 (Gitea <-> GitHub) | ⚠️ 同步需要 `confirm: true` |
+| `gitea_webhook_sandbox` | Webhooks | Webhook 沙盒与事件重放：检查缓冲的原始请求并在本地重放 | ⚠️ 清空需要 `confirm: true` |
 
 *(说明：所有历史旧工具名如 `gitea_label_list`、`gitea_release_now`、`gitea_ci_explain` 等均通过无缝兼容映射保持 100% 可用)。*
 

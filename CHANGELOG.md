@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.7.39] - 2026-10-21
+
+### Public Mirror Bidirectional Sync Dashboard & Webhook Sandbox (#343, #345)
+- **Public Mirror Bidirectional Sync Dashboard & Monitoring (#343)**:
+  - Implemented `lib/mirror-dashboard.js` with client methods in `lib/gitea-client.js` (`listPushMirrors`, `syncPushMirrors`, `syncPullMirror`).
+  - Added agent tool `gitea_mirror_sync_status` to inspect Gitea push mirror statuses, error reports, and commit lag between local `main` and remote mirrors (`github`, `mirror`).
+  - Supports dry-run protected forced mirror synchronization (`action: sync` gated by `confirm: true`).
+  - Integrated mirror synchronization status and commit lag alerting into `lib/chip-pr-ci.js` (`enrichChip`) and Git status chip in `lib/client.js` with non-blocking timeout protection.
+  - Added hub actions `mirror-status` and `mirror-sync` in `lib/routes-hub.js`.
+- **Webhook Sandbox & Event Replayer (#345)**:
+  - Implemented `lib/webhook-sandbox.js` featuring an isolated 20-entry FIFO ring buffer of raw incoming webhook requests.
+  - Automatically captures incoming POST requests on `/dsh-gitea/webhook` with timestamp, event type, action, raw byte size, client IP, delivery headers, and HMAC-SHA256 signature validation status (`valid`, `invalid`, `unsigned`, `unconfigured`).
+  - Automatically sanitizes sensitive tokens, API keys, passwords, and private keys from buffered payloads (`sanitizeWebhookPayload`).
+  - Added event replay functionality (`replayWebhook`) to re-inject buffered or simulated events into `eventsStore`, `giteaEventsService` event bus, and push notification dispatcher without contacting external Gitea or GitHub servers.
+  - Added agent tool `gitea_webhook_sandbox` (`list`, `get`, `replay`, `clear` with `confirm: true` gate).
+  - Added hub actions `webhook-sandbox`, `webhook-sandbox-get`, `webhook-replay`, and `webhook-clear` in `lib/routes-hub.js`.
+- **Route Architecture Modularization**:
+  - Extracted Gitea Hub endpoint execution into dedicated modular handler `lib/routes-hub.js` (287 lines), reducing `lib/routes.js` to 435 lines to strictly enforce the < 600 line limit across all route modules.
+
 ## [0.7.38] - 2026-10-21
 
 ### Intelligent Reviewer Auto-Assignment, Branch Protection & Deploy Keys Security Audit (#339, #342)

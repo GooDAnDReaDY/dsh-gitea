@@ -153,6 +153,8 @@ All tools infer `owner` and `repo` automatically from the active workspace's `gi
 | `gitea_branch_protection_set` | Security | Configures or removes branch protection rules with dry-run safety | ⚠️ Requires `confirm: true` |
 | `gitea_deploy_keys` | Security | Lists, creates, or deletes repository deploy keys with read-only/write access | ⚠️ Delete requires `confirm: true` |
 | `gitea_security_audit` | Security | Comprehensive repository security audit (branch protection, deploy keys, push policies) | - |
+| `gitea_mirror_sync_status` | Mirror | Inspects mirror sync status, commit lag, and triggers synchronization (Gitea <-> GitHub) | ⚠️ Sync requires `confirm: true` |
+| `gitea_webhook_sandbox` | Webhooks | Webhook Sandbox & Replayer: inspect raw buffered events and replay payloads locally | ⚠️ Clear requires `confirm: true` |
 
 *(Note: Legacy individual tool names such as `gitea_label_list`, `gitea_release_now`, `gitea_ci_explain`, etc. remain 100% supported via automatic backward compatibility mapping).*
 
