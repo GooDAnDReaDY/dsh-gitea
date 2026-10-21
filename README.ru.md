@@ -140,6 +140,11 @@ graph LR
 | `gitea_pr_stack_rebase` | Pull Requests | Автоматический каскадный rebase дочерней ветки на обновлённую базу с авто-откатом при конфликтах | - |
 | `gitea_conflict_analyze` | Git & Conflicts | Трёхсторонний in-memory анализ конфликтов слияния и категоризация секций (импорты, зависимости, семантика) | - |
 | `gitea_pr_conflict_resolve` | Git & Conflicts | Структурированное разрешение конфликтов PR с preview diff до фиксации | ⚠️ Требует `confirm: true` |
+| `gitea_release_plan` | Releases | Анализатор Conventional Commits с авто-расчётом SemVer и структурированным чейнджлогом | - |
+| `gitea_packages_list` | Packages | Просмотр опубликованных пакетов в Gitea Package Registry (npm, PyPI, OCI, Generic) | - |
+| `gitea_package_get` | Packages | Метаданные, версии и ассеты пакета в реестре Gitea | - |
+| `gitea_package_delete` | Packages | Удаление версии пакета из реестра Gitea | ⚠️ Требует `confirm: true` |
+| `gitea_package_config` | Packages | Генерация клиентского конфига (.npmrc, pip.conf, docker login) | - |
 
 *(Примечание: Все устаревшие индивидуальные имена инструментов, такие как `gitea_label_list`, `gitea_release_now` и т.д., на 100% поддерживаются через прозрачный маппинг обратной совместимости).*
 

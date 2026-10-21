@@ -143,6 +143,11 @@ All tools infer `owner` and `repo` automatically from the active workspace's `gi
 | `gitea_pr_stack_rebase` | Pull Requests | Cascading rebase of child PRs onto updated base branch with conflict abort safety | - |
 | `gitea_conflict_analyze` | Git & Conflicts | In-memory 3-way merge conflict analysis with hunk categorization (imports, packages, syntax, semantic) | - |
 | `gitea_pr_conflict_resolve` | Git & Conflicts | Automated & structured merge conflict resolution with unified diff preview | ⚠️ Requires `confirm: true` |
+| `gitea_release_plan` | Releases | Conventional Commits SemVer analyzer & structured changelog generator | - |
+| `gitea_packages_list` | Packages | Lists published packages in Gitea Package Registry (npm, PyPI, OCI, Generic) | - |
+| `gitea_package_get` | Packages | Inspects package metadata, versions, and assets in Gitea Package Registry | - |
+| `gitea_package_delete` | Packages | Deletes package version from Gitea Package Registry | ⚠️ Requires `confirm: true` |
+| `gitea_package_config` | Packages | Generates client registry configuration (.npmrc, pip.conf, docker login) | - |
 
 *(Note: Legacy individual tool names such as `gitea_label_list`, `gitea_release_now`, `gitea_ci_explain`, etc. remain 100% supported via automatic backward compatibility mapping).*
 

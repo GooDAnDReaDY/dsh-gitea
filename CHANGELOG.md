@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.7.37] - 2026-10-21
+
+### Domain Handlers & Tool Definitions Architecture, Conventional Commits SemVer & Packages Registry (#354, #344, #337)
+- **Domain Handlers & Tool Definitions Decomposition (#354)**:
+  - Decomposed monolithic `lib/handlers.js` (1538 lines) and `lib/tool-defs.js` (940 lines) into dedicated domain submodules (`lib/handlers/` and `lib/tool-defs/` for issues, prs, releases, repos, reviews, worktrees, formatters, and common helpers).
+  - Enforced strict < 600 lines per file architecture constraint across all hand-written source code (every decomposed module is between 25 and 281 lines).
+  - Preserved 100% public contracts, legacy tool aliases, and export signatures via root facades `lib/handlers.js` (~115 lines) and `lib/tool-defs.js` (1 line).
+- **Conventional Commits SemVer Analyzer & Release Generator (#344)**:
+  - Implemented `lib/release-generator.js` with automated commit parsing according to Conventional Commits specification.
+  - Automatically calculates next SemVer version (`calculateSemverBump`, `bumpVersion`) based on breaking change markers (`!`, `BREAKING CHANGE:` footer), new features (`feat:`), and fixes/chores.
+  - Generates structured, grouped Markdown changelogs with scopes, PR links, and author attribution.
+  - Integrated automated security scanner (`scanReleaseTextForSecrets`) to detect and sanitize private IPs and leaked credential tokens from release notes.
+  - Added agent tool `gitea_release_plan` and wired into release assistant workflow.
+- **Gitea Package Registry Integration (#337)**:
+  - Implemented `lib/package-registry.js` with client methods in `lib/gitea-client.js` (`listPackages`, `getPackage`, `deletePackageVersion`).
+  - Added agent tools `gitea_packages_list`, `gitea_package_get`, `gitea_package_delete` (gated by `confirm: true` with dry-run preview), and `gitea_package_config`.
+  - Supports client configuration generation for npm (`.npmrc`), PyPI (`~/.pypirc`), OCI/Docker (`docker login`), and Generic packages.
+
 ## [0.7.31] - 2026-10-19
 
 ### DSH Connection Authentication & Route Security Boundary (#346, #347)

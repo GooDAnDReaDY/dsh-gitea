@@ -140,6 +140,11 @@ graph LR
 | `gitea_pr_stack_rebase` | Pull Requests | 级联变基子分支至最新基线分支，支持冲突自动回滚保护与租约强制推送 | - |
 | `gitea_conflict_analyze` | Git & Conflicts | 内存中三方合并冲突沙箱分析与代码块智能归类（导入、依赖包、排版与语义冲突） | - |
 | `gitea_pr_conflict_resolve` | Git & Conflicts | 自动化与交互式合并冲突解决工具，支持确认前统一 diff 预览 | ⚠️ 需要 `confirm: true` |
+| `gitea_release_plan` | Releases | Conventional Commits SemVer 自动计算与结构化更新日志生成器 | - |
+| `gitea_packages_list` | Packages | 列出 Gitea Package Registry 中的软件包 (npm, PyPI, OCI, Generic) | - |
+| `gitea_package_get` | Packages | 查看 Gitea 软件包的元数据、版本及资产 | - |
+| `gitea_package_delete` | Packages | 从 Gitea 注册表中删除指定软件包版本 | ⚠️ 需要 `confirm: true` |
+| `gitea_package_config` | Packages | 生成客户端配置 (.npmrc, pip.conf, docker login) | - |
 
 *(说明：所有历史旧工具名如 `gitea_label_list`、`gitea_release_now`、`gitea_ci_explain` 等均通过无缝兼容映射保持 100% 可用)。*
 
