@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.7.38] - 2026-10-21
+
+### Intelligent Reviewer Auto-Assignment, Branch Protection & Deploy Keys Security Audit (#339, #342)
+- **Intelligent Reviewer Matcher & CODEOWNERS Auto-Assignment (#339)**:
+  - Implemented `lib/reviewer-matcher.js` supporting multi-location discovery across `CODEOWNERS`, `.gitea/CODEOWNERS`, `.github/CODEOWNERS`, and `docs/CODEOWNERS`.
+  - Implemented glob pattern matching (`*`, `**`, file extensions, directory prefixes) with standard git precedence (later matching rules override earlier ones).
+  - Integrated git blame / commit log contributor ranking fallback when explicit CODEOWNERS rules are absent for modified files.
+  - Automatically filters out PR author to prevent self-assignment and provides confidence metrics (`high`, `medium`) with rationale.
+  - Added agent tool `gitea_suggest_reviewers` (in `lib/tool-defs/reviews.js` and `lib/handlers/reviews.js`) and integrated automated reviewer recommendations into PR creation (`lib/issue-to-pr.js`).
+- **Branch Protection Governance & Deploy Keys Security Audit (#342)**:
+  - Extended `lib/gitea-client.js` with comprehensive branch protection and deploy key administration endpoints.
+  - Implemented `lib/branch-protection.js` with policy inspection, enforcement (`required_approvals`, `block_force_push`, branch deletion rules), and dry-run preview before mutations (`confirm: true` gate).
+  - Implemented deploy keys management (`gitea_deploy_keys`) with read-only/write access inspection, creation, and secure deletion.
+  - Implemented automated repository security audit (`gitea_security_audit`) assessing branch protections, deploy key risks, and push rules.
+  - Integrated branch protection audit checks into repository health diagnostics (`lib/project-health.js`).
+  - Added agent tools `gitea_branch_protection_get`, `gitea_branch_protection_set`, `gitea_deploy_keys`, and `gitea_security_audit` (in `lib/tool-defs/repos.js` and `lib/handlers/repos.js`).
+
 ## [0.7.37] - 2026-10-21
 
 ### Domain Handlers & Tool Definitions Architecture, Conventional Commits SemVer & Packages Registry (#354, #344, #337)

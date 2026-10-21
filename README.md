@@ -148,6 +148,11 @@ All tools infer `owner` and `repo` automatically from the active workspace's `gi
 | `gitea_package_get` | Packages | Inspects package metadata, versions, and assets in Gitea Package Registry | - |
 | `gitea_package_delete` | Packages | Deletes package version from Gitea Package Registry | ⚠️ Requires `confirm: true` |
 | `gitea_package_config` | Packages | Generates client registry configuration (.npmrc, pip.conf, docker login) | - |
+| `gitea_suggest_reviewers` | Reviews | Recommends PR reviewers from CODEOWNERS files and git blame contributor rankings | - |
+| `gitea_branch_protection_get` | Security | Inspects branch protection rules, required approvals, and push restrictions | - |
+| `gitea_branch_protection_set` | Security | Configures or removes branch protection rules with dry-run safety | ⚠️ Requires `confirm: true` |
+| `gitea_deploy_keys` | Security | Lists, creates, or deletes repository deploy keys with read-only/write access | ⚠️ Delete requires `confirm: true` |
+| `gitea_security_audit` | Security | Comprehensive repository security audit (branch protection, deploy keys, push policies) | - |
 
 *(Note: Legacy individual tool names such as `gitea_label_list`, `gitea_release_now`, `gitea_ci_explain`, etc. remain 100% supported via automatic backward compatibility mapping).*
 

@@ -145,6 +145,11 @@ graph LR
 | `gitea_package_get` | Packages | Метаданные, версии и ассеты пакета в реестре Gitea | - |
 | `gitea_package_delete` | Packages | Удаление версии пакета из реестра Gitea | ⚠️ Требует `confirm: true` |
 | `gitea_package_config` | Packages | Генерация клиентского конфига (.npmrc, pip.conf, docker login) | - |
+| `gitea_suggest_reviewers` | Reviews | Рекомендация ревьюеров PR на основе правил CODEOWNERS и авторства коммитов через git blame | - |
+| `gitea_branch_protection_get` | Security | Проверка правил защиты ветки, обязательных аппрувов и запрета force push | - |
+| `gitea_branch_protection_set` | Security | Настройка или удаление правил защиты ветки с режимом предварительного просмотра | ⚠️ Требует `confirm: true` |
+| `gitea_deploy_keys` | Security | Управление deploy keys репозитория (просмотр, добавление, удаление) | ⚠️ Удаление требует `confirm: true` |
+| `gitea_security_audit` | Security | Комплексный аудит безопасности репозитория (защита веток, ключи деплоя, политики пуша) | - |
 
 *(Примечание: Все устаревшие индивидуальные имена инструментов, такие как `gitea_label_list`, `gitea_release_now` и т.д., на 100% поддерживаются через прозрачный маппинг обратной совместимости).*
 

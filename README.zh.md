@@ -145,6 +145,11 @@ graph LR
 | `gitea_package_get` | Packages | 查看 Gitea 软件包的元数据、版本及资产 | - |
 | `gitea_package_delete` | Packages | 从 Gitea 注册表中删除指定软件包版本 | ⚠️ 需要 `confirm: true` |
 | `gitea_package_config` | Packages | 生成客户端配置 (.npmrc, pip.conf, docker login) | - |
+| `gitea_suggest_reviewers` | Reviews | 根据 CODEOWNERS 规则及 git blame 贡献排名推荐 PR 审查员 | - |
+| `gitea_branch_protection_get` | Security | 查看分支保护规则、必需审批数量及推送限制 | - |
+| `gitea_branch_protection_set` | Security | 配置或删除分支保护规则（支持 dry-run 预览） | ⚠️ 需要 `confirm: true` |
+| `gitea_deploy_keys` | Security | 管理仓库 Deploy Keys（查看、添加、删除只读/读写密钥） | ⚠️ 删除需要 `confirm: true` |
+| `gitea_security_audit` | Security | 综合仓库安全合规审计（分支保护、部署密钥、推送策略） | - |
 
 *(说明：所有历史旧工具名如 `gitea_label_list`、`gitea_release_now`、`gitea_ci_explain` 等均通过无缝兼容映射保持 100% 可用)。*
 
