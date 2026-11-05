@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.7.40] - 2026-11-05
+
+### Chat Header Button Visibility Toggle (#358)
+- **Chat Header Button Visibility Toggle (`showChatHeaderButton`) (#358)**:
+  - Added `showChatHeaderButton` configuration setting (default `true`) allowing users to show or hide the Gitea git status chip in the conversation chat header (`conversation.session.header.utilities`).
+  - Implemented real-time reactive toggle updates across windows and tabs via `BroadcastChannel('dsh_gitea_sync')` (`config-change`) and window custom events (`dsh-gitea:config-change`), applying instantaneously without page reloads or process restarts.
+  - Returns `null` when disabled, leaving zero DOM footprint in the header utilities toolbar.
+  - Preserved full operational access to all Gitea surfaces (Action Cards, Settings card/form, Events, Hub API, agent tools).
+  - Main navigation buttons (Remote, "Задачи", Kanban, or "Задачи по расписанию") remain untouched and always visible.
+  - Added comprehensive automated unit test suite covering configuration persistence, reactive visibility, and zero regression across other plugin slots.
+
 ## [0.7.39] - 2026-10-21
 
 ### Public Mirror Bidirectional Sync Dashboard & Webhook Sandbox (#343, #345)

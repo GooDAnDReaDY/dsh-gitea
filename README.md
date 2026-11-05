@@ -266,6 +266,7 @@ The plugin settings card in **Settings -> Plugins -> Gitea** organizes all 17 sc
 | `gitWrapper` | `string` | `""` | Advanced (Git) | Optional executable wrapper for write operations (e.g. `git-dsh`) |
 | `dodReminder` | `boolean` | `false` | Advanced (Git) | Definition of Done reminder if a tool changes git files without referencing an issue/PR |
 | `forceHttpsUrls` | `boolean` | `false` | Advanced (Git) | Rewrite `http://` links to `https://` behind an HTTPS reverse proxy |
+| `showChatHeaderButton` | `boolean` | `true` | Advanced (Git) | Show Gitea git status button in conversation chat header |
 | `timeoutMs` | `number` | `30000` | Advanced (Git) | HTTP request timeout in milliseconds (default 30000) |
 | `webhookSecretEnv` | `string` | `""` | Advanced (Webhooks) | DSH Credential name holding secret to verify incoming `X-Gitea-Signature` |
 | `webhookSecret` | `string` | `""` | N/A | *Deprecated*: use `webhookSecretEnv` credential ref. Kept for backwards compatibility |

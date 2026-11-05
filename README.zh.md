@@ -255,6 +255,7 @@ dsh-gitea:
 | `gitWrapper` | `string` | `""` | 高级设置 (Git) | 用于写操作的 Git 包装器可执行文件（如 `git-dsh`） |
 | `dodReminder` | `boolean` | `false` | 高级设置 (Git) | 当工具变更 git 文件且未引用 issue/PR 时提醒 DoD 完成标准 |
 | `forceHttpsUrls` | `boolean` | `false` | 高级设置 (Git) | 在 HTTPS 反向代理后强制将 `http://` 转换为 `https://` |
+| `showChatHeaderButton` | `boolean` | `true` | 高级设置 (Git) | 在会话界面顶部工具栏显示 Gitea Git 状态按钮 |
 | `timeoutMs` | `number` | `30000` | 高级设置 (Git) | HTTP 请求超时时间（毫秒，默认 30000） |
 | `webhookSecretEnv` | `string` | `""` | 高级设置 (Webhooks) | 用于校验 `X-Gitea-Signature` 签名的 DSH 凭据键名称 |
 | `webhookSecret` | `string` | `""` | — | *已弃用*: 请改用 `webhookSecretEnv` 凭据引用。仅保留向后兼容 |

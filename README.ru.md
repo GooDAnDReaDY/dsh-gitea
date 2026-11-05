@@ -256,6 +256,7 @@ dsh-gitea:
 | `gitWrapper` | `string` | `""` | Дополнительные (Git) | Команда-обёртка для операций записи (например, `git-dsh`) |
 | `dodReminder` | `boolean` | `false` | Дополнительные (Git) | Напоминание DoD, если инструмент изменил git-файлы без ссылки на задачу/PR |
 | `forceHttpsUrls` | `boolean` | `false` | Дополнительные (Git) | Принудительная перезапись ссылок `http://` в `https://` за HTTPS reverse proxy |
+| `showChatHeaderButton` | `boolean` | `true` | Дополнительные (Git) | Показывать кнопку статуса Gitea в шапке чата сессии |
 | `timeoutMs` | `number` | `30000` | Дополнительные (Git) | Таймаут выполнения HTTP-запросов (в миллисекундах) |
 | `webhookSecretEnv` | `string` | `""` | Дополнительные (Вебхуки) | Имя DSH Credential с секретом для проверки подписи `X-Gitea-Signature` |
 | `webhookSecret` | `string` | `""` | — | *Устарело*: используйте `webhookSecretEnv`. Оставлено для обратной совместимости |
