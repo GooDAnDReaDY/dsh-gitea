@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.7.41] - 2026-11-05
+
+### Chat Header Button Visibility & Persistence Polish (#360)
+- **Primary Discoverability & Zero-Flicker Persistence (#360)**:
+  - Moved the `showChatHeaderButton` setting toggle out of the collapsed Advanced settings accordion into the primary "Core Defaults" section of the Gitea settings form for immediate discoverability in DSH Desktop and Web.
+  - Implemented synchronous `localStorage` caching (`dsh_gitea_show_chat_header_button`) in `GitStrip`, ensuring the button stays hidden on the very first render frame upon opening new chats, switching sessions, or restarting DSH Desktop without any visual flicker before the async `/dsh-gitea/git-status` HTTP poll returns.
+  - Added direct inspection of `configForms` service on `props.ctx` in `GitStrip` to immediately reflect runtime config document updates.
+  - Enhanced automated test coverage in `test/chat-header-button.test.mjs` verifying primary placement before advanced accordion, synchronous zero-flicker suppression when cached, and runtime state synchronizations.
+
 ## [0.7.40] - 2026-11-05
 
 ### Chat Header Button Visibility Toggle (#358)
