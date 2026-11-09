@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.7.42] - 2026-11-09
+
+### Windows Git Console Window Suppression & Background Polling Optimization (#362)
+- **Windows Console Window Suppression (`windowsHide: true`) (#362)**:
+  - Added `windowsHide: true` to all `child_process.execFile` and `child_process.spawn` options across all modules executing `git` or external binaries (`lib/git-local.js`, `lib/worktree-gc.js`, `lib/conflict-assistant.js`, `lib/release-assistant.js`, `lib/graph.js`, `lib/reviewer-matcher.js`, `lib/mirror-dashboard.js`, `lib/pr-stack.js`, `lib/pr-rebase.js`, `lib/handlers/repos.js`, `lib/index.js`).
+  - Eliminates transient console window flashes and focus stealing on Windows during periodic git status polling and background git operations.
+- **Client Background Polling Optimization (#362)**:
+  - Updated `useCrossTabGitStatus` in `lib/client.js` to pause status interval polling when `document.hidden` is true, resuming immediately on tab reactivation via `visibilitychange`.
+- **Automated Tests**:
+  - Added `test/windows-hide.test.mjs` (10 tests) covering `windowsHide: true` enforcement across all git utilities, `document.hidden` poll suspension, and a static audit across all production source files in `lib/`.
+
 ## [0.7.41] - 2026-11-05
 
 ### Chat Header Button Visibility & Persistence Polish (#360)
