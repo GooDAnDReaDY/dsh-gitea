@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.7.43] - 2026-11-10
+
+### CI Actions Job Logs Plain-Text Formatting (#364)
+- **CI Job Logs Plain-Text Rendering (`formatToolResult`) (#364)**:
+  - Fixed an issue where calling `gitea_ci` with `action: "logs"` returned the literal string `OK` instead of the fetched job logs.
+  - Added dedicated string payload handling in `formatToolResult` (`lib/handlers/formatters.js`), ensuring plain-text responses from `/actions/jobs/{id}/logs` and other text endpoints render properly.
+  - Added smart tail-truncation to 16,000 characters when log length exceeds 16KB, preserving compiler errors and stack traces at the end of the log while keeping token usage within budget.
+- **Automated Tests**:
+  - Added `test/ci-logs-formatter.test.mjs` (6 unit tests) verifying verbatim rendering for logs <= 16KB, tail truncation for large logs, empty string handling, and non-regression for `OK` fallbacks.
+
 ## [0.7.42] - 2026-11-09
 
 ### Windows Git Console Window Suppression & Background Polling Optimization (#362)
