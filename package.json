@@ -1,6 +1,6 @@
 {
   "name": "@goodandready/dsh-gitea",
-  "version": "0.7.43",
+  "version": "0.7.44",
   "description": "Enterprise Gitea & Forgejo integration for DeepSeek Harness: 20+ issue/PR/worktree tools and a real-time Git status chip in chat.",
   "type": "module",
   "main": "lib/index.js",
@@ -68,5 +68,8 @@
   },
   "dependencies": {
     "semver": "^7.8.5"
+  },
+  "devDependencies": {
+    "@deepseek-ai/schemastery": "^3.18.1"
   }
 }

@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.7.44] - 2026-11-10
+
+### Audit Remediation: Webhook Security, Suggestion Indentation, Lockfile & Dead Export Cleanup (#366, #367, #368, #369)
+- **Webhook Sandbox Security Hardening (#366)**:
+  - Buffer incoming webhooks in `lib/webhook-sandbox.js` only when `signatureStatus === 'valid'`, preventing unauthenticated flood attacks and cache eviction of legitimate webhook events.
+  - Reject replay in `replayWebhook` if the stored entry or target payload has an invalid signature.
+  - Added `untrustedPayloadWarning` to `gitea_webhook_sandbox(action: "get")`.
+- **PR Line Comment Indentation Auto-Alignment (#367)**:
+  - Added `original_line` parameter to `gitea_pr_line_comment` tool definition.
+  - Automatically aligns replacement code indentation to match `original_line` using `alignIndentation` before validation.
+  - Purged unused dead export `extractSuggestionBlocks` from `lib/ai-review.js`.
+- **Ecosystem & Deterministic Dependency Lockfile (#368)**:
+  - Added `@deepseek-ai/schemastery: ^3.18.1` to `devDependencies` in `package.json`.
+  - Added `package-lock.json` to the git repository, enabling deterministic `npm ci` and passing `npm audit` with 0 vulnerabilities.
+- **Dead Export Privatization (#369)**:
+  - Privatized `isTrustedRequest` in `lib/http-guard.js`, updating tests to evaluate `rejectUntrustedRequest`.
+  - Removed dead export `getSnapshotCacheSize()` in `lib/git-local.js` and updated `clearSnapshotCache()` to return `{ ok: true, cleared: count }`.
+
 ## [0.7.43] - 2026-11-10
 
 ### CI Actions Job Logs Plain-Text Formatting (#364)
