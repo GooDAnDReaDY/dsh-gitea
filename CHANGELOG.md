@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Actions job logs render as `OK` (#3)
+- **`gitea_ci` (`action: "logs"`) showed `OK`**: `lib/handlers/formatters.js` only inspected object payloads, so the plain-text response from `/actions/jobs/{id}/logs` fell through to the `OK` fallback. String payloads are now rendered, tail-truncated to 16 000 characters (failures sit at the end of a job log).
+
 ## [0.7.42] - 2026-11-09
 
 ### Windows Git Console Window Suppression & Background Polling Optimization (#362)
