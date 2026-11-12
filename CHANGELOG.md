@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.7.45] - 2026-11-12
+
+### Canonical Deployment Script & Standardized Delivery Entry Point (#372, #373)
+- **Canonical Delivery Script (`deploy.sh`) (#372)**:
+  - Added project-specific executable `deploy.sh` supporting three canonical modes:
+    - `check`: quality gate running full test suite (`npm test`), memory leak scan (`npm run test:leaks`), 4-place package identity invariant checks, and package file size gate (<= 256 KiB per file). Generates candidate tarball in `dist/`.
+    - `install <exact-version>`: production deployment guarded by explicit owner approval variable (`DSH_GITEA_APPROVED=yes`), installing immutable published package into the DSH web profile, restarting `dsh-web.service`, and executing post-install smoke checks.
+    - `verify [exact-version]`: runtime verification of installed package version and service responsiveness.
+- **Documentation & Packaging Hygiene (#372)**:
+  - Documented deployment lifecycle in `AGENTS.md` and `index.md`.
+  - Updated design contract `docs/design/DESIGN.md` (section 19.26).
+  - Added `dist/` to `.gitignore`.
+  - Excluded delivery script and development documentation from published npm package via explicit `files` whitelist in `package.json`.
+
 ## [0.7.44] - 2026-11-10
 
 ### Audit Remediation: Webhook Security, Suggestion Indentation, Lockfile & Dead Export Cleanup (#366, #367, #368, #369)
