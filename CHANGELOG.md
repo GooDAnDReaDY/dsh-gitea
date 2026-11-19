@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.7.46] - 2026-11-19
+
+> Originally published as 0.8.0 (misnumbered) and recalled the same day; re-released as 0.7.46.
+
+### Single Canonical Publisher, Whole-Tree Leak Scan & Unified Install Policy (#377, #378, #379)
+- **Single Canonical Allowlist Publisher (#377)**:
+  - `publish.sh` is now a thin compatibility wrapper delegating to the canonical allowlist publisher `scripts/publish-github.sh`; the legacy denylist tree builder is removed.
+  - Extended the FORBIDDEN list (`publish.sh`, `scripts`, `docs`, `dist`) so service paths are refused even if the allowlist changes later.
+  - Added contract test `test/publish-tree.test.mjs`: the published GitHub tree must equal `package.json` `files` plus reader-facing root files, must contain no forbidden paths, and must keep required product files.
+  - `AGENTS.md` and `index.md` now name `scripts/publish-github.sh` as the only canonical publication path.
+- **Whole-Tree Leak Scan Coverage (#378)**:
+  - `scripts/leak-scan.mjs` now scans every git-tracked file (filesystem walk fallback for non-git fixtures) instead of four product directories; `docs/`, `scripts/`, `deploy.sh`, `publish.sh` and `CHANGELOG.md` are covered.
+  - Depersonalized all findings the extended scanner reports on the tree: real LAN IP replaced with an RFC 5737 documentation address, developer home path / username / internal mount and leaked SHA literals removed from `docs/plans`, `docs/superpowers` and `CHANGELOG.md`.
+  - Added fixture regression tests: the scanner must report LAN addresses and developer paths inside `docs/plans`, and must scan `scripts/`, `deploy.sh` and root markdown files.
+- **Unified Installer Flag Builder & Release-Age Quarantine (#379)**:
+  - New `lib/install-args.js` (`buildPluginInstallArgs`) is the single source of the install flag set for both `deploy.sh` and the one-click updater (`lib/plugin-updater.js`).
+  - `deploy.sh install` no longer passes `--config.minimumReleaseAge=0`: production installs now honor the npm release-age quarantine exactly like the UI updater; a freshly published version may need to wait out the quarantine window.
+  - New `deploy.sh install-args` mode resolves flags through the shared helper; parity tests assert both paths emit identical flag sets and no path disables the quarantine.
+- **Hub POST Body-Read Race Fix (#388)**:
+  - Fixed a hang in `/dsh-gitea/hub` POST handling: the route awaited a dynamic `import()` and the token resolver before reading the request body, letting request events pass before listeners were attached on Node 22 — CI had been red on every push since at least 0.7.45.
+  - `handleHubRequest` is imported statically; the POST body is read immediately after the write guard, before token resolution; `readBody` resolves an empty buffer for already-ended streams; a hang-guard regression test pins the behavior.
+  - CI (`CI / test`, Node 22) is green again on push and PR.
+
+
 ## [0.7.45] - 2026-11-12
 
 ### Canonical Deployment Script & Standardized Delivery Entry Point (#372, #373)
@@ -260,7 +284,7 @@
 ### Security & Reliability (Package 1)
 - **Path traversal prevention in getContents (#265)**: Strictly validates `filePath` in `lib/gitea-client.js`. Rejects any traversal sequences containing `..`, `.`, or `\0` segments with status 0 before making any network requests.
 - **Safe RegExp compilation and recursive glob matching in PR policies (#270)**: Implemented safe `globToRegex` compiler in `lib/policy-code.js` escaping regex metacharacters and using collision-free placeholders for `**` and `*`. Protects against SyntaxError and ReDoS attacks.
-- **Developer privacy and generic sanitisation for public mirroring (#262, #271)**: Cleaned hardcoded developer username (`vadim`), private mount paths (`/mnt/external`), and commit SHA literal from `lib/mirror-public.js`. Replaced with generic pattern redaction (`/home/user`, `/path/to`, `127.0.0.1`).
+- **Developer privacy and generic sanitisation for public mirroring (#262, #271)**: Cleaned a hardcoded developer username, private mount paths, and a commit SHA literal from `lib/mirror-public.js`. Replaced with generic pattern redaction (`/home/user`, `/path/to`, `127.0.0.1`).
 - **Guarded immutable release tag publishing (#310)**: Removed `--force` flag from `scripts/publish-github.sh`. Added remote tag existence check (`git ls-remote`): identical target SHA is an immutable no-op, while differing remote SHA aborts with exit code 5.
 - **Fail-closed repository leak scanner in CI (#311)**: Replaced external `rg` invocation in `.gitea/workflows/ci.yml` with dedicated Node.js scanner `scripts/leak-scan.mjs` (`npm run test:leaks`). Guarantees fail-closed execution on any CI runner.
 
