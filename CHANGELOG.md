@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.7.47] - 2026-11-19
+
+> Originally published as 0.9.0 (misnumbered) and recalled the same day; re-released as 0.7.47.
+
+### CI Quality: Lint Guard, Node 20/22/24 Matrix & Size Budget (#380, #381, #384)
+- **Single `submitPullReview` Declaration (#380)**:
+  - Removed the shadowed duplicate declaration in `GiteaClient` (`lib/gitea-client.js`); the delegating method with the `body = {}` default is now the only one. Both bodies were semantically identical (`POST /pulls/{number}/reviews`).
+- **Lint Guard, Node Matrix, Deterministic Installs (#381)**:
+  - Added ESLint 9 (devDependency) with a correctness-only flat config: `no-undef`, `no-unused-vars`, `no-dupe-class-members`; browser globals declared for `lib/client.js`, Node globals for the rest; caught errors exempt.
+  - CI now runs a Node 20/22/24 matrix (fail-fast off), uses `npm ci` against the committed lockfile with npm cache, runs `node --check` over every `lib/**/*.js` module, and executes the lint step before tests.
+  - Added `engines.node >= 20` to `package.json`.
+  - Fixed all 79 pre-existing `no-unused-vars` findings with no behavior changes: unused imports removed (including the dead `scheduler` import in `lib/index.js`), unused arguments prefixed with underscore, write-only locals (`capturedInit`, `resHeaders`) and the dead `var exports` shim line in `lib/client.js` removed (client factory test updated accordingly).
+- **Package Size Budget (#384)**:
+  - New `scripts/size-budget.mjs`: package file WARN at 50% (131072 B) and BLOCK at 80% (209715 B) of the 256 KiB hard limit; `lib/` source files WARN above 600 lines; prints current headroom.
+  - Integrated into CI and `deploy.sh check` (budget runs before the hard pack gate; a block-level finding fails the run).
+  - DESIGN §12.2: outdated line counts replaced by the budget reference; escalation rule recorded — a file entering the 80% zone must be decomposed (or receive an owner-approved DESIGN rationale) before the next release.
+
 ## [0.7.46] - 2026-11-19
 
 > Originally published as 0.8.0 (misnumbered) and recalled the same day; re-released as 0.7.46.
