@@ -35,22 +35,11 @@
 
 ---
 
-### 🌟 v0.7.6 更新内容
-- **一键在线更新**: 直接在 DSH 设置卡片中检查并就地升级插件。
-- **组合服务**: 提供 `dshGitea`（任务创建与管理）和 `giteaEvents`（为 `@goodandready/dsh-pulse` 提供安全事件流）。
-- **安全与环境**: 本地回环与来源严格校验 (`lib/http-guard.js`)，导出过滤规则 (`publish.sh`)。
-- **性能与解耦**: Git 变动实时刷新缓存，工具定义解耦至 `lib/tool-defs.js`。
-
-### 🌟 v0.7.5 更新内容
-- **规范的服务端与智能体工具输出语言**：所有工具响应、验证详情和错误提示均严格遵循 `dsh-plugin-authoring` 规范英文标准。
-- **清晰的 npm 包边界**：标准化 Issue 表单模板迁移至 `assets/issue-templates/`，内部开发文档 (`docs/superpowers/`, `.gitea/`) 已完全从 npm 包中排除。
-- **自动化合规质量门禁**：新增自动化测试，强制要求 `lib/` 源码中 0 字符俄文字符并校验包文件边界。
-
 ## ⚡ 核心定位与解决痛点
 
 在 DeepSeek Harness 中进行多阶段自主编码任务时，智能体需要与私有代码托管平台的 Issue 任务看板、Pull Request 代码审查、多分支开发及独立工作树（Worktree）紧密交互。传统方式下，智能体缺乏统一的权限模型与状态感知，极易产生分支冲突或破坏主干。
 
-**`@goodandready/dsh-gitea`** 实现了 DeepSeek Harness 与私有化部署 **Gitea** 及 **Forgejo** 实例的深度对接。为智能体提供 20+ 个结构化工具，在 Web UI 聊天头部注入实时 **Git Status Chip** 状态胶囊，并设置严格的安全护栏（PR 合并与工作树删除强制要求 `confirm: true`）。
+**`@goodandready/dsh-gitea`** 实现了 DeepSeek Harness 与私有化部署 **Gitea** 及 **Forgejo** 实例的深度对接。为智能体提供 96 个结构化工具（另含 37 个向后兼容的旧版别名），在 Web UI 聊天头部注入实时 **Git Status Chip** 状态胶囊，并设置严格的安全护栏（PR 合并与工作树删除强制要求 `confirm: true`）。
 
 ---
 
@@ -60,7 +49,7 @@
 graph LR
     subgraph DSH ["DeepSeek Harness 智能体平台"]
         UI["Web UI 聊天头部<br/>(Git Status 状态胶囊)"]
-        Agent["自主智能体<br/>(20+ Gitea 专属工具)"]
+        Agent["自主智能体<br/>(96 个 Gitea 专属工具)"]
         Creds["凭据安全存储中心<br/>(GITEA_TOKEN 引用)"]
     end
 
@@ -88,7 +77,7 @@ graph LR
 
 ## ✨ 核心特性深度解析
 
-### 1. 20+ 智能体结构化工具全家桶
+### 1. 智能体结构化工具全家桶（96 个工具）
 
 当智能体未显式指定 `owner` 与 `repo` 时，插件自动从当前工作区的 `git remote get-url origin` 智能解析项目信息。
 
@@ -217,6 +206,14 @@ graph LR
 - **版本发布助手 (`gitea_release_assistant`)**：严格执行 SemVer 版本步进检查、多语言更新日志生成与环境就绪检查。
 - **实时 SSE 事件流 (`/dsh-gitea/sse`)**：提供低延迟 Server-Sent Events 推送，内置心跳保活、断线重连与多标签页去重。
 
+## 📦 环境要求
+
+- **DeepSeek Harness** web profile，主机兼容性 `engines.dsh: >=0.1.7`（插件所支持的 DSH 插件 API）。
+- DSH 宿主运行时需 **Node.js >= 20**。
+- 可访问的 **Gitea** 或 **Forgejo** 实例（REST API v1），并将个人访问令牌保存于 DSH Credentials（默认 `GITEA_TOKEN`）。
+- 本机安装 **git**（任意较新版本）以支持 Worktree 工具与 Git Status Chip。
+- 可选：用于签名写操作的 `gitWrapper` 可执行文件。
+
 ## 📦 快速安装
 
 通过 DeepSeek Harness 命令行一键安装：
@@ -258,7 +255,6 @@ dsh-gitea:
 | `showChatHeaderButton` | `boolean` | `true` | 高级设置 (Git) | 在会话界面顶部工具栏显示 Gitea Git 状态按钮 |
 | `timeoutMs` | `number` | `30000` | 高级设置 (Git) | HTTP 请求超时时间（毫秒，默认 30000） |
 | `webhookSecretEnv` | `string` | `""` | 高级设置 (Webhooks) | 用于校验 `X-Gitea-Signature` 签名的 DSH 凭据键名称 |
-| `webhookSecret` | `string` | `""` | — | *已弃用*: 请改用 `webhookSecretEnv` 凭据引用。仅保留向后兼容 |
 | `notifyWebhook` | `string` | `""` | 高级设置 (Webhooks) | 外部通知 Webhook URL，用于 PR 和 CI 失败推送提醒 |
 | `bgSchedulerEnabled` | `boolean` | `false` | 高级设置 (调度器) | 启用后台巡检调度器及事件摘要日志 |
 | `bgSchedulerIntervalMin` | `number` | `60` | 高级设置 (调度器) | 后台巡检周期间隔（分钟，默认 60） |
@@ -274,7 +270,6 @@ dsh-gitea:
 
 ## 🛠️ 可靠性、Webhook 与跨平台支持
 
-在 `v0.4.3` 中新增与优化：
 - **Webhook 推送投递**：`gitea_digest_delivery` 与事件推送处理器采用标准 HTTP POST JSON 封装与请求头，确保可靠投递至 Slack、Discord、Telegram 或自定义 Webhook 接收端。
 - **全平台路径兼容**：全面兼容 Linux/macOS (POSIX) 与 Windows 文件路径体系，统一斜杠规范化与盘符解析。
 - **精准合并统计**：`gitea_repo_analytics` 遵循 Gitea REST API 规范，精确统计已合并的 PR 指标。

@@ -35,22 +35,11 @@
 
 ---
 
-### 🌟 What's New in v0.7.6
-- **One-Click Auto-Updater**: Check npm and upgrade directly in the DSH settings card.
-- **Composition Services**: Exposes `dshGitea` (task provisioning) and `giteaEvents` (safe telemetry bridge for `@goodandready/dsh-pulse`).
-- **Security & Hygiene**: Loopback and origin-hardened HTTP write guards (`lib/http-guard.js`), sanitized GitHub release export pipeline (`publish.sh`).
-- **Performance & Caching**: Cache invalidation on git mutations and modularized `lib/tool-defs.js`.
-
-### 🌟 What's New in v0.7.5
-- **Canonical English Server & Agent Tool Outputs**: All tool responses, verification details, and error messages conform strictly to `dsh-plugin-authoring` canonical English standard.
-- **Clean Package Boundaries**: Standalone issue form templates are safely organized in `assets/issue-templates/`; internal development specs (`docs/superpowers/`, `.gitea/`) are strictly excluded from npm packages.
-- **Automated Compliance Quality Gate**: Permanent test coverage enforcing 0 Cyrillic characters across `lib/` and strict package file boundary audits.
-
 ## ⚡ Overview & Problem Solved
 
 When autonomous AI coding agents perform complex multi-step development in DeepSeek Harness, they require seamless access to issue trackers, pull request review workflows, branch creation, and isolated workspace worktrees without risking repository corruption or leaking credentials into chat logs.
 
-**`@goodandready/dsh-gitea`** bridges DeepSeek Harness to self-hosted **Gitea** and **Forgejo** instances. It equips agents with a complete suite of 20+ structured tools, registers a live **Git Status Chip** directly in the Web UI chat header, and enforces safety rails (`confirm: true` merge guards and dedicated write wrappers).
+**`@goodandready/dsh-gitea`** bridges DeepSeek Harness to self-hosted **Gitea** and **Forgejo** instances. It equips agents with a complete suite of 96 structured tools (plus 37 legacy aliases kept for backward compatibility), registers a live **Git Status Chip** directly in the Web UI chat header, and enforces safety rails (`confirm: true` merge guards and dedicated write wrappers).
 
 ---
 
@@ -60,7 +49,7 @@ When autonomous AI coding agents perform complex multi-step development in DeepS
 graph LR
     subgraph DSH ["DeepSeek Harness"]
         UI["Web UI Chat Header<br/>(Git Status Chip)"]
-        Agent["Autonomous Agent<br/>(20+ Gitea Tools)"]
+        Agent["Autonomous Agent<br/>(96 Gitea Tools)"]
         Creds["Credentials Store<br/>(GITEA_TOKEN Ref)"]
     end
 
@@ -88,7 +77,7 @@ graph LR
 
 ## ✨ Full Feature Breakdown
 
-### 1. 20+ Agent Tools Suite
+### 1. Agent Tools Suite (96 tools)
 
 All tools infer `owner` and `repo` automatically from the active workspace's `git remote get-url origin` when omitted by the agent.
 
@@ -228,6 +217,14 @@ The drawer interface includes a dedicated **Gitea Hub** backed by `/dsh-gitea/hu
 - **Release Assistant (`gitea_release_assistant`)**: SemVer increment validation, multi-language changelog generation, test suite verification, and preflight checks.
 - **Real-Time SSE Streaming (`/dsh-gitea/sse`)**: Server-Sent Events stream with heartbeat keepalive, auto-reconnect resilience, and multi-tab broadcast deduplication.
 
+## Requirements
+
+- **DeepSeek Harness** web profile, host compatibility `engines.dsh: >=0.1.7` (matches the supported DSH plugin API used by the plugin).
+- **Node.js >= 20** in the DSH host runtime.
+- A reachable **Gitea** or **Forgejo** instance (REST API v1) with a personal access token stored in DSH Credentials (`GITEA_TOKEN` by default).
+- Local **git** (any recent version) for worktree tools and the Git Status Chip.
+- Optional: `gitWrapper` executable for signed write operations.
+
 ## 📦 Installation
 
 Install via DeepSeek Harness CLI:
@@ -269,7 +266,6 @@ The plugin settings card in **Settings -> Plugins -> Gitea** organizes all 17 sc
 | `showChatHeaderButton` | `boolean` | `true` | Advanced (Git) | Show Gitea git status button in conversation chat header |
 | `timeoutMs` | `number` | `30000` | Advanced (Git) | HTTP request timeout in milliseconds (default 30000) |
 | `webhookSecretEnv` | `string` | `""` | Advanced (Webhooks) | DSH Credential name holding secret to verify incoming `X-Gitea-Signature` |
-| `webhookSecret` | `string` | `""` | N/A | *Deprecated*: use `webhookSecretEnv` credential ref. Kept for backwards compatibility |
 | `notifyWebhook` | `string` | `""` | Advanced (Webhooks) | External webhook URL for push notifications on PR and CI failures |
 | `bgSchedulerEnabled` | `boolean` | `false` | Advanced (Scheduler) | Enable background triage/health checks and digest event logging |
 | `bgSchedulerIntervalMin` | `number` | `60` | Advanced (Scheduler) | Background check interval in minutes (default 60) |
@@ -288,7 +284,7 @@ The plugin settings card in **Settings -> Plugins -> Gitea** organizes all 17 sc
 
 ## 🛡️ Route Authentication & Security Model
 
- exposes HTTP routes for web chip polling, commit visualization, configuration management, and interactive Hub actions. To protect against unauthorized cross-network access, drive-by CSRF, and DNS rebinding:
+The server half of the plugin exposes HTTP routes for web chip polling, commit visualization, configuration management, and interactive Hub actions. To protect against unauthorized cross-network access, drive-by CSRF, and DNS rebinding:
 
 - **Host Connection Authentication**: All internal HTTP routes (`/dsh-gitea/config`, `/events`, `/git-status`, `/git-graph`, `/sse`, `/release-assistant`, `/hub`) delegate directly to DSH's Host Connection service (`ctx.connection.requestRejection`). External LAN/WAN requests without a valid authenticated DSH session are strictly rejected with HTTP 401 Unauthorized or 403 Forbidden.
 - **Fail-Closed Loopback Isolation**: When running in standalone or test environments without the Connection service, endpoints fall back to strict local loopback gating (`127.0.0.1`, `::1`). Unauthenticated non-loopback clients are denied access.
@@ -312,7 +308,6 @@ browser blocks them (mixed content). Requirements:
 
 ## 🛠️ Reliability, Webhooks & Multi-Platform Support
 
-Added in `v0.4.3`:
 - **Webhook Delivery**: `gitea_digest_delivery` and push notification dispatchers use fully-formed HTTP POST JSON requests with standard headers, ensuring delivery to Slack, Discord, Telegram, or custom webhook endpoints.
 - **Cross-Platform Path Resolution**: Seamless operation across both POSIX (Linux/macOS) and Windows file systems, normalizing path separators and handling drive letters transparently.
 - **Accurate Merge Analytics**: `gitea_repo_analytics` accurately detects merged pull requests matching Gitea's REST API `merged: true` specifications.

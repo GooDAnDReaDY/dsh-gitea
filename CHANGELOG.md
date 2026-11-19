@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.7.48] - 2026-11-19
+
+> Originally published as 0.10.0 (misnumbered) and recalled the same day; re-released as 0.7.48.
+
+### Documentation Truth & UI Behavioral Coverage (#374, #375, #383, #390)
+- **README EN/RU/ZH Modernization (#374)**:
+  - Removed the frozen v0.7.6 "What's New" journals and "Added in vX" headers (history lives in CHANGELOG.md only).
+  - Tool claims updated to the real surface: 96 canonical tools plus 37 legacy aliases (was "20+").
+  - Settings table now lists exactly the 17 Config schema fields; the removed `webhookSecret` row is gone.
+  - Restored the lost subject in the security routes section (EN/RU).
+  - New `docs-consistency` guard: journal sections, stale "20+" claims, tool counts, every Config field, version literals and Requirements sections are validated against the code on every test run.
+- **DESIGN.md Split Into Contract + Decision Log (#375)**:
+  - Remediation-package journals (sections 13-19) moved verbatim to `docs/design/DECISIONS.md`; DESIGN.md keeps only the current product contract.
+  - Stale manual metrics (base version 0.7.21, ~1390/~805/~756/~611 line counts, 57-tool claims) removed; sizes are owned by `scripts/size-budget.mjs`, counts by the docs-consistency test.
+- **Behavioral Client UI Tests (#383)**:
+  - Extracted and exported pure DOM-free derivations from the client factory: `resolveStatusPhase` (loading/unavailable/ready), `deriveSyncBadges` (dirty/clean, ahead/behind, writable), `configToDraft` (settings mapping) and `DRAWER_TAB_IDS`; the settings form and drawer tab bar consume the shared helpers.
+  - New `test/client-behavior.test.mjs` executes the factory in a DOM-free VM and covers chip phases, badges, settings draft, drawer tabs and en/zh dictionary parity.
+  - Fixed a stale updater initial state: `currentVersion` no longer starts as a hardcoded `0.7.6` and renders only once known.
+  - Static "file contains string" UI assertions replaced by the behavioral tests; only compliance guards remain static (design tokens, data-dsh-plugin marker, no-cyrillic, no hardcoded colors, regression pins).
+- **Packaging Metadata (#390)**:
+  - `engines.dsh: >=0.1.7` declared in package.json and documented in the new README Requirements sections, closing the dsh-plugin doctor findings.
+
+
 ## [0.7.47] - 2026-11-19
 
 > Originally published as 0.9.0 (misnumbered) and recalled the same day; re-released as 0.7.47.
@@ -39,7 +62,6 @@
   - Fixed a hang in `/dsh-gitea/hub` POST handling: the route awaited a dynamic `import()` and the token resolver before reading the request body, letting request events pass before listeners were attached on Node 22 — CI had been red on every push since at least 0.7.45.
   - `handleHubRequest` is imported statically; the POST body is read immediately after the write guard, before token resolution; `readBody` resolves an empty buffer for already-ended streams; a hang-guard regression test pins the behavior.
   - CI (`CI / test`, Node 22) is green again on push and PR.
-
 
 ## [0.7.45] - 2026-11-12
 
