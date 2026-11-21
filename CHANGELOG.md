@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.7.50] - 2026-11-21
+
+### Hub Security: Session-Pinned cwd Allowlist, Honest HTTP Codes, Mutation Audit (#382)
+- **Session-pinned cwd allowlist**:
+  - POST /dsh-gitea/hub no longer accepts arbitrary `cwd` values: a request-supplied directory is honored only when it is a session-pinned repository root (verified git dir remembered by agent sessions) or a directory nested inside one (nested worktrees).
+  - Foreign directories are rejected with HTTP 403 and an audit entry; actions without an explicit cwd keep the trusted host working directory.
+  - New `pinnedRepoDirFor` helper in `lib/session-git.js`.
+- **Honest HTTP status codes**:
+  - Handler failures no longer return HTTP 200: generic failure -> 400, merge conflicts -> 409, unexpected dispatcher exceptions -> 500, upstream PR fetch failure -> 502. Unconfigured-instance GET polling responses are intentionally unchanged.
+- **Mutation audit trail**:
+  - Every mutating hub action is recorded (action, owner/repo, cwd, result/rejection; last 100 entries) and exposed in the hub GET payload under `audit` plus `getHubAuditLog()`.
+
+
 ## [0.7.49] - 2026-11-21
 
 ### Tool Surface Facades, Product Boundaries & API Contract Guard (#376, #385, #386)
