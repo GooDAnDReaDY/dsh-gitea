@@ -39,7 +39,7 @@
 
 When autonomous AI coding agents perform complex multi-step development in DeepSeek Harness, they require seamless access to issue trackers, pull request review workflows, branch creation, and isolated workspace worktrees without risking repository corruption or leaking credentials into chat logs.
 
-**`@goodandready/dsh-gitea`** bridges DeepSeek Harness to self-hosted **Gitea** and **Forgejo** instances. It equips agents with a complete suite of 96 structured tools (plus 37 legacy aliases kept for backward compatibility), registers a live **Git Status Chip** directly in the Web UI chat header, and enforces safety rails (`confirm: true` merge guards and dedicated write wrappers).
+**`@goodandready/dsh-gitea`** bridges DeepSeek Harness to self-hosted **Gitea** and **Forgejo** instances. It equips agents with a registered surface of 12 resource facades (plus an opt-in ecosystem facade) covering 96 underlying actions, registers a live **Git Status Chip** directly in the Web UI chat header, and enforces safety rails (`confirm: true` merge guards and dedicated write wrappers).
 
 ---
 
@@ -49,7 +49,7 @@ When autonomous AI coding agents perform complex multi-step development in DeepS
 graph LR
     subgraph DSH ["DeepSeek Harness"]
         UI["Web UI Chat Header<br/>(Git Status Chip)"]
-        Agent["Autonomous Agent<br/>(96 Gitea Tools)"]
+        Agent["Autonomous Agent<br/>(12 Resource Facades)"]
         Creds["Credentials Store<br/>(GITEA_TOKEN Ref)"]
     end
 
@@ -77,7 +77,7 @@ graph LR
 
 ## ✨ Full Feature Breakdown
 
-### 1. Agent Tools Suite (96 tools)
+### 1. Agent Tools Suite (12 facades, 96 actions)
 
 All tools infer `owner` and `repo` automatically from the active workspace's `git remote get-url origin` when omitted by the agent.
 
@@ -145,7 +145,7 @@ All tools infer `owner` and `repo` automatically from the active workspace's `gi
 | `gitea_mirror_sync_status` | Mirror | Inspects mirror sync status, commit lag, and triggers synchronization (Gitea <-> GitHub) | ⚠️ Sync requires `confirm: true` |
 | `gitea_webhook_sandbox` | Webhooks | Webhook Sandbox & Replayer: inspect raw buffered events and replay payloads locally | ⚠️ Clear requires `confirm: true` |
 
-*(Note: Legacy individual tool names such as `gitea_label_list`, `gitea_release_now`, `gitea_ci_explain`, etc. remain 100% supported via automatic backward compatibility mapping).*
+*(Note: every historical per-action tool name — 134 compatibility aliases, including renamed ones such as `gitea_ai_review` — remains fully supported via automatic backward-compatibility mapping.)*
 
 ---
 
@@ -252,7 +252,7 @@ dsh-gitea:
 
 ### Settings Reference Table
 
-The plugin settings card in **Settings -> Plugins -> Gitea** organizes all 17 schema options into intuitive Core and Advanced sections:
+The plugin settings card in **Settings -> Plugins -> Gitea** organizes all 18 schema options into intuitive Core and Advanced sections:
 
 | Key | Type | Default | Section | Description |
 |:---|:---|:---|:---|:---|
@@ -266,6 +266,7 @@ The plugin settings card in **Settings -> Plugins -> Gitea** organizes all 17 sc
 | `showChatHeaderButton` | `boolean` | `true` | Advanced (Git) | Show Gitea git status button in conversation chat header |
 | `timeoutMs` | `number` | `30000` | Advanced (Git) | HTTP request timeout in milliseconds (default 30000) |
 | `webhookSecretEnv` | `string` | `""` | Advanced (Webhooks) | DSH Credential name holding secret to verify incoming `X-Gitea-Signature` |
+| `enableEcosystemTools` | `boolean` | `false` | Advanced (Ecosystem) | Register the ecosystem facade (task tracker, memory brain, incident report, duty report, triage digest, project health, analytics, public mirror telemetry, package registry) |
 | `notifyWebhook` | `string` | `""` | Advanced (Webhooks) | External webhook URL for push notifications on PR and CI failures |
 | `bgSchedulerEnabled` | `boolean` | `false` | Advanced (Scheduler) | Enable background triage/health checks and digest event logging |
 | `bgSchedulerIntervalMin` | `number` | `60` | Advanced (Scheduler) | Background check interval in minutes (default 60) |

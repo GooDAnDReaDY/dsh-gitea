@@ -39,7 +39,7 @@
 
 在 DeepSeek Harness 中进行多阶段自主编码任务时，智能体需要与私有代码托管平台的 Issue 任务看板、Pull Request 代码审查、多分支开发及独立工作树（Worktree）紧密交互。传统方式下，智能体缺乏统一的权限模型与状态感知，极易产生分支冲突或破坏主干。
 
-**`@goodandready/dsh-gitea`** 实现了 DeepSeek Harness 与私有化部署 **Gitea** 及 **Forgejo** 实例的深度对接。为智能体提供 96 个结构化工具（另含 37 个向后兼容的旧版别名），在 Web UI 聊天头部注入实时 **Git Status Chip** 状态胶囊，并设置严格的安全护栏（PR 合并与工作树删除强制要求 `confirm: true`）。
+**`@goodandready/dsh-gitea`** 实现了 DeepSeek Harness 与私有化部署 **Gitea** 及 **Forgejo** 实例的深度对接。智能体的注册界面为 12 个资源门面（另含可选启用的生态系统门面），覆盖 96 个底层操作；134 个兼容别名保证所有历史工具名继续可用。插件在 Web UI 聊天头部注入实时 **Git Status Chip** 状态胶囊，并设置严格的安全护栏（PR 合并与工作树删除强制要求 `confirm: true`）。
 
 ---
 
@@ -49,7 +49,7 @@
 graph LR
     subgraph DSH ["DeepSeek Harness 智能体平台"]
         UI["Web UI 聊天头部<br/>(Git Status 状态胶囊)"]
-        Agent["自主智能体<br/>(96 个 Gitea 专属工具)"]
+        Agent["自主智能体<br/>(12 个资源门面)"]
         Creds["凭据安全存储中心<br/>(GITEA_TOKEN 引用)"]
     end
 
@@ -77,7 +77,7 @@ graph LR
 
 ## ✨ 核心特性深度解析
 
-### 1. 智能体结构化工具全家桶（96 个工具）
+### 1. 智能体结构化工具全家桶（12 个门面，96 个操作）
 
 当智能体未显式指定 `owner` 与 `repo` 时，插件自动从当前工作区的 `git remote get-url origin` 智能解析项目信息。
 
@@ -142,7 +142,7 @@ graph LR
 | `gitea_mirror_sync_status` | Mirror | 检查公开镜像双向同步状态、提交延迟并触发同步 (Gitea <-> GitHub) | ⚠️ 同步需要 `confirm: true` |
 | `gitea_webhook_sandbox` | Webhooks | Webhook 沙盒与事件重放：检查缓冲的原始请求并在本地重放 | ⚠️ 清空需要 `confirm: true` |
 
-*(说明：所有历史旧工具名如 `gitea_label_list`、`gitea_release_now`、`gitea_ci_explain` 等均通过无缝兼容映射保持 100% 可用)。*
+*(说明：全部 134 个历史工具名——包括已重命名的 `gitea_ai_review`——均通过无缝兼容映射保持 100% 可用)。*
 
 ---
 
@@ -241,7 +241,7 @@ dsh-gitea:
 
 ### 配置参数速查表
 
-设置中心 **Settings -> Plugins -> Gitea** 中的卡片将全部 17 个配置项组织为基础与高级设置区域：
+设置中心 **Settings -> Plugins -> Gitea** 中的卡片将全部 18 个配置项组织为基础与高级设置区域：
 
 | 配置项 | 数据类型 | 默认值 | 区域 | 功能说明 |
 |:---|:---|:---|:---|:---|
@@ -255,6 +255,7 @@ dsh-gitea:
 | `showChatHeaderButton` | `boolean` | `true` | 高级设置 (Git) | 在会话界面顶部工具栏显示 Gitea Git 状态按钮 |
 | `timeoutMs` | `number` | `30000` | 高级设置 (Git) | HTTP 请求超时时间（毫秒，默认 30000） |
 | `webhookSecretEnv` | `string` | `""` | 高级设置 (Webhooks) | 用于校验 `X-Gitea-Signature` 签名的 DSH 凭据键名称 |
+| `enableEcosystemTools` | `boolean` | `false` | 高级设置 (生态系统) | 注册生态系统门面（任务跟踪同步、记忆大脑、事故报告、值班报告、triage 摘要、项目健康度、仓库分析、公开镜像遥测、包注册表） |
 | `notifyWebhook` | `string` | `""` | 高级设置 (Webhooks) | 外部通知 Webhook URL，用于 PR 和 CI 失败推送提醒 |
 | `bgSchedulerEnabled` | `boolean` | `false` | 高级设置 (调度器) | 启用后台巡检调度器及事件摘要日志 |
 | `bgSchedulerIntervalMin` | `number` | `60` | 高级设置 (调度器) | 后台巡检周期间隔（分钟，默认 60） |

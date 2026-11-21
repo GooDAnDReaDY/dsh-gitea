@@ -1,8 +1,26 @@
 # Changelog
 
+## [0.7.49] - 2026-11-21
+
+### Tool Surface Facades, Product Boundaries & API Contract Guard (#376, #385, #386)
+- **Resource Facades & Surface Budget (#376)**:
+  - The registered agent surface shrank from 133 tools to **12 resource facades** (plus an opt-in ecosystem facade) with an `action` parameter: `gitea_issues`, `gitea_label_milestones`, `gitea_pulls`, `gitea_reviews`, `gitea_release_mgmt`, `gitea_repos`, `gitea_branches_tags`, `gitea_notify`, `gitea_actions`, `gitea_worktrees`, `gitea_webhooks_security`, `gitea_hub`, `gitea_ecosystem`.
+  - The internal per-action registry (96 actions) and all handler implementations stay unchanged; every historical tool name remains functional through manifest-generated compatibility aliases carrying a deprecation date (`0.11.0`), a removal target (`1.0.0`, planned 2027-06-01) and per-alias call counters.
+  - New `lib/tool-facades.js` builds facade definitions, routes and the alias manifest; unknown actions return a structured error listing known actions.
+  - CI budget (`test/tool-surface.test.mjs`): default surface ≤ 20 tools, facade schemas ≤ 24 KB (23.8 KB), full routing coverage of all 96 actions.
+- **Product Boundaries & Honest Naming (#385)**:
+  - `gitea_ai_review` renamed to **`gitea_pr_static_review`** — the tool performs heuristic static analysis (secrets, Conventional Commits, path traversal, suggestion blocks), not LLM review; the old name stays as a compatibility alias.
+  - Ecosystem tools (task tracker, memory brain, incident report, duty report, triage digest, project health, analytics, public mirror telemetry, package registry) are **off by default** and register only with `enableEcosystemTools: true`.
+  - DESIGN.md defines the product levels (Core / Ops / Ecosystem / UI) and the delegation boundaries to dsh-drives / dsh-kanban / dsh-pulse.
+- **OpenAPI Route Contract (#386)**:
+  - Vendored the Gitea 1.27.1 and Forgejo API specifications (`test/fixtures/`).
+  - New `test/openapi-contract.test.mjs` intercepts `GiteaClient.request()` and validates every client method's method+path against BOTH specifications (~80 distinct routes), with an explicit, reasoned allowlist for documented divergences (the deliberate code-search probe that degrades to local git grep, and the Forgejo unversioned package lookup).
+  - Verified against a live Gitea 1.27.1 instance: the probed code-search route returns 404, matching the vendored spec.
+
+
 ## [0.7.48] - 2026-11-19
 
-> Originally published as 0.10.0 (misnumbered) and recalled the same day; re-released as 0.7.48.
+> Originally published as 0.10.0 (unapproved minor bump) and recalled the same day; re-released as 0.7.48.
 
 ### Documentation Truth & UI Behavioral Coverage (#374, #375, #383, #390)
 - **README EN/RU/ZH Modernization (#374)**:
@@ -25,7 +43,7 @@
 
 ## [0.7.47] - 2026-11-19
 
-> Originally published as 0.9.0 (misnumbered) and recalled the same day; re-released as 0.7.47.
+> Originally published as 0.9.0 (unapproved minor bump) and recalled the same day; re-released as 0.7.47.
 
 ### CI Quality: Lint Guard, Node 20/22/24 Matrix & Size Budget (#380, #381, #384)
 - **Single `submitPullReview` Declaration (#380)**:
@@ -42,7 +60,7 @@
 
 ## [0.7.46] - 2026-11-19
 
-> Originally published as 0.8.0 (misnumbered) and recalled the same day; re-released as 0.7.46.
+> Originally published as 0.8.0 (unapproved minor bump) and recalled the same day; re-released as 0.7.46.
 
 ### Single Canonical Publisher, Whole-Tree Leak Scan & Unified Install Policy (#377, #378, #379)
 - **Single Canonical Allowlist Publisher (#377)**:
