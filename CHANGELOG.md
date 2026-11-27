@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.7.51] - 2026-11-27
+
+### Self-Release Pipeline, Usage Analytics & Platform Matrix (#395, #396, #397)
+- **Self-Release Pipeline (#395)**:
+  - New `gitea_release_pipeline` tool (facade action `pipeline` in `gitea_release_mgmt`): codifies the release cycle - gates (size budget, leak scan, optional npm test), version bump, CHANGELOG entry, git commit, npm publish, sanitized mirror publish with tag.
+  - `action: plan` lists the full step list without executing; `action: execute` requires `confirm: true`, refuses foreign repositories (package identity guard) and aborts before any mutating stage when a gate fails.
+- **Durable Audit & Usage Analytics (#396)**:
+  - Hub mutation audit entries persist to jsonl (`storages/dsh-gitea/hub-audit.jsonl`), surviving service restarts; explicit `DSH_GITEA_AUDIT` override supported.
+  - `getToolUsageSnapshot()` separates facade call counters from legacy alias counters; new ecosystem tool `gitea_usage_report` (gated by `enableEcosystemTools`) exposes usage plus the latest hub mutations.
+- **Adaptive Platform Matrix (#397)**:
+  - `scripts/build-route-map.mjs` distills the vendored Gitea 1.27.1 / Forgejo specs into `assets/route-map.json` (482 / 537 routes, 44 KB, ships in the package).
+  - New `gitea_capabilities` tool: detects instance flavor, builds the facade/action matrix for the detected platform and flags known capability gaps (repository code search absent on both platforms; unversioned package lookup Gitea-only); `check-route` mode probes single method+path.
+  - Consistency test: the shipped route map must mirror the vendored fixtures exactly in both directions.
+- **Follow-up fix**: `gitea_capabilities` dispatch restored pre-config (missed in the feature commit, caught by CI on a clean checkout).
+
+
 ## [0.7.50] - 2026-11-21
 
 ### Hub Security: Session-Pinned cwd Allowlist, Honest HTTP Codes, Mutation Audit (#382)

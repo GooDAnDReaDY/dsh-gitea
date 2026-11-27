@@ -39,7 +39,7 @@
 
 在 DeepSeek Harness 中进行多阶段自主编码任务时，智能体需要与私有代码托管平台的 Issue 任务看板、Pull Request 代码审查、多分支开发及独立工作树（Worktree）紧密交互。传统方式下，智能体缺乏统一的权限模型与状态感知，极易产生分支冲突或破坏主干。
 
-**`@goodandready/dsh-gitea`** 实现了 DeepSeek Harness 与私有化部署 **Gitea** 及 **Forgejo** 实例的深度对接。智能体的注册界面为 12 个资源门面（另含可选启用的生态系统门面），覆盖 96 个底层操作；134 个兼容别名保证所有历史工具名继续可用。插件在 Web UI 聊天头部注入实时 **Git Status Chip** 状态胶囊，并设置严格的安全护栏（PR 合并与工作树删除强制要求 `confirm: true`）。
+**`@goodandready/dsh-gitea`** 实现了 DeepSeek Harness 与私有化部署 **Gitea** 及 **Forgejo** 实例的深度对接。智能体的注册界面为 12 个资源门面（另含可选启用的生态系统门面），覆盖 99 个底层操作；135 个兼容别名保证所有历史工具名继续可用。插件在 Web UI 聊天头部注入实时 **Git Status Chip** 状态胶囊，并设置严格的安全护栏（PR 合并与工作树删除强制要求 `confirm: true`）。
 
 ---
 
@@ -77,7 +77,7 @@ graph LR
 
 ## ✨ 核心特性深度解析
 
-### 1. 智能体结构化工具全家桶（12 个门面，96 个操作）
+### 1. 智能体结构化工具全家桶（12 个门面，99 个操作）
 
 当智能体未显式指定 `owner` 与 `repo` 时，插件自动从当前工作区的 `git remote get-url origin` 智能解析项目信息。
 
@@ -142,7 +142,7 @@ graph LR
 | `gitea_mirror_sync_status` | Mirror | 检查公开镜像双向同步状态、提交延迟并触发同步 (Gitea <-> GitHub) | ⚠️ 同步需要 `confirm: true` |
 | `gitea_webhook_sandbox` | Webhooks | Webhook 沙盒与事件重放：检查缓冲的原始请求并在本地重放 | ⚠️ 清空需要 `confirm: true` |
 
-*(说明：全部 134 个历史工具名——包括已重命名的 `gitea_ai_review`——均通过无缝兼容映射保持 100% 可用)。*
+*(说明：全部 137 个历史工具名——包括已重命名的 `gitea_ai_review`——均通过无缝兼容映射保持 100% 可用)。*
 
 ---
 

@@ -39,7 +39,7 @@
 
 When autonomous AI coding agents perform complex multi-step development in DeepSeek Harness, they require seamless access to issue trackers, pull request review workflows, branch creation, and isolated workspace worktrees without risking repository corruption or leaking credentials into chat logs.
 
-**`@goodandready/dsh-gitea`** bridges DeepSeek Harness to self-hosted **Gitea** and **Forgejo** instances. It equips agents with a registered surface of 12 resource facades (plus an opt-in ecosystem facade) covering 96 underlying actions, registers a live **Git Status Chip** directly in the Web UI chat header, and enforces safety rails (`confirm: true` merge guards and dedicated write wrappers).
+**`@goodandready/dsh-gitea`** bridges DeepSeek Harness to self-hosted **Gitea** and **Forgejo** instances. It equips agents with a registered surface of 12 resource facades (plus an opt-in ecosystem facade) covering 99 underlying actions, registers a live **Git Status Chip** directly in the Web UI chat header, and enforces safety rails (`confirm: true` merge guards and dedicated write wrappers).
 
 ---
 
@@ -77,7 +77,7 @@ graph LR
 
 ## ✨ Full Feature Breakdown
 
-### 1. Agent Tools Suite (12 facades, 96 actions)
+### 1. Agent Tools Suite (12 facades, 99 actions)
 
 All tools infer `owner` and `repo` automatically from the active workspace's `git remote get-url origin` when omitted by the agent.
 
@@ -145,7 +145,7 @@ All tools infer `owner` and `repo` automatically from the active workspace's `gi
 | `gitea_mirror_sync_status` | Mirror | Inspects mirror sync status, commit lag, and triggers synchronization (Gitea <-> GitHub) | ⚠️ Sync requires `confirm: true` |
 | `gitea_webhook_sandbox` | Webhooks | Webhook Sandbox & Replayer: inspect raw buffered events and replay payloads locally | ⚠️ Clear requires `confirm: true` |
 
-*(Note: every historical per-action tool name — 134 compatibility aliases, including renamed ones such as `gitea_ai_review` — remains fully supported via automatic backward-compatibility mapping.)*
+*(Note: every historical per-action tool name — 137 compatibility aliases, including renamed ones such as `gitea_ai_review` — remains fully supported via automatic backward-compatibility mapping.)*
 
 ---
 
